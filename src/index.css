@@ -1,0 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand: #1e90ff;
+  --color-foreground: #ffffff;
+  --color-secondary: #0f172b;
+  --color-common: oklch(44.6% 0.043 257.281);
+
+  /* Breakpoints */
+  --breakpoint-desktop: 90em; /*1440px*/
+  --breakpoint-medium-desktop: 80em; /*1280px*/
+  --breakpoint-small-desktop: 75em; /*1200px*/
+  --breakpoint-tablet: 62.5em; /*1000px*/
+  --breakpoint-medium-tablet: 56.25em; /*900px*/
+  --breakpoint-small-tablet: 50em; /*800px*/
+  --breakpoint-mobile: 43.75em; /*700px*/
+  --breakpoint-medium-mobile: 37.5em; /*600px*/
+  --breakpoint-small-mobile: 30em; /*480px*/
+}
+
+@layer base {
+  body {
+    @apply font-sans text-slate-900 antialiased;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+
+  @media screen and (max-width: 62.5em) {
+    html {
+      font-size: 80%;
+    }
+  }
+}

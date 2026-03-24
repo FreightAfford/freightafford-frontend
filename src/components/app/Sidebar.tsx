@@ -1,10 +1,8 @@
 import {
-  Calendar,
   CalendarCheck,
   FileSearch,
   FileText,
   FileUp,
-  History,
   LayoutDashboard,
   LogOut,
   Receipt,
@@ -13,9 +11,9 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { Link, NavLink, useNavigate } from "react-router";
+import { useLogout, useUser } from "../../hooks/useAuthService";
 import cn from "../../utils/cn";
-import { Link, NavLink } from "react-router";
-import { useState } from "react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,7 +21,12 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
-  const [role] = useState("admin");
+  const { user } = useUser();
+  const navigate = useNavigate();
+  const { logout, isPending } = useLogout();
+
+  const onLogout = () =>
+    logout(undefined, { onSuccess: () => navigate("/login") });
 
   const customerLinks = [
     { name: "Overview", icon: LayoutDashboard, path: "/app/customer" },
@@ -50,14 +53,14 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     { name: "Overview", icon: LayoutDashboard, path: "/app/admin" },
     { name: "Freight Requests", icon: FileSearch, path: "/app/admin/requests" },
     { name: "Bookings", icon: CalendarCheck, path: "/app/admin/bookings" },
-    { name: "Sailing Schedule", icon: Calendar, path: "/app/admin/schedule" },
+    // { name: "Sailing Schedule", icon: Calendar, path: "/app/admin/schedule" },
     { name: "Documents", icon: FileUp, path: "/app/admin/documents" },
     { name: "Invoices", icon: Receipt, path: "/app/admin/invoices" },
     { name: "Users", icon: Users, path: "/app/admin/users" },
-    { name: "Audit Logs", icon: History, path: "/app/admin/logs" },
+    // { name: "Audit Logs", icon: History, path: "/app/admin/logs" },
   ];
-
-  const links = role === "admin" ? adminLinks : customerLinks;
+  console.log(user.role);
+  const links = user.role === "admin" ? adminLinks : customerLinks;
 
   return (
     <>
@@ -118,8 +121,16 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
           </nav>
           {/* Footer */}
           <div className="border-t border-white/5 p-4">
-            <button className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-400 transition-all hover:bg-red-500/10 hover:text-red-400">
-              <LogOut className="h-5 w-5" />
+            <button
+              onClick={onLogout}
+              disabled={isPending}
+              className={`flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 font-medium transition-all ${isPending ? "bg-red-500/10 text-red-400" : "text-slate-400 hover:bg-red-500/10 hover:text-red-400"}`}
+            >
+              {isPending ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <LogOut className="h-5 w-5" />
+              )}
               Logout
             </button>
           </div>

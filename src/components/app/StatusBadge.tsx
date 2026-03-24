@@ -18,12 +18,19 @@ const StatusBadge = ({ status, className }: StatusBadgeProps) => {
   const getStatusStyles = (s: string) => {
     switch (s.toLowerCase()) {
       case "active":
-      case "approved":
+      case "accepted":
+      case "paid":
         return "bg-green-100 text-green-700 border-green-700";
       case "pending":
         return "bg-yellow-100 text-yellow-700 border-yellow-700";
-      case "completed":
+      case "confirmed":
+      case "verified":
+        return "bg-teal-100 text-teal-700 border-teal-700";
+      case "delivered":
+      case "in_transit":
         return "bg-blue-100 text-blue-700 border-blue-700";
+      case "arrived":
+        return "bg-indigo-100 text-indigo-700 border-indigo-700";
       case "cancelled":
         return "bg-rose-100 text-rose-700 border-rose-700";
       case "rejected":
@@ -37,12 +44,12 @@ const StatusBadge = ({ status, className }: StatusBadgeProps) => {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-medium",
+        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-medium capitalize",
         getStatusStyles(status),
         className,
       )}
     >
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {status.replace("_", " ")}
     </span>
   );
 };

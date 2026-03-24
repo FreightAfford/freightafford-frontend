@@ -1,16 +1,28 @@
 import {
-  ArrowUpRight,
+  AlertCircle,
   CalendarCheck,
   FileSearch,
   FileText,
   Receipt,
 } from "lucide-react";
 import StatsCard from "../../../components/app/StatsCard";
-import { motion } from "motion/react";
-import { Table, TableCell, TableRow } from "../../../components/app/Table";
-import StatusBadge from "../../../components/app/StatusBadge";
+import EmptyState from "../../../components/EmptyState";
+import SmallLoader from "../../../components/SmallLoader";
+import { useGetCustomerOverview } from "../../../hooks/usePipelineService";
 
 const CustomerOverview = () => {
+  const { data, isPending, error } = useGetCustomerOverview();
+
+  if (isPending) return <SmallLoader />;
+
+  console.log(data);
+
+  if (error) return;
+  <EmptyState
+    icon={<AlertCircle className="h-10 w-10 text-red-500" />}
+    title="An Error Occured"
+    description="This may be due to server error or users don't exist."
+  />;
   return (
     <>
       <div className="mb-8">
@@ -26,22 +38,30 @@ const CustomerOverview = () => {
       <div className="max-medium-desktop:grid-cols-2 max-medium-mobile:grid-cols-1 mb-8 grid grid-cols-4 gap-6">
         <StatsCard
           title="Active Requests"
-          value="12"
+          value={data.totalRequests || 0}
           icon={FileSearch}
-          trend={{ value: "2+ this week", isPositive: true }}
+          // trend={{ value: "2+ this week", isPositive: true }}
         />
-        <StatsCard title="Active Bookings" value="5" icon={CalendarCheck} />
         <StatsCard
-          title="Pending Documents"
-          value="3"
+          title="Active Bookings"
+          value={data.totalBookings || 0}
+          icon={CalendarCheck}
+        />
+        <StatsCard
+          title="Bill of Ladings"
+          value={data.bills || 0}
           icon={FileText}
           trend={{ value: "Action required", isPositive: true }}
         />
-        <StatsCard title="Outstanding Invoices" value="$4,250" icon={Receipt} />
+        <StatsCard
+          title="Outstanding Invoices"
+          value={`$${data.totalInvoiceAmount || 0}`}
+          icon={Receipt}
+        />
       </div>
 
       {/* Recent Activity / Tables */}
-      <div className="max-medium-desktop:grid-cols-1 grid grid-cols-2 gap-8">
+      {/* <div className="max-medium-desktop:grid-cols-1 grid grid-cols-2 gap-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -123,7 +143,7 @@ const CustomerOverview = () => {
             </TableRow>
           </Table>
         </motion.div>
-      </div>
+      </div> */}
     </>
   );
 };

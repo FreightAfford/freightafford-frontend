@@ -1,7 +1,23 @@
+import { AlertCircle, Ship } from "lucide-react";
+import moment from "moment";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
+import EmptyState from "../../../components/EmptyState";
+import SmallLoader from "../../../components/SmallLoader";
+import { useGetAllUsers } from "../../../hooks/useAuthService";
 
 const AdminUsers = () => {
+  const { users, isPending, error } = useGetAllUsers();
+
+  if (isPending) return <SmallLoader />;
+
+  if (error) return;
+  <EmptyState
+    icon={<AlertCircle className="h-10 w-10 text-red-500" />}
+    title="An Error Occured"
+    description="This may be due to server error or users don't exist."
+  />;
+
   return (
     <>
       <div className="mb-8">
@@ -11,60 +27,47 @@ const AdminUsers = () => {
         </p>
       </div>
       <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-        <Table
-          headers={[
-            "Name",
-            "Email",
-            "Role",
-            "Company",
-            "Status",
-            "Joined Date",
-          ]}
-        >
-          <TableRow>
-            <TableCell className="text-brand font-medium">John Doe</TableCell>
-            <TableCell>john@example.com</TableCell>
-            <TableCell>Customer</TableCell>
-            <TableCell>Global Trade Co.</TableCell>
-            <TableCell>
-              <StatusBadge status="active" />
-            </TableCell>
-            <TableCell>Oct 10, 2023</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="text-brand font-medium">Jane Smith</TableCell>
-            <TableCell>jane@example.com</TableCell>
-            <TableCell>Customer</TableCell>
-            <TableCell>Jane Logistics</TableCell>
-            <TableCell>
-              <StatusBadge status="active" />
-            </TableCell>
-            <TableCell>Oct 12, 2023</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="text-brand font-medium">
-              Franklin Okoro
-            </TableCell>
-            <TableCell>frank@example.com</TableCell>
-            <TableCell>Customer</TableCell>
-            <TableCell>Consumer Details Ltd.</TableCell>
-            <TableCell>
-              <StatusBadge status="active" />
-            </TableCell>
-            <TableCell>Oct 14, 2023</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="text-brand font-medium">Ewebal Ceo</TableCell>
-            <TableCell>admin@freightafford.com</TableCell>
-            <TableCell>Admin</TableCell>
-            <TableCell>FreightAfford Logistics</TableCell>
-            <TableCell>
-              <StatusBadge status="active" />
-            </TableCell>
-            <TableCell>Oct 01, 2023</TableCell>
-          </TableRow>
-        </Table>
+        {users && (
+          <Table
+            headers={[
+              "S/N",
+              "Name",
+              "Email",
+              "Role",
+              "Company",
+              "Status",
+              "Joined Date",
+            ]}
+          >
+            {users.map((user: any, index: number) => (
+              <TableRow key={user._id}>
+                <TableCell>{(index + 1).toString().padStart(2, "0")}</TableCell>
+                <TableCell className="text-brand font-medium capitalize">
+                  {user.fullname}
+                </TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell className="uppercase italic">{user.role}</TableCell>
+                <TableCell>{user.companyName || "N/A"}</TableCell>
+                <TableCell>
+                  {user.isEmailVerified ? (
+                    <StatusBadge status="verified" />
+                  ) : (
+                    <StatusBadge status="not_verified" />
+                  )}
+                </TableCell>
+                <TableCell>{moment(user.createdAt).format("ll")}</TableCell>
+              </TableRow>
+            ))}
+          </Table>
+        )}
       </div>
+      {!users?.length && (
+        <EmptyState
+          icon={<Ship className="text-brand h-10 w-10" />}
+          title="No Users Yet"
+          description="You don't have any users / customers registered on FreightAfford."
+        />
+      )}
     </>
   );
 };

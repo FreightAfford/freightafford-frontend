@@ -1,11 +1,39 @@
-import { Link } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import AuthLayout from "../../layout/AuthLayout";
 import { Ship } from "lucide-react";
 import Card from "../../components/Card";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
+import { useResetPassword } from "../../hooks/useAuthService";
+import { useForm } from "react-hook-form";
+import {
+  resetPasswordSchema,
+  type ResetPasswordValues,
+} from "../../validations/authValidation";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const ResetPasswordPage = () => {
+  const { token } = useParams();
+  const navigate = useNavigate();
+
+  const { resetPassword, isPending } = useResetPassword();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ResetPasswordValues>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
+
+  const onResetPassword = (data: ResetPasswordValues) => {
+    if (!token) return;
+
+    resetPassword(
+      { token, password: data.password },
+      { onSuccess: () => navigate("/login") },
+    );
+  };
   return (
     <AuthLayout>
       <div className="mx-auto w-full max-w-md">
@@ -27,20 +55,30 @@ const ResetPasswordPage = () => {
 
       <div className="mx-auto mt-8 w-full max-w-md">
         <Card className="border border-white/20 p-4 shadow-2xl backdrop-blur-sm">
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit(onResetPassword)} className="space-y-6">
             <Input
               label="New Password"
               type="password"
               placeholder="************"
-              required
+              {...register("password")}
+              error={errors.password?.message}
+              disabled={isPending}
             />
             <Input
               label="Confirm New Password"
               type="password"
               placeholder="************"
-              required
+              {...register("confirmPassword")}
+              error={errors.confirmPassword?.message}
+              disabled={isPending}
             />
-            <Button type="submit" size="lg" className="w-full">
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              isLoading={isPending}
+              disabled={isPending}
+            >
               Reset Password
             </Button>
           </form>

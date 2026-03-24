@@ -1,16 +1,23 @@
-import {
-  Activity,
-  ArrowUpRight,
-  FileSearch,
-  Receipt,
-  Ship,
-  Users,
-} from "lucide-react";
+import { AlertCircle, FileSearch, Receipt, Ship, Users } from "lucide-react";
 import StatsCard from "../../../components/app/StatsCard";
-import { motion } from "motion/react";
-import { Table, TableCell, TableRow } from "../../../components/app/Table";
+import EmptyState from "../../../components/EmptyState";
+import SmallLoader from "../../../components/SmallLoader";
+import { useGetAdminOverview } from "../../../hooks/usePipelineService";
 
 const AdminOverview = () => {
+  const { data, error, isPending } = useGetAdminOverview();
+
+  if (isPending) return <SmallLoader />;
+
+  if (error) return;
+  <EmptyState
+    icon={<AlertCircle className="h-10 w-10 text-red-500" />}
+    title="An Error Occured"
+    description="This may be due to server error or users don't exist."
+  />;
+
+  console.log(data);
+
   return (
     <>
       <div className="mb-8">
@@ -24,27 +31,38 @@ const AdminOverview = () => {
       <div className="max-medium-desktop:grid-cols-2 max-medium-mobile:grid-cols-1 mb-6 grid grid-cols-4 gap-4">
         <StatsCard
           title="Total Users"
-          value="1,284"
+          value={data.totalUsers || 0}
           icon={Users}
-          trend={{ value: "+12% this month", isPositive: true }}
+          // trend={{ value: "+12% this month", isPositive: true }}
         />
         <StatsCard
           title="Active Requests"
-          value="452"
+          value={data.totalRequests || 0}
           icon={FileSearch}
-          trend={{ value: "85 pending reviews", isPositive: false }}
+          trend={
+            data.pendingRequests
+              ? {
+                  value: `${data.pendingRequests} pending reviews`,
+                  isPositive: false,
+                }
+              : undefined
+          }
         />
-        <StatsCard title="Total Bookings" value="892" icon={Ship} />
         <StatsCard
-          title="Monthly Revenue"
-          value="$1.2M"
+          title="Total Bookings"
+          value={data.totalBookings || 0}
+          icon={Ship}
+        />
+        <StatsCard
+          title="Total Invoice"
+          value={`$${data.totalInvoiceAmount.toLocaleString() || 0}`}
           icon={Receipt}
-          trend={{ value: "+8.4%", isPositive: true }}
+          // trend={{ value: "+8.4%", isPositive: true }}
         />
       </div>
 
       {/* Recent Activity / Tables */}
-      <div className="max-medium-desktop:grid-cols-1 grid grid-cols-3 gap-6">
+      {/* <div className="max-medium-desktop:grid-cols-1 grid grid-cols-3 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -174,7 +192,7 @@ const AdminOverview = () => {
             ))}
           </div>
         </motion.div>
-      </div>
+      </div> */}
     </>
   );
 };

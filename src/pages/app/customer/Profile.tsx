@@ -1,14 +1,26 @@
-import { Bell, Mail, MapPin, Phone, Shield, User } from "lucide-react";
+import {
+  Building,
+  CheckCircle2,
+  Mail,
+  MapPin,
+  Phone,
+  Shield,
+  User,
+} from "lucide-react";
+import moment from "moment";
+import { useState } from "react";
 import Button from "../../../components/Button";
 import Modal from "../../../components/Modal";
 import EditProfileForm from "../../../components/app/EditProfileForm";
-import { useState } from "react";
 import UpdatePasswordForm from "../../../components/app/UpdatePasswordForm";
+import { useUser } from "../../../hooks/useAuthService";
 
 const CustomerProfile = () => {
+  const { user } = useUser();
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] =
     useState<boolean>(false);
+
   return (
     <>
       <div className="mb-8">
@@ -17,8 +29,8 @@ const CustomerProfile = () => {
           Manage your personal information and account settings.
         </p>
       </div>
-      <div className="max-medium-desktop:grid-cols-2 grid grid-cols-3 gap-8">
-        <div className="max-medium-desktop:col-span-2 col-span-1">
+      <div>
+        <div className="space-y-8">
           <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
             <div className="bg-brand/10 h-32" />
             <div className="px-6 pb-6">
@@ -28,40 +40,117 @@ const CustomerProfile = () => {
                     <User className="text-brand h-12 w-12" />
                   </div>
                 </div>
+                {user?.isEmailVerified && (
+                  <div className="absolute right-0 bottom-0 rounded-full bg-white p-1 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 fill-green-50 text-green-500" />
+                  </div>
+                )}
               </div>
-              <h2 className="text-xl font-bold text-slate-900">
-                Franklin Andrew
+              <h2 className="text-xl font-bold text-slate-900 capitalize">
+                {user?.fullname}
               </h2>
-              <p className="text-slate-500 capitalize">Customer</p>
+              <div className="mt-1 flex items-center gap-2">
+                <span className="text-brand bg-brand/5 rounded-lg px-2 py-0.5 text-sm font-bold tracking-wider uppercase">
+                  {user?.role}{" "}
+                </span>
+                <span className="text-sm text-slate-400">
+                  Joined {moment(user?.createdAt).format("ll")}
+                </span>
+              </div>
               <div className="mt-6 space-y-4">
                 <div className="flex items-center gap-3 text-slate-600">
                   <Mail className="h-6 w-6 text-slate-400" />
-                  franklin@example.com
+                  {user?.email}
                 </div>
                 <div className="flex items-center gap-3 text-slate-600">
                   <Phone className="h-6 w-6 text-slate-400" />
-                  +234 111 223 0000
+                  {user?.phoneNumber || (
+                    <span className="italic">Add Contact</span>
+                  )}
                 </div>
                 <div className="flex items-center gap-3 text-slate-600">
                   <MapPin className="h-6 w-6 text-slate-400" />
-                  Nkanu West, Enugu
+                  {user?.country || <span className="italic">Add Country</span>}
                 </div>
               </div>
-
-              <Button
-                onClick={() => setIsEditModalOpen(true)}
-                variant="outline"
-                className="mt-8 w-full"
-              >
-                Edit Profile
-              </Button>
+              <div className="max-small-mobile:grid-cols-1 max-small-mobile:gap-2 mt-8 grid w-full grid-cols-2 gap-4">
+                <Button
+                  onClick={() => setIsEditModalOpen(true)}
+                  variant="outline"
+                >
+                  Edit Profile
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsPasswordModalOpen(true)}
+                >
+                  Change Password
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 flex items-center gap-2 text-xl font-bold tracking-wider text-slate-900">
+              <Shield className="text-brand h-7 w-7" /> Compliance
+            </h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Terms Accepted</span>
+                <span className="font-medium text-slate-900">
+                  {moment(user?.acceptedTermsAt).format("ll")}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Freight Rules</span>
+                <span className="font-medium text-slate-900">
+                  {moment(user?.acceptedFreightRulesAt).format("ll")}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-6 flex items-center gap-2 text-xl font-bold text-slate-900">
+              <Building className="text-brand h-7 w-7" /> Company Information
+            </h3>
+            <div className="max-medium-mobile:grid-cols-1 max-medium-mobile:gap-6 grid grid-cols-2 gap-8">
+              <div>
+                <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                  Company Name
+                </label>
+                <p className="mt-1 font-semibold text-slate-900">
+                  {user?.companyName || (
+                    <span className="italic">Add Company Name</span>
+                  )}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                  Business Country
+                </label>
+                <p className="mt-1 font-semibold text-slate-900">
+                  {user?.country || <span className="italic">Add Country</span>}
+                </p>
+              </div>
+              <div className="max-medium-mobile:col-span-1 col-span-2">
+                <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                  Office Address
+                </label>
+                <div className="mt-1 flex items-start gap-2">
+                  <MapPin className="mt-0.5 h-5 w-5 text-slate-400" />
+                  <p className="font-medium text-slate-900">
+                    {user?.companyAddress || (
+                      <span className="italic">Add Company Address</span>
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Settings */}
         <div className="col-span-2 space-y-8">
-          <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          {/* <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
             <h3 className="mb-6 flex items-center gap-2 text-xl font-bold text-slate-900">
               <Shield className="text-brand h-7 w-7" />
               Security Settings
@@ -96,9 +185,9 @@ const CustomerProfile = () => {
                 </Button>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          {/* <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
             <h3 className="mb-6 flex items-center gap-2 text-xl font-bold text-slate-900">
               <Bell className="text-brand h-5 w-5" /> Notifications
             </h3>
@@ -128,7 +217,7 @@ const CustomerProfile = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       {/* Modals */}
@@ -137,7 +226,17 @@ const CustomerProfile = () => {
         onClose={() => setIsEditModalOpen(false)}
         title="Edit Profile"
       >
-        <EditProfileForm onCancel={() => setIsEditModalOpen(false)} />
+        <EditProfileForm
+          initialData={{
+            fullname: user?.fullname || "",
+            email: user?.email || "",
+            phoneNumber: user?.phoneNumber || "",
+            companyName: user?.companyName || "",
+            companyAddress: user?.companyAddress || "",
+            country: user?.country || "",
+          }}
+          onCancel={() => setIsEditModalOpen(false)}
+        />
       </Modal>
       <Modal
         isOpen={isPasswordModalOpen}

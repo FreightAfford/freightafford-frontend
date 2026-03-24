@@ -1,13 +1,33 @@
-import { Link } from "react-router";
-import AuthLayout from "../../layout/AuthLayout";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, Ship } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router";
+import Button from "../../components/Button";
 import Card from "../../components/Card";
 import Input from "../../components/Input";
-import Button from "../../components/Button";
-import { useState } from "react";
+import { useForgotPassword } from "../../hooks/useAuthService";
+import AuthLayout from "../../layout/AuthLayout";
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordValue,
+} from "../../validations/authValidation";
 
 const ForgotPasswordPage = () => {
-  const [isSubmitted] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const { forgotPassword, isPending } = useForgotPassword();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordValue>({
+    resolver: zodResolver(forgotPasswordSchema),
+  });
+
+  const onForgotPassword = (data: ForgotPasswordValue) => {
+    forgotPassword(data.email, { onSuccess: () => setIsSubmitted(true) });
+  };
 
   if (isSubmitted)
     return (
@@ -54,15 +74,22 @@ const ForgotPasswordPage = () => {
 
       <div className="mx-auto mt-8 w-full max-w-md">
         <Card className="border border-white/20 p-4 shadow-2xl backdrop-blur-sm">
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit(onForgotPassword)} className="space-y-6">
             <Input
               label="Email Address"
               type="email"
               placeholder="franklin@example.com"
-              autoComplete="email"
-              required
+              {...register("email")}
+              error={errors.email?.message}
+              disabled={isPending}
             />
-            <Button type="submit" size="lg" className="w-full">
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={isPending}
+              isLoading={isPending}
+            >
               Send Reset Link
             </Button>
           </form>

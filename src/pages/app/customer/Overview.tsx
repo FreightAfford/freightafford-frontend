@@ -15,7 +15,6 @@ const CustomerOverview = () => {
 
   if (isPending) return <SmallLoader />;
 
-  console.log(data);
 
   if (error) return;
   <EmptyState

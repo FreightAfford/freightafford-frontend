@@ -12,7 +12,7 @@ export const uploadBillOfLadingApi = async (data: {
     formData.append("bookingId", data.bookingId);
     formData.append("type", data.type);
     formData.append("document", data.file[0]);
-    console.log(formData);
+
     const response = await apiClient.post("/bl", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });

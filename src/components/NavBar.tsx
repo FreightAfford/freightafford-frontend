@@ -1,10 +1,12 @@
 import { Menu, Ship, X } from "lucide-react";
-import { Link, NavLink, useLocation } from "react-router";
-import Button from "./Button";
-import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router";
+import { useUser } from "../hooks/useAuthService";
+import Button from "./Button";
 
 const NavBar = () => {
+  const { user } = useUser();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const location = useLocation();
 
@@ -41,14 +43,22 @@ const NavBar = () => {
           </div>
 
           <div className="max-mobile:hidden flex items-center gap-4">
-            <Link to="/login">
-              <Button size="sm" variant="ghost">
-                Log in
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button size="sm">Create Account</Button>
-            </Link>
+            {user ? (
+              <Link to={`/app/${user.role}`}>
+                <Button size="sm">Dashboard</Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button size="sm" variant="ghost">
+                    Log in
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button size="sm">Create Account</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="max-mobile:flex hidden">
@@ -86,14 +96,22 @@ const NavBar = () => {
               ))}
               <div className="mt-4 border-t border-slate-100 pt-4 pb-2">
                 <div className="flex flex-col gap-2">
-                  <Link to="/login" className="block">
-                    <Button variant="outline" className="w-full">
-                      Log in
-                    </Button>
-                  </Link>
-                  <Link to="/register" className="block">
-                    <Button className="w-full">Create Account</Button>
-                  </Link>
+                  {user ? (
+                    <Link to={`/app/${user.role}`}>
+                      <Button className="w-full">Dashboard</Button>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/login" className="block">
+                        <Button variant="outline" className="w-full">
+                          Log in
+                        </Button>
+                      </Link>
+                      <Link to="/register" className="block">
+                        <Button className="w-full">Create Account</Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

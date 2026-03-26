@@ -68,8 +68,12 @@ const CustomerRequests = () => {
                 <TableCell className="font-medium">
                   {request.containerSize.toUpperCase()}
                 </TableCell>
-                <TableCell>{request.originPort}</TableCell>
-                <TableCell>{request.destinationPort}</TableCell>
+                <TableCell className="capitalize">
+                  {request.originPort}
+                </TableCell>
+                <TableCell className="capitalize">
+                  {request.destinationPort}
+                </TableCell>
                 <TableCell>${request.proposedPrice.toLocaleString()}</TableCell>
                 <TableCell>
                   <StatusBadge status={request.status} />

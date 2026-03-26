@@ -66,7 +66,9 @@ const CustomerBookings = () => {
                 <TableCell>
                   {booking.freightRequest.containerSize.toUpperCase()}
                 </TableCell>
-                <TableCell>{booking.freightRequest.commodity}</TableCell>
+                <TableCell className="capitalize">
+                  {booking.freightRequest.commodity}
+                </TableCell>
                 <TableCell>
                   <StatusBadge status={booking.freightRequest.status} />
                 </TableCell>

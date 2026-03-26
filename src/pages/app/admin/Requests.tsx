@@ -50,8 +50,12 @@ const AdminRequests = () => {
                 <TableCell className="uppercase">
                   {request.containerSize}
                 </TableCell>
-                <TableCell>{request.originPort}</TableCell>
-                <TableCell>{request.destinationPort}</TableCell>
+                <TableCell className="capitalize">
+                  {request.originPort}
+                </TableCell>
+                <TableCell className="capitalize">
+                  {request.destinationPort}
+                </TableCell>
                 <TableCell>${request.proposedPrice.toLocaleString()}</TableCell>
                 <TableCell>
                   <div className="flex flex-col items-start gap-1">

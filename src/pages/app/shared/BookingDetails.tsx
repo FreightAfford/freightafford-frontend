@@ -61,6 +61,7 @@ const BookingDetails = () => {
         </Button>
       </div>
     );
+
   return (
     <>
       <div className="mb-8">
@@ -128,7 +129,7 @@ const BookingDetails = () => {
                 <p className="text-sm font-medium tracking-wider text-slate-400 uppercase">
                   Origin Port
                 </p>
-                <p className="text-lg font-bold text-slate-900">
+                <p className="text-lg font-bold text-slate-900 capitalize">
                   {booking.freightRequest.originPort}
                 </p>
               </div>
@@ -138,7 +139,7 @@ const BookingDetails = () => {
               <div className="absolute top-6 right-0 left-0 h-px bg-slate-200" />
               <div className="z-10 flex flex-col items-center bg-white px-4">
                 <Ship className="mb-1 h-7 w-7 text-slate-400" />
-                <div className="text-brand flex items-center gap-2 font-semibold">
+                <div className="text-brand flex items-center gap-2 font-semibold capitalize">
                   <span>{booking.vessel || "Vessel TBA"}</span>
                 </div>
                 <p className="mt-1 text-sm text-slate-500">
@@ -157,7 +158,7 @@ const BookingDetails = () => {
                 <p className="text-sm font-medium tracking-wider text-slate-400 uppercase">
                   Destination Port
                 </p>
-                <p className="text-lg font-bold text-slate-900">
+                <p className="text-lg font-bold text-slate-900 capitalize">
                   {booking.freightRequest.destinationPort}
                 </p>
               </div>
@@ -233,7 +234,7 @@ const BookingDetails = () => {
                     <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
                       Commodity
                     </label>
-                    <p className="mt-1 font-medium text-slate-900">
+                    <p className="mt-1 font-medium text-slate-900 capitalize">
                       {booking.freightRequest.commodity}
                     </p>
                   </div>
@@ -244,7 +245,7 @@ const BookingDetails = () => {
                     <div className="mt-1 flex items-center gap-2">
                       <Container className="h-5 w-5 text-slate-400" />
                       <p className="font-medium text-slate-900">
-                        {booking.freightRequest.containerQuantity}x{" "}
+                        {booking.freightRequest.containerQuantity} x{" "}
                         {booking.freightRequest.containerSize}
                       </p>
                     </div>
@@ -270,9 +271,9 @@ const BookingDetails = () => {
                     <div className="mt-1 flex items-center gap-2">
                       <Clock className="h-5 w-5 text-slate-400" />
                       <p className="font-medium text-slate-900">
-                        {new Date(
-                          booking.freightRequest.cargoReadyDate,
-                        ).toLocaleDateString()}
+                        {moment(booking.freightRequest.cargoReadyDate).format(
+                          "ll",
+                        )}
                       </p>
                     </div>
                   </div>

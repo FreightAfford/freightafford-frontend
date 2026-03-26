@@ -15,7 +15,6 @@ const CustomerOverview = () => {
 
   if (isPending) return <SmallLoader />;
 
-
   if (error) return;
   <EmptyState
     icon={<AlertCircle className="h-10 w-10 text-red-500" />}
@@ -34,31 +33,32 @@ const CustomerOverview = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="max-medium-desktop:grid-cols-2 max-medium-mobile:grid-cols-1 mb-8 grid grid-cols-4 gap-6">
-        <StatsCard
-          title="Active Requests"
-          value={data.totalRequests || 0}
-          icon={FileSearch}
-          // trend={{ value: "2+ this week", isPositive: true }}
-        />
-        <StatsCard
-          title="Active Bookings"
-          value={data.totalBookings || 0}
-          icon={CalendarCheck}
-        />
-        <StatsCard
-          title="Bill of Ladings"
-          value={data.bills || 0}
-          icon={FileText}
-          trend={{ value: "Action required", isPositive: true }}
-        />
-        <StatsCard
-          title="Outstanding Invoices"
-          value={`$${data.totalInvoiceAmount || 0}`}
-          icon={Receipt}
-        />
-      </div>
-
+      {data && (
+        <div className="max-medium-desktop:grid-cols-2 max-medium-mobile:grid-cols-1 mb-8 grid grid-cols-4 gap-6">
+          <StatsCard
+            title="Active Requests"
+            value={data.totalRequests || 0}
+            icon={FileSearch}
+            // trend={{ value: "2+ this week", isPositive: true }}
+          />
+          <StatsCard
+            title="Active Bookings"
+            value={data.totalBookings || 0}
+            icon={CalendarCheck}
+          />
+          <StatsCard
+            title="Bill of Ladings"
+            value={data.bills || 0}
+            icon={FileText}
+            trend={{ value: "Action required", isPositive: true }}
+          />
+          <StatsCard
+            title="Outstanding Invoices"
+            value={`$${data.totalInvoiceAmount || 0}`}
+            icon={Receipt}
+          />
+        </div>
+      )}
       {/* Recent Activity / Tables */}
       {/* <div className="max-medium-desktop:grid-cols-1 grid grid-cols-2 gap-8">
         <motion.div

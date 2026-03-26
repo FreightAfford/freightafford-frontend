@@ -16,8 +16,6 @@ const AdminOverview = () => {
     description="This may be due to server error or users don't exist."
   />;
 
-  console.log(data);
-
   return (
     <>
       <div className="mb-8">
@@ -28,38 +26,40 @@ const AdminOverview = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="max-medium-desktop:grid-cols-2 max-medium-mobile:grid-cols-1 mb-6 grid grid-cols-4 gap-4">
-        <StatsCard
-          title="Total Users"
-          value={data.totalUsers || 0}
-          icon={Users}
-          // trend={{ value: "+12% this month", isPositive: true }}
-        />
-        <StatsCard
-          title="Active Requests"
-          value={data.totalRequests || 0}
-          icon={FileSearch}
-          trend={
-            data.pendingRequests
-              ? {
-                  value: `${data.pendingRequests} pending reviews`,
-                  isPositive: false,
-                }
-              : undefined
-          }
-        />
-        <StatsCard
-          title="Total Bookings"
-          value={data.totalBookings || 0}
-          icon={Ship}
-        />
-        <StatsCard
-          title="Total Invoice"
-          value={`$${data.totalInvoiceAmount.toLocaleString() || 0}`}
-          icon={Receipt}
-          // trend={{ value: "+8.4%", isPositive: true }}
-        />
-      </div>
+      {data && (
+        <div className="max-medium-desktop:grid-cols-2 max-medium-mobile:grid-cols-1 mb-6 grid grid-cols-4 gap-4">
+          <StatsCard
+            title="Total Users"
+            value={data.totalUsers || 0}
+            icon={Users}
+            // trend={{ value: "+12% this month", isPositive: true }}
+          />
+          <StatsCard
+            title="Active Requests"
+            value={data.totalRequests || 0}
+            icon={FileSearch}
+            trend={
+              data.pendingRequests
+                ? {
+                    value: `${data.pendingRequests} pending reviews`,
+                    isPositive: false,
+                  }
+                : undefined
+            }
+          />
+          <StatsCard
+            title="Total Bookings"
+            value={data.totalBookings || 0}
+            icon={Ship}
+          />
+          <StatsCard
+            title="Total Invoice"
+            value={`$${data.totalInvoiceAmount.toLocaleString() || 0}`}
+            icon={Receipt}
+            // trend={{ value: "+8.4%", isPositive: true }}
+          />
+        </div>
+      )}
 
       {/* Recent Activity / Tables */}
       {/* <div className="max-medium-desktop:grid-cols-1 grid grid-cols-3 gap-6">

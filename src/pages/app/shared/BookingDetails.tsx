@@ -385,7 +385,7 @@ const BookingDetails = () => {
                 className="w-full"
                 onClick={() =>
                   navigate(
-                    `/app/customer/requests/${booking.freightRequest?._id}`,
+                    `/app/${user.role}/requests/${booking.freightRequest?._id}`,
                   )
                 }
               >

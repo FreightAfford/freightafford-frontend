@@ -157,10 +157,10 @@ const RequestDetails = () => {
                       <div className="border-brand h-2.5 w-2.5 rounded-full border-2" />
                     </div>
                     <div className="flex flex-col gap-4">
-                      <span className="font-medium text-slate-900">
+                      <span className="font-medium text-slate-900 capitalize">
                         {request.originPort || "Origin Not Specified"}
                       </span>
-                      <span className="font-medium text-slate-900">
+                      <span className="font-medium text-slate-900 capitalize">
                         {request.destinationPort || "Destination Not Specified"}
                       </span>
                     </div>
@@ -189,7 +189,9 @@ const RequestDetails = () => {
                   </label>
                   <div className="mt-2 flex items-center gap-2 text-slate-900">
                     <Package className="h-6 w-6 text-slate-400" />
-                    <span className="font-medium">{request.commodity}</span>
+                    <span className="font-medium capitalize">
+                      {request.commodity}
+                    </span>
                   </div>
                 </div>
 

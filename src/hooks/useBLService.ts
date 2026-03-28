@@ -59,19 +59,19 @@ export const useDeleteBL = () => {
 };
 
 export const useGetCustomerBLs = () => {
-  const { data, isPending } = useQuery({
+  const { data, isPending, error, refetch, isRefetching } = useQuery({
     queryKey: ["billOfLadings"],
     queryFn: getCustomerBillOfLadingsApi,
   });
 
-  return { bls: data, isPending };
+  return { bls: data, isPending, error, refetch, isRefetching };
 };
 
 export const useGetBLs = () => {
-  const { data, isPending } = useQuery({
+  const { data, isPending, error, refetch, isRefetching } = useQuery({
     queryKey: ["billOfLadings"],
     queryFn: getBillOfLadingsApi,
   });
 
-  return { bls: data, isPending };
+  return { bls: data, isPending, error, refetch, isRefetching };
 };

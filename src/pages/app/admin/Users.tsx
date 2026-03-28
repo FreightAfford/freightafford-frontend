@@ -1,33 +1,45 @@
-import { AlertCircle, Ship } from "lucide-react";
+import { Ship, X } from "lucide-react";
 import moment from "moment";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
+import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import SmallLoader from "../../../components/SmallLoader";
 import { useGetAllUsers } from "../../../hooks/useAuthService";
 
 const AdminUsers = () => {
-  const { users, isPending, error } = useGetAllUsers();
+  const { users, isPending, error, refetch, isRefetching } = useGetAllUsers();
 
-  if (isPending) return <SmallLoader />;
+  if (isPending || isRefetching) return <SmallLoader />;
 
-  if (error) return;
-  <EmptyState
-    icon={<AlertCircle className="h-10 w-10 text-red-500" />}
-    title="An Error Occured"
-    description="This may be due to server error or users don't exist."
-  />;
+  if (error)
+    return (
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading users"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        }
+      />
+    );
 
   return (
     <>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
-        <p className="mt-1 text-slate-500">
-          Manage system users and their permissions.
-        </p>
-      </div>
+      {users?.length > 0 && (
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-slate-900">
+            User Management ({users?.length || 0})
+          </h1>
+          <p className="mt-1 text-slate-500">
+            Manage system users and their permissions.
+          </p>
+        </div>
+      )}
       <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-        {users && (
+        {users?.length > 0 && (
           <Table
             headers={[
               "S/N",

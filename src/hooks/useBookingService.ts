@@ -9,21 +9,21 @@ import {
 } from "../services/api/booking";
 
 export const useGetMyBookings = () => {
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, error, refetch, isRefetching } = useQuery({
     queryKey: ["bookings"],
     queryFn: getMyBookingsApi,
   });
 
-  return { bookings: data, isPending, isError };
+  return { bookings: data, isPending, error, refetch, isRefetching };
 };
 
 export const useGetAllBookings = () => {
-  const { data, isPending, error } = useQuery({
+  const { data, isPending, error, refetch, isRefetching } = useQuery({
     queryKey: ["adminbookings"],
     queryFn: getAllBookingsApi,
   });
 
-  return { bookings: data, isPending, error };
+  return { bookings: data, isPending, error, refetch, isRefetching };
 };
 
 export const useGetSingleBooking = (id: string) => {
@@ -60,6 +60,7 @@ export const useUpdateBookingShipping = () => {
       queryClient.invalidateQueries({ queryKey: ["booking", variables.id] });
       toast.success(res.message);
     },
+    onError: (err) => toast.error(err.message),
   });
 
   return { updateBookingShipping, isPending, isError };

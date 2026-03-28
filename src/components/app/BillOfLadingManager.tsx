@@ -248,7 +248,6 @@ export const BillOfLadingManager = ({
         {!isLoading && bls?.length > 0 && (
           <>
             {bls?.map((bl: any) => {
-              console.log(bl);
               return (
                 <div
                   key={bl._id}

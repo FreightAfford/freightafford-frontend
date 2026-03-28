@@ -12,12 +12,14 @@ import {
   Package,
   User,
   Weight,
+  X,
   XCircle,
 } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import Button from "../../../components/Button";
+import EmptyState from "../../../components/EmptyState";
 import Modal from "../../../components/Modal";
 import SmallLoader from "../../../components/SmallLoader";
 import CounterOfferForm from "../../../components/app/CounterOfferForm";
@@ -53,18 +55,16 @@ const RequestDetails = () => {
 
   if (error)
     return (
-      <div className="p-12 text-center">
-        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-        <p className="text-lg font-medium text-slate-900">
-          Error Loading Request
-        </p>
-        <p className="text-slate-500">
-          {error.message} or there was a server error.
-        </p>
-        <Button variant="outline" className="mt-4" onClick={() => navigate(-1)}>
-          Go Back
-        </Button>
-      </div>
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading requests"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            Go back
+          </Button>
+        }
+      />
     );
 
   return (

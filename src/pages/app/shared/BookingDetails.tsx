@@ -1,5 +1,4 @@
 import {
-  AlertCircle,
   Anchor,
   ArrowLeft,
   ChartNoAxesGantt,
@@ -15,6 +14,7 @@ import {
   Ship,
   User,
   Weight,
+  X,
 } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
@@ -25,6 +25,7 @@ import StatusBadge from "../../../components/app/StatusBadge";
 import UpdateShippingForm from "../../../components/app/UpdateShippingForm";
 import UpdateStatusForm from "../../../components/app/UpdateStatusForm";
 import Button from "../../../components/Button";
+import EmptyState from "../../../components/EmptyState";
 import Modal from "../../../components/Modal";
 import SmallLoader from "../../../components/SmallLoader";
 import { useUser } from "../../../hooks/useAuthService";
@@ -48,18 +49,16 @@ const BookingDetails = () => {
 
   if (sbError)
     return (
-      <div className="p-12 text-center">
-        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-        <p className="text-lg font-medium text-slate-900">
-          Error Loading Booking
-        </p>
-        <p className="text-slate-500">
-          {sbError.message} or there was a server error.
-        </p>
-        <Button variant="outline" className="mt-4" onClick={() => navigate(-1)}>
-          Go Back
-        </Button>
-      </div>
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading booking"
+        description={sbError.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            Go back
+          </Button>
+        }
+      />
     );
 
   return (

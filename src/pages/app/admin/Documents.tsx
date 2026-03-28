@@ -1,4 +1,12 @@
-import { Clock, ExternalLink, Eye, FileText, Ship, Trash2 } from "lucide-react";
+import {
+  Clock,
+  ExternalLink,
+  Eye,
+  FileText,
+  Ship,
+  Trash2,
+  X,
+} from "lucide-react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router";
 import Button from "../../../components/Button";
@@ -11,13 +19,28 @@ import { formatFileSize, getStatusColor } from "../../../utils/helpers";
 const AdminDocuments = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const { bls, isPending } = useGetBLs();
+  const { bls, isPending, error, refetch, isRefetching } = useGetBLs();
 
-  if (isPending) return <SmallLoader />;
+  if (isPending || isRefetching) return <SmallLoader />;
+
+  if (error)
+    return (
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading documents"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        }
+      />
+    );
+
   return (
     <>
       <div className="max-medium-mobile:flex-col max-medium-mobile:items-start mb-8 flex items-center justify-between gap-4">
-        {bls.length ? (
+        {bls.length > 0 ? (
           <div>
             <h1 className="text-2xl font-bold text-slate-900">
               Bill of Lading Management

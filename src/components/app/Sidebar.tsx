@@ -59,7 +59,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     { name: "Users", icon: Users, path: "/app/admin/users" },
     // { name: "Audit Logs", icon: History, path: "/app/admin/logs" },
   ];
-  console.log(user.role);
+  
   const links = user.role === "admin" ? adminLinks : customerLinks;
 
   return (

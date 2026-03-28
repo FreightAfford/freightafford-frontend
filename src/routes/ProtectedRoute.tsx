@@ -15,7 +15,7 @@ const ProtectedRoute = ({
   children,
 }: ProtectedRouteProps) => {
   const { user, isPending } = useUser();
-  console.log(user);
+
   if (isPending) return <Loader />;
 
   // if (isError) return <Navigate to={redirectPath} replace />;

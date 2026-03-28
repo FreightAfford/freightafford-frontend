@@ -34,7 +34,7 @@ const UpdateStatusForm = ({
     resolver: zodResolver(updateStatusSchema),
     defaultValues: { status: initialStatus || "awaiting_confirmation" },
   });
-  console.log(initialStatus);
+
   const status = watch("status");
 
   const { updateStatus, isPending } = useUpdateBookingStatus();

@@ -42,9 +42,11 @@ export const useGetInvoicesByCustomer = () => {
     data: invoices,
     isPending,
     error,
+    refetch,
+    isRefetching,
   } = useQuery({ queryKey: ["invoices"], queryFn: getInvoicesByCustomer });
 
-  return { invoices, isPending, error };
+  return { invoices, isPending, error, refetch, isRefetching };
 };
 
 export const useGetAllInvoices = () => {
@@ -52,9 +54,11 @@ export const useGetAllInvoices = () => {
     data: invoices,
     isPending,
     error,
+    refetch,
+    isRefetching,
   } = useQuery({ queryKey: ["invoices"], queryFn: getAllInvoices });
 
-  return { invoices, isPending, error };
+  return { invoices, isPending, error, refetch, isRefetching };
 };
 
 export const useSubmitProofPayment = (bookingId: string) => {

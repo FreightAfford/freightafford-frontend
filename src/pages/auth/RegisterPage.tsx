@@ -53,7 +53,7 @@ const RegisterPage = () => {
       acceptTerms: true,
       acceptedFreightRules: true,
     };
-    console.log(payload);
+
     registerUser(payload, {
       onSuccess: () =>
         navigate(`/verify-otp?email=${encodeURIComponent(data.email)}`),

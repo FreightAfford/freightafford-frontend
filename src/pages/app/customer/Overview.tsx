@@ -1,26 +1,30 @@
-import {
-  AlertCircle,
-  CalendarCheck,
-  FileSearch,
-  FileText,
-  Receipt,
-} from "lucide-react";
+import { CalendarCheck, FileSearch, FileText, Receipt, X } from "lucide-react";
 import StatsCard from "../../../components/app/StatsCard";
+import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import SmallLoader from "../../../components/SmallLoader";
 import { useGetCustomerOverview } from "../../../hooks/usePipelineService";
 
 const CustomerOverview = () => {
-  const { data, isPending, error } = useGetCustomerOverview();
+  const { data, isPending, error, isRefetching, refetch } =
+    useGetCustomerOverview();
 
-  if (isPending) return <SmallLoader />;
+  if (isPending || isRefetching) return <SmallLoader />;
 
-  if (error) return;
-  <EmptyState
-    icon={<AlertCircle className="h-10 w-10 text-red-500" />}
-    title="An Error Occured"
-    description="This may be due to server error or users don't exist."
-  />;
+  if (error)
+    return (
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading overview"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        }
+      />
+    );
+
   return (
     <>
       <div className="mb-8">

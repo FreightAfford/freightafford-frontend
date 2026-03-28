@@ -1,4 +1,12 @@
-import { Clock, ExternalLink, Eye, FileText, Ship, Trash2 } from "lucide-react";
+import {
+  Clock,
+  ExternalLink,
+  Eye,
+  FileText,
+  Ship,
+  Trash2,
+  X,
+} from "lucide-react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router";
 import Button from "../../../components/Button";
@@ -11,10 +19,23 @@ import { formatFileSize, getStatusColor } from "../../../utils/helpers";
 const CustomerDocuments = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const { bls, isPending } = useGetCustomerBLs();
-  if (isPending) return <SmallLoader />;
+  const { bls, isPending, error, refetch, isRefetching } = useGetCustomerBLs();
+  if (isPending || isRefetching) return <SmallLoader />;
 
-  console.log(bls);
+  if (error)
+    return (
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading documents"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        }
+      />
+    );
+
   // const bls = [
   //   {
   //     id: 1,

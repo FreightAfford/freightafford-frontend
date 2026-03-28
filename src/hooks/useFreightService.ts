@@ -27,21 +27,21 @@ export const useCreateFreightRequest = () => {
 };
 
 export const useGetMyFreightRequests = () => {
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, error, isRefetching, refetch } = useQuery({
     queryKey: ["freightRequests"],
     queryFn: getMyFreightRequestApi,
   });
 
-  return { requests: data, isPending, isError };
+  return { requests: data, isPending, error, isRefetching, refetch };
 };
 
 export const useGetAllFreightRequests = () => {
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, error, refetch, isRefetching } = useQuery({
     queryKey: ["adminFreightRequests"],
     queryFn: getAllFreightRequestApi,
   });
 
-  return { requests: data ?? [], isPending, isError };
+  return { requests: data ?? [], isPending, error, refetch, isRefetching };
 };
 
 export const useGetFreightRequest = (id: string) => {

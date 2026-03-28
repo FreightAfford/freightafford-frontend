@@ -1,5 +1,6 @@
-import { Ship } from "lucide-react";
+import { Ship, X } from "lucide-react";
 import { useNavigate } from "react-router";
+import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import SmallLoader from "../../../components/SmallLoader";
 import StatusBadge from "../../../components/app/StatusBadge";
@@ -8,13 +9,28 @@ import { useGetAllFreightRequests } from "../../../hooks/useFreightService";
 
 const AdminRequests = () => {
   const navigate = useNavigate();
-  const { requests, isPending } = useGetAllFreightRequests();
+  const { requests, isPending, error, refetch, isRefetching } =
+    useGetAllFreightRequests();
 
-  if (isPending) return <SmallLoader />;
+  if (isPending || isRefetching) return <SmallLoader />;
+
+  if (error)
+    return (
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading requests"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        }
+      />
+    );
 
   return (
     <>
-      {requests?.length ? (
+      {requests?.length > 0 ? (
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900">
             Freight Requests
@@ -25,7 +41,7 @@ const AdminRequests = () => {
         </div>
       ) : null}
 
-      {requests?.length ? (
+      {requests?.length > 0 ? (
         <div className="overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
           <Table
             headers={[

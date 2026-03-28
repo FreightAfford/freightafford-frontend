@@ -10,8 +10,8 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
-import AuthLayout from "../../layout/AuthLayout";
 import { useResendOtp, useVerifyOtp } from "../../hooks/useAuthService";
+import AuthLayout from "../../layout/AuthLayout";
 
 const OTP_LENGTH = 6;
 
@@ -23,7 +23,7 @@ const VerifyOtpPage = () => {
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [timer, setTimer] = useState<number>(60);
   const [error, setError] = useState<string | null>(null);
-  console.log(email);
+
   const { verifyOtp, isPending } = useVerifyOtp();
   const { resendOtp, isPending: isResending } = useResendOtp();
 

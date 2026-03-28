@@ -53,6 +53,7 @@ export const useLogin = () => {
       toast.success(response.message);
       queryClient.setQueryData(["user"], response.user);
     },
+    onError: (err) => toast.error(err.message),
   });
 
   return { login, isPending };
@@ -88,12 +89,14 @@ export const useGetAllUsers = () => {
     data: users,
     isPending,
     error,
+    refetch,
+    isRefetching,
   } = useQuery({
     queryKey: ["users"],
     queryFn: getAllUsersApi,
   });
 
-  return { users, isPending, error };
+  return { users, isPending, error, refetch, isRefetching };
 };
 
 export const useGetSingleUser = (userId: string) => {

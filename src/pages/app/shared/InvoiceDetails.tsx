@@ -1,5 +1,4 @@
 import {
-  AlertCircle,
   ArrowLeft,
   Calendar,
   CheckCircle,
@@ -25,6 +24,7 @@ import {
   useVerifyPayment,
 } from "../../../hooks/useInvoiceService";
 import { formatFileSize } from "../../../utils/helpers";
+import EmptyState from "../../../components/EmptyState";
 
 const InvoiceDetails = () => {
   const { user } = useUser();
@@ -38,22 +38,18 @@ const InvoiceDetails = () => {
 
   if (isPending) return <SmallLoader />;
 
-  console.log(invoice);
-
   if (error)
     return (
-      <div className="p-12 text-center">
-        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-        <p className="text-lg font-medium text-slate-900">
-          Error loading invoice
-        </p>
-        <p className="text-slate-500">
-          {error.message} or there was a server error.
-        </p>
-        <Button variant="outline" className="mt-4" onClick={() => navigate(-1)}>
-          Go Back
-        </Button>
-      </div>
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading invoice"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            Go back
+          </Button>
+        }
+      />
     );
 
   return (

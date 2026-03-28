@@ -1,6 +1,7 @@
-import { Plus, Ship } from "lucide-react";
+import { Plus, Ship, X } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import Modal from "../../../components/Modal";
@@ -9,14 +10,28 @@ import FreightRequestForm from "../../../components/app/FreightRequestForm";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
 import { useGetMyFreightRequests } from "../../../hooks/useFreightService";
-import { useNavigate } from "react-router";
 
 const CustomerRequests = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const { requests, isPending } = useGetMyFreightRequests();
+  const { requests, isPending, error, refetch, isRefetching } =
+    useGetMyFreightRequests();
 
-  if (isPending) return <SmallLoader />;
+  if (isPending || isRefetching) return <SmallLoader />;
+
+  if (error)
+    return (
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading requests"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        }
+      />
+    );
 
   return (
     <>

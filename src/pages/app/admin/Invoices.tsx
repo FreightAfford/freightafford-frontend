@@ -1,4 +1,4 @@
-import { AlertCircle, Eye, FileText, Ship } from "lucide-react";
+import { Eye, FileText, Ship, X } from "lucide-react";
 import moment from "moment";
 import { useNavigate } from "react-router";
 import StatusBadge from "../../../components/app/StatusBadge";
@@ -10,30 +10,29 @@ import { useGetAllInvoices } from "../../../hooks/useInvoiceService";
 
 const AdminInvoices = () => {
   const navigate = useNavigate();
-  const { invoices, isPending, error } = useGetAllInvoices();
+  const { invoices, isPending, error, refetch, isRefetching } =
+    useGetAllInvoices();
 
-  if (isPending) return <SmallLoader />;
+  if (isPending || isRefetching) return <SmallLoader />;
 
   if (error)
     return (
-      <div className="p-12 text-center">
-        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-        <p className="text-lg font-medium text-slate-900">
-          Error loading invoices
-        </p>
-        <p className="text-slate-500">
-          Invoices could not be found or there was a server error.
-        </p>
-        <Button variant="outline" className="mt-4" onClick={() => navigate(-1)}>
-          Go Back
-        </Button>
-      </div>
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading invoices"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        }
+      />
     );
 
   return (
     <>
       <div className="mb-8">
-        {invoices.length ? (
+        {invoices.length > 0 ? (
           <div>
             <h1 className="text-2xl font-bold text-slate-900">
               Invoices Management
@@ -45,7 +44,7 @@ const AdminInvoices = () => {
         ) : null}
       </div>
 
-      {invoices.length ? (
+      {invoices.length > 0 ? (
         <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
           <Table
             headers={[

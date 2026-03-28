@@ -1,4 +1,4 @@
-import { Eye, Ship } from "lucide-react";
+import { Eye, Ship, X } from "lucide-react";
 import moment from "moment";
 import { useNavigate } from "react-router";
 import StatusBadge from "../../../components/app/StatusBadge";
@@ -10,16 +10,32 @@ import { useGetAllBookings } from "../../../hooks/useBookingService";
 
 const AdminBookings = () => {
   const navigate = useNavigate();
-  const { bookings, isPending, error } = useGetAllBookings();
-  if (isPending) return <SmallLoader />;
-  console.log(error?.message);
+  const { bookings, isPending, error, refetch, isRefetching } =
+    useGetAllBookings();
+
+  if (isPending || isRefetching) return <SmallLoader />;
+
+  if (error)
+    return (
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading bookings"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        }
+      />
+    );
+
   return (
     <>
       <div className="mb-8">
-        {bookings.length ? (
+        {bookings?.length > 0 ? (
           <>
             <h1 className="text-2xl font-bold text-slate-900">
-              Bookings Management ({bookings.length || 0})
+              Bookings Management ({bookings?.length || 0})
             </h1>
             <p className="mt-1 text-slate-500">
               Monitor and manage all confirmed shipments.
@@ -28,7 +44,7 @@ const AdminBookings = () => {
         ) : null}
       </div>
 
-      {bookings.length ? (
+      {bookings?.length > 0 ? (
         <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
           <Table
             headers={[

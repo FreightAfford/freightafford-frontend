@@ -1,4 +1,4 @@
-import { AlertCircle, Download, FileText, Plus, Ship } from "lucide-react";
+import { Download, FileText, Plus, Ship, X } from "lucide-react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router";
 import StatusBadge from "../../../components/app/StatusBadge";
@@ -10,30 +10,29 @@ import { useGetInvoicesByCustomer } from "../../../hooks/useInvoiceService";
 
 const CustomerInvoices = () => {
   const navigate = useNavigate();
-  const { invoices, isPending, error } = useGetInvoicesByCustomer();
+  const { invoices, isPending, error, refetch, isRefetching } =
+    useGetInvoicesByCustomer();
 
-  if (isPending) return <SmallLoader />;
+  if (isPending || isRefetching) return <SmallLoader />;
 
   if (error)
     return (
-      <div className="p-12 text-center">
-        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-        <p className="text-lg font-medium text-slate-900">
-          Error loading invoices
-        </p>
-        <p className="text-slate-500">
-          Invoices could not be found or there was a server error.
-        </p>
-        <Button variant="outline" className="mt-4" onClick={() => navigate(-1)}>
-          Go Back
-        </Button>
-      </div>
+      <EmptyState
+        icon={<X className="h-10 w-10 text-red-500" />}
+        title="Error loading invoices"
+        description={error.message || "An unexpected error has occured."}
+        action={
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        }
+      />
     );
 
   return (
     <>
       <div className="mb-8">
-        {invoices.length ? (
+        {invoices.length > 0 ? (
           <>
             <h1 className="text-2xl font-bold text-slate-900">Invoice</h1>
             <p className="mt-1 text-slate-500">
@@ -43,7 +42,7 @@ const CustomerInvoices = () => {
         ) : null}
       </div>
 
-      {invoices.length ? (
+      {invoices.length > 0 ? (
         <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
           <Table
             headers={[

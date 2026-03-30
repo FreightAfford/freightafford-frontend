@@ -34,7 +34,6 @@ export const getAmendmentsByBookingApi = async (bookingId: string) => {
 
     return response.data.amendments;
   } catch (error) {
-    console.error(error);
     if (error instanceof AxiosError) throw error.response?.data;
     if (error instanceof Error) throw error.message;
   }

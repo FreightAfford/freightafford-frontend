@@ -21,9 +21,8 @@ export const useCreateAmendment = () => {
       });
       toast.success(res.message);
     },
-    onError: (err) => {
-      toast.error(err.message);
-    },
+    onError: (err) =>
+      toast.error(err.message || "Unable to send amendment. Try again."),
   });
 
   return { createAmendment, isPending, error };

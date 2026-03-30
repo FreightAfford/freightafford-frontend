@@ -64,3 +64,20 @@ export const updateBookingStatusApi = async (
     if (error instanceof Error) throw error.message;
   }
 };
+
+export const addContainersApi = async (data: {
+  bookingId: string;
+  containers: string[];
+}) => {
+  try {
+    const response = await apiClient.put(
+      `/booking/${data.bookingId}/containers/replace`,
+      { containers: data.containers },
+    );
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) throw error.response?.data;
+    if (error instanceof Error) throw error.message;
+  }
+};

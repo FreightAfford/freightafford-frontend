@@ -19,7 +19,9 @@ import {
 import moment from "moment";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import AmendmentsManager from "../../../components/app/AmendmentsManager";
 import { BillOfLadingManager } from "../../../components/app/BillOfLadingManager";
+import ContainerManifestManager from "../../../components/app/ContainerManifestManager";
 import CreateInvoiceForm from "../../../components/app/CreateInvoiceForm";
 import StatusBadge from "../../../components/app/StatusBadge";
 import UpdateShippingForm from "../../../components/app/UpdateShippingForm";
@@ -45,7 +47,9 @@ const BookingDetails = () => {
   const [isUpdateStatusModalOpen, setIsUpdateStatusModalOpen] =
     useState<boolean>(false);
 
-  if (isPending || isLoading) return <SmallLoader />;
+  // const containers = ["MSK00123454221", "MSK34564357863", "MSK00199954221"];
+
+  if (isPending) return <SmallLoader />;
 
   if (sbError)
     return (
@@ -74,7 +78,7 @@ const BookingDetails = () => {
 
         <div className="max-medium-mobile:flex-col max-medium-mobile:items-start flex items-center justify-between gap-4">
           <div>
-            <div className="max-medium-mobile:gap-1 mb-1 flex flex-wrap items-center gap-3">
+            <div className="max-medium-mobile:gap-1 mb-1 flex flex-wrap items-center gap-1.5">
               <h1 className="text-2xl font-bold text-slate-900">
                 Booking #{booking.bookingNumber.split("-")[2] || "N/A"}
               </h1>
@@ -91,16 +95,10 @@ const BookingDetails = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="max-small-mobile:justify-start flex flex-wrap items-center justify-end gap-2">
             {/* <Button variant="outline">Download Confirmation</Button> */}
             {user?.role === "admin" && (
               <>
-                <Button
-                  onClick={() => setIsInvoiceModalOpen(true)}
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="h-4 w-4" /> Invoice
-                </Button>
                 <Button onClick={() => setIsUpdateShippingModalOpen(true)}>
                   <Ship className="mr-2" /> Shipping
                 </Button>
@@ -109,6 +107,12 @@ const BookingDetails = () => {
                   onClick={() => setIsUpdateStatusModalOpen(true)}
                 >
                   <ChartNoAxesGantt className="mr-2" /> Status
+                </Button>
+                <Button
+                  onClick={() => setIsInvoiceModalOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" /> Invoice
                 </Button>
               </>
             )}
@@ -279,6 +283,12 @@ const BookingDetails = () => {
                 </div>
               </div>
 
+              <ContainerManifestManager
+                booking={booking}
+                freightRequest={booking.freightRequest}
+                userRole={user.role}
+              />
+
               {booking.freightRequest.notes && (
                 <div className="mt-8 rounded-xl border border-slate-100 bg-slate-50 p-4">
                   <div className="mb-2 flex items-center gap-2">
@@ -350,6 +360,9 @@ const BookingDetails = () => {
             bookingId={booking._id}
             role={user.role === "admin"}
           />
+
+          {/* Amendments */}
+          <AmendmentsManager bookingId={booking._id} role={user.role} />
         </div>
 
         {/* Right Column: Status & Timeline */}
@@ -440,6 +453,7 @@ const BookingDetails = () => {
                     ).toLocaleString()}
                   </span>
                 </div>
+                {isLoading && <SmallLoader />}
                 {invoice && (
                   <Button
                     variant="outline"

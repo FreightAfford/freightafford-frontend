@@ -3,9 +3,9 @@ import {
   Clock,
   ExternalLink,
   FileText,
-  FileUp,
   Plus,
   Trash2,
+  Upload,
   X,
 } from "lucide-react";
 import moment from "moment";
@@ -99,7 +99,7 @@ export const BillOfLadingManager = ({
                   setSelectedFile(null);
                   setShowForm(false);
                 }}
-                className="rounded-full p-1 transition-colors hover:bg-slate-200"
+                className="rounded-full p-2 transition-colors hover:bg-slate-200"
               >
                 <X className="h-6 w-6 text-slate-500" />
               </button>
@@ -157,7 +157,9 @@ export const BillOfLadingManager = ({
                   htmlFor="bl-file"
                   className="hover:border-brand hover:bg-brand/2 group flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 transition-all"
                 >
-                  <FileUp className="group-hover:text-brand mb-2 h-8 w-8 text-slate-300 transition-colors" />
+                  <div className="bg-brand/10 mx-auto flex h-12 w-12 items-center justify-center rounded-full">
+                    <Upload className="text-brand h-6 w-6" />
+                  </div>
                   <span className="text-slate-500 group-hover:text-slate-700">
                     Click to select document
                   </span>

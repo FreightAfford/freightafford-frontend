@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
+  addContainersApi,
   getAllBookingsApi,
   getMyBookingsApi,
   getSingleBookingApi,
@@ -85,4 +86,23 @@ export const useUpdateBookingStatus = () => {
   });
 
   return { updateStatus, isPending, isError };
+};
+
+export const useAddContainer = () => {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: addContainersApi,
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["adminBookings"] });
+      queryClient.invalidateQueries({
+        queryKey: ["booking", variables.bookingId],
+      });
+
+      toast.success(res.message);
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  return { mutate, isPending };
 };

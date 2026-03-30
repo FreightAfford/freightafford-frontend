@@ -46,7 +46,6 @@ export const loginApi = async ({ email, password }: User) => {
     const response = await apiClient.post("/auth/login", { email, password });
     return response.data;
   } catch (error) {
-    console.error(error);
     if (error instanceof AxiosError) throw error;
     if (error instanceof Error) throw error;
   }

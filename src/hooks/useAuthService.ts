@@ -53,6 +53,7 @@ export const useLogin = () => {
       toast.success(response.message);
       queryClient.setQueryData(["user"], response.user);
     },
+    onError: (err) => toast.error(err.message),
   });
 
   return { login, isPending };

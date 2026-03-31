@@ -16,6 +16,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import StatusBadge from "../../../components/app/StatusBadge";
 import SubmitPaymentProofForm from "../../../components/app/SubmitPaymentProofForm";
 import Button from "../../../components/Button";
+import EmptyState from "../../../components/EmptyState";
 import Modal from "../../../components/Modal";
 import SmallLoader from "../../../components/SmallLoader";
 import { useUser } from "../../../hooks/useAuthService";
@@ -24,7 +25,6 @@ import {
   useVerifyPayment,
 } from "../../../hooks/useInvoiceService";
 import { formatFileSize } from "../../../utils/helpers";
-import EmptyState from "../../../components/EmptyState";
 
 const InvoiceDetails = () => {
   const { user } = useUser();
@@ -35,6 +35,8 @@ const InvoiceDetails = () => {
   const [isAction, setIsAction] = useState<"approve" | "reject">("approve");
   const [isSubmitProofModalOpen, setIsSubmitProofModalOpen] =
     useState<boolean>(false);
+
+  console.log(invoice);
 
   if (isPending) return <SmallLoader />;
 
@@ -67,13 +69,7 @@ const InvoiceDetails = () => {
               #{invoice.invoiceNumber}
             </h1>
             <div className="mt-1 flex items-center gap-3">
-              <StatusBadge
-                status={
-                  invoice.status === "awaiting_verification"
-                    ? "pending"
-                    : invoice.status
-                }
-              />
+              <StatusBadge status={invoice.status} />
               <span className="text-sm text-slate-400">•</span>
               <span className="text-sm text-slate-500">
                 Created on {moment(invoice.createdAt).format("ll")}
@@ -89,42 +85,40 @@ const InvoiceDetails = () => {
               <Download className="h-5 w-5" /> Download{" "}
               {formatFileSize(invoice.fileSize)}
             </Button>
-            {user.role === "customer" &&
-              invoice.status === "awaiting_verification" && (
+            {user.role === "customer" && invoice.status === "pending" && (
+              <Button
+                onClick={() => setIsSubmitProofModalOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <File className="h-5 w-5" /> Submit Payment Proof
+              </Button>
+            )}
+            {user.role === "admin" && invoice.status === "pending" && (
+              <>
                 <Button
-                  onClick={() => setIsSubmitProofModalOpen(true)}
                   className="flex items-center gap-2"
+                  disabled={isAction === "approve" && isVerifying}
+                  isLoading={isAction === "approve" && isVerifying}
+                  onClick={() => {
+                    setIsAction("approve");
+                    verify({ invoiceId: invoice._id, action: "approve" });
+                  }}
                 >
-                  <File className="h-5 w-5" /> Submit Payment Proof
+                  <CheckCircle className="h-4 w-4" /> Mark as Paid
                 </Button>
-              )}
-            {user.role === "admin" &&
-              invoice.status === "awaiting_verification" && (
-                <>
-                  <Button
-                    className="flex items-center gap-2"
-                    disabled={isAction === "approve" && isVerifying}
-                    isLoading={isAction === "approve" && isVerifying}
-                    onClick={() => {
-                      setIsAction("approve");
-                      verify({ invoiceId: invoice._id, action: "approve" });
-                    }}
-                  >
-                    <CheckCircle className="h-4 w-4" /> Mark as Paid
-                  </Button>
-                  <Button
-                    isLoading={isAction === "reject" && isVerifying}
-                    disabled={isAction === "reject" && isVerifying}
-                    className="flex items-center gap-2 bg-red-500"
-                    onClick={() => {
-                      setIsAction("reject");
-                      verify({ invoiceId: invoice._id, action: "reject" });
-                    }}
-                  >
-                    <X className="h-4 w-4" /> Reject Ref
-                  </Button>
-                </>
-              )}
+                <Button
+                  isLoading={isAction === "reject" && isVerifying}
+                  disabled={isAction === "reject" && isVerifying}
+                  className="flex items-center gap-2 bg-red-500"
+                  onClick={() => {
+                    setIsAction("reject");
+                    verify({ invoiceId: invoice._id, action: "reject" });
+                  }}
+                >
+                  <X className="h-4 w-4" /> Reject Ref
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

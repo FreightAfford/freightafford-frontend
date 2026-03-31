@@ -5,7 +5,7 @@ import AppRoutes from "./routes/AppRoutes";
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { refetchOnWindowFocus: false, staleTime: 2 * 60 * 1000 },
+    queries: { refetchOnWindowFocus: false },
   },
 });
 

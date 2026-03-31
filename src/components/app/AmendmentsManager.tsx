@@ -24,6 +24,7 @@ import {
   type AmendmentFormValues,
 } from "../../validations/amendment.validation";
 import Button from "../Button";
+import SmallLoader from "../SmallLoader";
 
 const AmendmentsManager = ({
   bookingId,
@@ -41,7 +42,7 @@ const AmendmentsManager = ({
     amendments,
     isPending: isLoading,
     error,
-  } = useGetAmendmentsByBooking(bookingId!);
+  } = useGetAmendmentsByBooking(bookingId);
 
   const {
     register,
@@ -70,6 +71,8 @@ const AmendmentsManager = ({
       },
     );
   };
+
+  if (isLoading) return <SmallLoader />;
 
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">

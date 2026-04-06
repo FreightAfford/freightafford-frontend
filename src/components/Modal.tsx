@@ -17,6 +17,7 @@ const Modal = ({ title, isOpen, onClose, children }: ModalProps) => {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (

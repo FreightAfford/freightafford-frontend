@@ -1,10 +1,11 @@
-import { Plus, Ship, X } from "lucide-react";
+import { Play, Plus, Ship, X } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import Modal from "../../../components/Modal";
+import PlayTutorial from "../../../components/PlayTutorial";
 import SmallLoader from "../../../components/SmallLoader";
 import FreightRequestForm from "../../../components/app/FreightRequestForm";
 import StatusBadge from "../../../components/app/StatusBadge";
@@ -13,6 +14,7 @@ import { useGetMyFreightRequests } from "../../../hooks/useFreightService";
 
 const CustomerRequests = () => {
   const navigate = useNavigate();
+  const [playTutorial, setPlayTutorial] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { requests, isPending, error, refetch, isRefetching } =
     useGetMyFreightRequests();
@@ -47,15 +49,29 @@ const CustomerRequests = () => {
                 Manage and track your container freight inquiries.
               </p>
             </div>
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" /> New Request
-            </Button>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" /> New Request
+              </Button>
+              <Button
+                onClick={() => setPlayTutorial(true)}
+                className="flex items-center gap-2"
+                variant="outline"
+              >
+                <Play className="h-4 w-4" /> Watch Tutorial
+              </Button>
+            </div>
           </>
         ) : null}
       </div>
+
+      <PlayTutorial
+        playTutorial={playTutorial}
+        onCloseTutorial={() => setPlayTutorial(false)}
+      />
 
       {/* Freight Request Table */}
       {requests.length ? (

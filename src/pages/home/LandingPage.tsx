@@ -1,7 +1,3 @@
-import { Link } from "react-router";
-import NavBar from "../../components/NavBar";
-import Section from "../../components/Section";
-import Button from "../../components/Button";
 import {
   ArrowRight,
   BarChart3,
@@ -14,10 +10,15 @@ import {
   Zap,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import Card from "../../components/Card";
 import { useState } from "react";
-import cn from "../../utils/cn";
+import { Link } from "react-router";
+import Button from "../../components/Button";
+import Card from "../../components/Card";
 import Footer from "../../components/Footer";
+import NavBar from "../../components/NavBar";
+import PlayTutorial from "../../components/PlayTutorial";
+import Section from "../../components/Section";
+import cn from "../../utils/cn";
 
 const FAQItem = ({
   question,
@@ -67,9 +68,16 @@ const FAQItem = ({
 };
 
 const LandingPage = () => {
+  const [playTutorial, setPlayTutorial] = useState<boolean>(false);
+
   return (
     <div className="min-h-screen bg-white">
       <NavBar />
+
+      <PlayTutorial
+        playTutorial={playTutorial}
+        onCloseTutorial={() => setPlayTutorial(false)}
+      />
 
       {/* Hero Section */}
       <Section>
@@ -132,16 +140,19 @@ const LandingPage = () => {
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <button className="bg-brand flex h-20 w-20 cursor-pointer items-center justify-center rounded-full text-white shadow-xl transition-transform hover:scale-110">
+                <button
+                  className="bg-brand flex h-20 w-20 cursor-pointer items-center justify-center rounded-full text-white shadow-xl transition-transform hover:scale-110"
+                  onClick={() => setPlayTutorial(true)}
+                >
                   <Play className="ml-1 h-8 w-8 fill-current" />
                 </button>
               </div>
               <div className="absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/80 to-transparent p-6 text-left">
                 <p className="font-semibold text-white">
-                  Watch how Freight Afford simplifies your logistics
+                  Watch how to make freight request on Freight Afford
                 </p>
                 <p className="text-sm text-slate-300">
-                  2:45 • Platform Overview
+                  3:18 • Platform Overview
                 </p>
               </div>
             </div>

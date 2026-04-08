@@ -126,13 +126,22 @@ const CustomerRequests = () => {
           title="No Freight Requests Yet"
           description="You have not created any freight requests. Start by submitting your first request to receive shipping quotes."
           action={
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Create Request
-            </Button>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Create Request
+              </Button>
+              <Button
+                onClick={() => setPlayTutorial(true)}
+                className="flex items-center gap-2"
+                variant="outline"
+              >
+                <Play className="h-4 w-4" /> Watch Tutorial
+              </Button>
+            </div>
           }
         />
       )}

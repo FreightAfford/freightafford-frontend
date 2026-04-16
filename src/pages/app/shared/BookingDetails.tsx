@@ -142,7 +142,7 @@ const BookingDetails = () => {
               <div className="absolute top-6 right-0 left-0 h-px bg-slate-200" />
               <div className="z-10 flex flex-col items-center bg-white px-4">
                 <Ship className="mb-1 h-7 w-7 text-slate-400" />
-                <div className="text-brand flex items-center gap-2 font-semibold capitalize">
+                <div className="text-brand flex items-center gap-2 text-center font-semibold capitalize">
                   <span>{booking.vessel || "Vessel TBA"}</span>
                 </div>
                 <p className="mt-1 text-sm text-slate-500">

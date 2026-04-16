@@ -59,7 +59,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     { name: "Users", icon: Users, path: "/app/admin/users" },
     // { name: "Audit Logs", icon: History, path: "/app/admin/logs" },
   ];
-  
+
   const links = user.role === "admin" ? adminLinks : customerLinks;
 
   return (
@@ -72,7 +72,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
       )}
       <aside
         className={cn(
-          "tablet:translate-x-0 fixed top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 transition-transform duration-300",
+          "tablet:translate-x-0 absolute top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 transition-transform duration-300",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >

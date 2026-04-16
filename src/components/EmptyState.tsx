@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import { type ReactNode } from "react";
 
 interface EmptyStateProps {
@@ -9,7 +10,12 @@ interface EmptyStateProps {
 
 const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+      className="flex flex-col items-center justify-center py-20 text-center"
+    >
       {icon && (
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-100">
           {icon}
@@ -23,7 +29,7 @@ const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => {
       )}
 
       {action && <div className="mt-6">{action}</div>}
-    </div>
+    </motion.div>
   );
 };
 

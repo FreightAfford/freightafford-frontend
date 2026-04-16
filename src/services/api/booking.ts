@@ -2,21 +2,21 @@ import { AxiosError } from "axios";
 import type { UpdateBookingShippingFormValues } from "../../validations/bookingValidation";
 import { apiClient } from "../configurations/apiConfig";
 
-export const getMyBookingsApi = async () => {
+export const getMyBookingsApi = async (params: any) => {
   try {
-    const response = await apiClient.get("/booking/me");
+    const response = await apiClient.get("/booking/me", { params });
 
-    return response.data.data;
+    return response.data;
   } catch (error) {
     if (error instanceof AxiosError) throw error.response?.data;
     if (error instanceof Error) throw error.message;
   }
 };
 
-export const getAllBookingsApi = async () => {
+export const getAllBookingsApi = async (params: any) => {
   try {
-    const response = await apiClient.get("/booking/admin");
-    return response.data.data;
+    const response = await apiClient.get("/booking/admin", { params });
+    return response.data;
   } catch (error) {
     console.error(error);
     if (error instanceof AxiosError) throw error.response?.data;

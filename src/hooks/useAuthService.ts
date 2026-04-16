@@ -11,6 +11,7 @@ import {
   registerApi,
   resendOtpApi,
   resetPasswordApi,
+  updateUserByAdminApi,
   updateUserProfileApi,
   verifyOtpApi,
 } from "../services/api/auth";
@@ -60,9 +61,13 @@ export const useLogin = () => {
 };
 
 export const useLogout = () => {
+  const queryClient = useQueryClient();
   const { mutate: logout, isPending } = useMutation({
     mutationFn: logoutApi,
-    onSuccess: (response) => toast.success(response.message),
+    onSuccess: (response) => {
+      queryClient.clear();
+      toast.success(response.message);
+    },
     onError: (err) => toast.error(err.message),
   });
 
@@ -77,39 +82,43 @@ export const useUser = () => {
   } = useQuery({
     queryKey: ["user"],
     queryFn: getMeApi,
-    retry: false,
-    refetchOnWindowFocus: false,
   });
 
   return { isPending, isError, user };
 };
 
-export const useGetAllUsers = () => {
-  const {
-    data: users,
+export const useGetAllUsers = (params: any) => {
+  const { data, isPending, error, refetch, isRefetching } = useQuery({
+    queryKey: ["users", params],
+    queryFn: () => getAllUsersApi(params),
+  });
+
+  return {
+    users: data?.data ?? [],
+    total: data?.total ?? 0,
+    totalAll: data?.totalAll ?? 0,
     isPending,
     error,
     refetch,
     isRefetching,
-  } = useQuery({
-    queryKey: ["users"],
-    queryFn: getAllUsersApi,
-  });
-
-  return { users, isPending, error, refetch, isRefetching };
+  };
 };
 
 export const useGetSingleUser = (userId: string) => {
-  const {
-    data: users,
-    isPending,
-    error,
-  } = useQuery({
+  const { data, isPending, error, refetch, isRefetching } = useQuery({
     queryKey: ["user", userId],
     queryFn: () => getSingleUserApi(userId),
   });
-
-  return { users, isPending, error };
+  return {
+    user: data?.user ?? {},
+    requests: data?.requests ?? 0,
+    bookings: data?.bookings ?? 0,
+    invoices: data?.invoices ?? 0,
+    isPending,
+    error,
+    refetch,
+    isRefetching,
+  };
 };
 
 export const useForgotPassword = () => {
@@ -144,6 +153,20 @@ export const useUpdateUserProfile = () => {
   });
 
   return { updateUserProfile, isPending };
+};
+
+export const useUpdateUserByAdmin = () => {
+  const queryClient = useQueryClient();
+  const { mutate: updateUser, isPending } = useMutation({
+    mutationFn: updateUserByAdminApi,
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["user", variables.userId] });
+      toast.success(res.message);
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  return { updateUser, isPending };
 };
 
 export const useChangePassword = () => {

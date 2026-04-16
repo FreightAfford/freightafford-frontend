@@ -8,7 +8,7 @@ const Topbar = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const navigate = useNavigate();
 
   return (
-    <header className="max-mobile:px-4 sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-100 bg-white/80 px-8 backdrop-blur-md">
+    <header className="max-mobile:px-4 sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-100 bg-white/80 px-8 py-3.5 backdrop-blur-md">
       <div className="flex items-center gap-4">
         <button
           className="max-tablet:block hidden rounded-lg p-2 text-slate-500 hover:bg-slate-50"

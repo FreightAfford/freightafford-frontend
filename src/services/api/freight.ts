@@ -14,20 +14,20 @@ export const createFreightRequestApi = async (
   }
 };
 
-export const getMyFreightRequestApi = async () => {
+export const getMyFreightRequestApi = async (params: any) => {
   try {
-    const response = await apiClient.get("/freight-request/me");
-    return response.data.data;
+    const response = await apiClient.get("/freight-request/me", { params });
+    return response.data;
   } catch (error) {
     if (error instanceof AxiosError) throw error.response?.data;
     if (error instanceof Error) throw error.message;
   }
 };
 
-export const getAllFreightRequestApi = async () => {
+export const getAllFreightRequestApi = async (params?: any) => {
   try {
-    const response = await apiClient.get("/freight-request");
-    return response.data.data;
+    const response = await apiClient.get("/freight-request", { params });
+    return response.data;
   } catch (error) {
     if (error instanceof AxiosError) throw error.response?.data;
     if (error instanceof Error) throw error.message;

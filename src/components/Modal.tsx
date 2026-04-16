@@ -15,7 +15,7 @@ const Modal = ({ title, isOpen, onClose, children }: ModalProps) => {
     else document.body.style.overflow = "unset";
     return () => {
       document.body.style.overflow = "unset";
-    };s
+    };
   }, [isOpen]);
 
   return (

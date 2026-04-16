@@ -29,6 +29,7 @@ import LandingPage from "../pages/home/LandingPage";
 import TermsPage from "../pages/home/TermsPage";
 import ProtectedRoute from "./ProtectedRoute";
 import Unauthorized from "./Unauthorized";
+import UserDetails from "../pages/app/shared/UserDetails";
 
 // const LandingPage = lazy(() => import("../pages/home/LandingPage"));
 // const TermsPage = lazy(() => import("../pages/home/TermsPage"));
@@ -131,6 +132,7 @@ const AppRoutes = createBrowserRouter([
           { path: "invoices", Component: AdminInvoices },
           { path: "invoices/:id", Component: InvoiceDetails },
           { path: "users", Component: AdminUsers },
+          { path: "users/:id", Component: UserDetails },
           { path: "logs", Component: AdminLogs },
         ],
       },

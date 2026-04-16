@@ -1,23 +1,13 @@
-import {
-  Clock,
-  ExternalLink,
-  Eye,
-  FileText,
-  Ship,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Clock, ExternalLink, Eye, FileText, Ship, X } from "lucide-react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import SmallLoader from "../../../components/SmallLoader";
-import { useUser } from "../../../hooks/useAuthService";
 import { useGetBLs } from "../../../hooks/useBLService";
 import { formatFileSize, getStatusColor } from "../../../utils/helpers";
 
 const AdminDocuments = () => {
-  const { user } = useUser();
   const navigate = useNavigate();
   const { bls, isPending, error, refetch, isRefetching } = useGetBLs();
 
@@ -127,7 +117,7 @@ const AdminDocuments = () => {
                   >
                     <ExternalLink className="h-6 w-6" />
                   </Link>
-                  {user?.role === "admin" && (
+                  {/* {user?.role === "admin" && (
                     <button
                       onClick={() => {
                         // deleteBL(bl._id);
@@ -138,7 +128,7 @@ const AdminDocuments = () => {
                     >
                       <Trash2 className="h-6 w-6" />
                     </button>
-                  )}
+                  )} */}
                 </div>
               </div>
             );

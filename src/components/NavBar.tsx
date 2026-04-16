@@ -9,7 +9,7 @@ const NavBar = () => {
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const location = useLocation();
-
+  console.log(user);
   useEffect(() => {
     setIsOpen(false);
   }, [location]);

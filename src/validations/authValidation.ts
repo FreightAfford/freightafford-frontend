@@ -56,6 +56,16 @@ export const profileSchema = z.object({
   country: z.string().min(2, "Country is required"),
 });
 
+export const userSchema = z.object({
+  fullname: z.string().min(2, "Full name must be at least 2 characters"),
+  email: z.email("Invalid email address"),
+  phoneNumber: z.string().optional(),
+  companyName: z.string().optional(),
+  companyAddress: z.string().optional(),
+  country: z.string().optional(),
+  status: z.enum(["active", "inactive", "suspended"]),
+});
+
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(8, "Current password is required"),
@@ -78,4 +88,5 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 export type ForgotPasswordValue = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 export type ProfileFormValues = z.infer<typeof profileSchema>;
+export type UserFormValues = z.infer<typeof userSchema>;
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;

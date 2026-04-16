@@ -26,22 +26,39 @@ export const useCreateFreightRequest = () => {
   return { createRequest, isPending };
 };
 
-export const useGetMyFreightRequests = () => {
+export const useGetMyFreightRequests = (params: any) => {
+  console.log(params);
   const { data, isPending, error, isRefetching, refetch } = useQuery({
-    queryKey: ["freightRequests"],
-    queryFn: getMyFreightRequestApi,
+    queryKey: ["freightRequests", params],
+    queryFn: () => getMyFreightRequestApi(params),
   });
 
-  return { requests: data, isPending, error, isRefetching, refetch };
+  return {
+    requests: data?.data ?? [],
+    total: data?.total ?? 0,
+    totalAll: data?.totalAll ?? 0,
+    isPending,
+    error,
+    isRefetching,
+    refetch,
+  };
 };
 
-export const useGetAllFreightRequests = () => {
+export const useGetAllFreightRequests = (params?: any) => {
   const { data, isPending, error, refetch, isRefetching } = useQuery({
-    queryKey: ["adminFreightRequests"],
-    queryFn: getAllFreightRequestApi,
+    queryKey: ["adminFreightRequests", params],
+    queryFn: () => getAllFreightRequestApi(params),
   });
 
-  return { requests: data ?? [], isPending, error, refetch, isRefetching };
+  return {
+    requests: data?.data ?? [],
+    total: data?.total ?? 0,
+    totalAll: data?.totalAll ?? 0,
+    isPending,
+    error,
+    refetch,
+    isRefetching,
+  };
 };
 
 export const useGetFreightRequest = (id: string) => {

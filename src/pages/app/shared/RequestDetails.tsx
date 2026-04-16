@@ -408,6 +408,21 @@ const RequestDetails = () => {
               </span>
               <span className="text-xs text-slate-400">USD</span>
             </div>
+            <h3 className="mb-4 border-t border-white/10 pt-6 text-sm font-medium tracking-wider text-slate-400 uppercase">
+              Counter Price
+            </h3>
+            <div className="mb-6 flex items-baseline gap-1">
+              {request?.adminCounterPrice ? (
+                <>
+                  <span className="text-4xl font-bold">
+                    ${request.adminCounterPrice?.toLocaleString() || "0"}
+                  </span>
+                  <span className="text-xs text-slate-400">USD</span>
+                </>
+              ) : (
+                <span className="italic">No counter offer made</span>
+              )}
+            </div>
 
             <div className="space-y-3 border-t border-white/10 pt-6">
               <div className="flex justify-between text-sm">
@@ -423,9 +438,15 @@ const RequestDetails = () => {
                 <span className="text-slate-400">Quantity</span>
                 <span>{request.containerQuantity}</span>
               </div>
-              <div className="flex justify-between border-t border-white/10 pt-3 font-bold">
+              <div className="flex justify-between border-t border-white/10 pt-3 text-lg font-bold">
                 <span>Total</span>
-                <span>${(request.proposedPrice || 0).toLocaleString()}</span>
+                <span>
+                  $
+                  {(request.adminCounterPrice
+                    ? request.adminCounterPrice || 0
+                    : request.proposedPrice || 0
+                  ).toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
@@ -447,7 +468,13 @@ const RequestDetails = () => {
                   <p className="text-sm text-slate-500">Verified Customer</p>
                 </div>
               </div>
-              <Link to="/app/customer/profile">
+              <Link
+                to={
+                  user.role === "admin"
+                    ? `/app/admin/users/${request.customer._id}`
+                    : "/app/customer/profile"
+                }
+              >
                 <Button variant="outline" className="h-9 w-full text-sm">
                   View Profile
                 </Button>

@@ -9,22 +9,38 @@ import {
   updateBookingStatusApi,
 } from "../services/api/booking";
 
-export const useGetMyBookings = () => {
+export const useGetMyBookings = (params: any) => {
   const { data, isPending, error, refetch, isRefetching } = useQuery({
-    queryKey: ["bookings"],
-    queryFn: getMyBookingsApi,
+    queryKey: ["bookings", params],
+    queryFn: () => getMyBookingsApi(params),
   });
 
-  return { bookings: data, isPending, error, refetch, isRefetching };
+  return {
+    bookings: data?.data ?? [],
+    total: data?.total ?? 0,
+    totalAll: data?.totalAll ?? 0,
+    isPending,
+    error,
+    refetch,
+    isRefetching,
+  };
 };
 
-export const useGetAllBookings = () => {
+export const useGetAllBookings = (params: any) => {
   const { data, isPending, error, refetch, isRefetching } = useQuery({
-    queryKey: ["adminbookings"],
-    queryFn: getAllBookingsApi,
+    queryKey: ["adminbookings", params],
+    queryFn: () => getAllBookingsApi(params),
   });
 
-  return { bookings: data, isPending, error, refetch, isRefetching };
+  return {
+    bookings: data?.data ?? [],
+    total: data?.total ?? 0,
+    totalAll: data?.totalAll ?? 0,
+    isPending,
+    error,
+    refetch,
+    isRefetching,
+  };
 };
 
 export const useGetSingleBooking = (id: string) => {

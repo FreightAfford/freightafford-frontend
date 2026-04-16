@@ -1,5 +1,8 @@
 import { AxiosError } from "axios";
-import type { ProfileFormValues } from "../../validations/authValidation";
+import type {
+  ProfileFormValues,
+  UserFormValues,
+} from "../../validations/authValidation";
 import { apiClient } from "../configurations/apiConfig";
 
 interface User {
@@ -71,11 +74,13 @@ export const getMeApi = async () => {
   }
 };
 
-export const getAllUsersApi = async () => {
+export const getAllUsersApi = async (params: any) => {
   try {
-    const response = await apiClient.get("/auth");
-    return response.data.data;
+    const response = await apiClient.get("/auth", { params });
+    console.log(response.data);
+    return response.data;
   } catch (error) {
+    console.error(error);
     if (error instanceof AxiosError) throw error.response?.data;
     if (error instanceof Error) throw error.message;
   }
@@ -84,6 +89,7 @@ export const getAllUsersApi = async () => {
 export const getSingleUserApi = async (userId: string) => {
   try {
     const response = await apiClient.get(`/auth/${userId}`);
+
     return response.data.data;
   } catch (error) {
     if (error instanceof AxiosError) throw error.response?.data;
@@ -123,6 +129,22 @@ export const resetPasswordApi = async ({
 export const updateUserProfileApi = async (data: ProfileFormValues) => {
   try {
     const response = await apiClient.patch("/auth/update-profile", data);
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) throw error.response?.data;
+    if (error instanceof Error) throw error.message;
+  }
+};
+
+export const updateUserByAdminApi = async ({
+  userId,
+  data,
+}: {
+  userId: string;
+  data: UserFormValues;
+}) => {
+  try {
+    const response = await apiClient.patch(`/auth/users/${userId}`, data);
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) throw error.response?.data;

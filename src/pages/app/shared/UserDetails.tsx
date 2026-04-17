@@ -272,7 +272,7 @@ const UserDetails = () => {
                     <p className="text-sm font-semibold tracking-wider text-slate-400 uppercase">
                       Company
                     </p>
-                    <p className="font-medium text-slate-900">
+                    <p className="font-medium text-slate-900 capitalize">
                       {user.companyName || (
                         <span className="italic">Not provided</span>
                       )}
@@ -282,7 +282,7 @@ const UserDetails = () => {
                     <p className="text-sm font-semibold tracking-wider text-slate-400 uppercase">
                       Address
                     </p>
-                    <p className="font-medium text-slate-900">
+                    <p className="font-medium text-slate-900 capitalize">
                       {[user.companyAddress, user.country]
                         .filter(Boolean)
                         .join(", ") || (

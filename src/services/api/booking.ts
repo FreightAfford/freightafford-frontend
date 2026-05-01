@@ -18,7 +18,6 @@ export const getAllBookingsApi = async (params: any) => {
     const response = await apiClient.get("/booking/admin", { params });
     return response.data;
   } catch (error) {
-    console.error(error);
     if (error instanceof AxiosError) throw error.response?.data;
     if (error instanceof Error) throw error.message;
   }

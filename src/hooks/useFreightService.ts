@@ -27,7 +27,6 @@ export const useCreateFreightRequest = () => {
 };
 
 export const useGetMyFreightRequests = (params: any) => {
-  console.log(params);
   const { data, isPending, error, isRefetching, refetch } = useQuery({
     queryKey: ["freightRequests", params],
     queryFn: () => getMyFreightRequestApi(params),

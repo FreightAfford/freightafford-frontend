@@ -78,7 +78,7 @@ export const TableRow = ({ onClick, className, children }: TableRowProps) => {
   return (
     <tr
       className={cn(
-        "transition-colors hover:bg-slate-50",
+        "group transition-colors hover:bg-slate-50",
         onClick && "cursor-pointer",
         className,
       )}

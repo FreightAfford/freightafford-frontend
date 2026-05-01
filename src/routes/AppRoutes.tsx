@@ -7,6 +7,7 @@ import AdminInvoices from "../pages/app/admin/Invoices";
 import AdminLogs from "../pages/app/admin/Logs";
 import AdminOverview from "../pages/app/admin/Overview";
 import AdminRequests from "../pages/app/admin/Requests";
+import Tickets from "../pages/app/admin/Tickets";
 import AdminUsers from "../pages/app/admin/Users";
 import CustomerBookings from "../pages/app/customer/Bookings";
 import CustomerDocuments from "../pages/app/customer/Documents";
@@ -17,6 +18,8 @@ import CustomerRequests from "../pages/app/customer/Requests";
 import BookingDetails from "../pages/app/shared/BookingDetails";
 import InvoiceDetails from "../pages/app/shared/InvoiceDetails";
 import RequestDetails from "../pages/app/shared/RequestDetails";
+import TicketDetails from "../pages/app/shared/TicketDetails";
+import UserDetails from "../pages/app/shared/UserDetails";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
@@ -29,7 +32,7 @@ import LandingPage from "../pages/home/LandingPage";
 import TermsPage from "../pages/home/TermsPage";
 import ProtectedRoute from "./ProtectedRoute";
 import Unauthorized from "./Unauthorized";
-import UserDetails from "../pages/app/shared/UserDetails";
+import CustomerSupport from "../pages/app/customer/Support";
 
 // const LandingPage = lazy(() => import("../pages/home/LandingPage"));
 // const TermsPage = lazy(() => import("../pages/home/TermsPage"));
@@ -110,6 +113,7 @@ const AppRoutes = createBrowserRouter([
           { path: "invoices", Component: CustomerInvoices },
           { path: "invoices/:id", Component: InvoiceDetails },
           { path: "profile", Component: CustomerProfile },
+          { path: "support", Component: CustomerSupport },
         ],
       },
 
@@ -128,6 +132,8 @@ const AppRoutes = createBrowserRouter([
           { path: "bookings", Component: AdminBookings },
           { path: "bookings/:id", Component: BookingDetails },
           // { path: "schedule", Component: AdminSchedules },
+          { path: "tickets", Component: Tickets },
+          { path: "tickets/:id", Component: TicketDetails },
           { path: "documents", Component: AdminDocuments },
           { path: "invoices", Component: AdminInvoices },
           { path: "invoices/:id", Component: InvoiceDetails },

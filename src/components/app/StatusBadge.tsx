@@ -25,13 +25,16 @@ const StatusBadge = ({ status, className }: StatusBadgeProps) => {
         return "bg-yellow-100 text-yellow-700 border-yellow-700";
       case "confirmed":
       case "verified":
+      case "resolved":
         return "bg-teal-100 text-teal-700 border-teal-700";
       case "delivered":
       case "in_transit":
+      case "open":
         return "bg-blue-100 text-blue-700 border-blue-700";
       case "arrived":
         return "bg-indigo-100 text-indigo-700 border-indigo-700";
       case "cancelled":
+      case "closed":
         return "bg-rose-100 text-rose-700 border-rose-700";
       case "rejected":
         return "bg-red-100 text-rose-700 border-rose-700";

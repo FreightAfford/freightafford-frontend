@@ -21,7 +21,8 @@ const AdminRequests = () => {
     filters,
     params,
     setPage,
-    handleSearchChange, resetSearch,
+    handleSearchChange,
+    resetSearch,
     handleSort,
     handleFilterChange,
     handleSearchSubmit,
@@ -55,7 +56,7 @@ const AdminRequests = () => {
 
   return (
     <>
-      {hasAnyData || !hasResults ? (
+      {hasAnyData || hasResults ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -88,7 +88,6 @@ export const acceptFreightRequestApi = async (id: string) => {
     const res = await apiClient.patch(`/freight-request/admin/${id}/accept`);
     return res.data.data;
   } catch (error) {
-    console.error(error);
     if (error instanceof AxiosError) throw error.response?.data;
     if (error instanceof Error) throw error.message;
   }

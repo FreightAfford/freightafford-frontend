@@ -77,10 +77,8 @@ export const getMeApi = async () => {
 export const getAllUsersApi = async (params: any) => {
   try {
     const response = await apiClient.get("/auth", { params });
-    console.log(response.data);
     return response.data;
   } catch (error) {
-    console.error(error);
     if (error instanceof AxiosError) throw error.response?.data;
     if (error instanceof Error) throw error.message;
   }

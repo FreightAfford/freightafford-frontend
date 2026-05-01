@@ -3,6 +3,7 @@ import {
   FileSearch,
   FileText,
   FileUp,
+  HelpCircle,
   LayoutDashboard,
   LogOut,
   Receipt,
@@ -47,6 +48,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     },
     { name: "Invoices", icon: Receipt, path: "/app/customer/invoices" },
     { name: "Profile", icon: User, path: "/app/customer/profile" },
+    { name: "Support", icon: HelpCircle, path: "/app/customer/support" },
   ];
 
   const adminLinks = [
@@ -54,6 +56,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     { name: "Freight Requests", icon: FileSearch, path: "/app/admin/requests" },
     { name: "Bookings", icon: CalendarCheck, path: "/app/admin/bookings" },
     // { name: "Sailing Schedule", icon: Calendar, path: "/app/admin/schedule" },
+    { name: "Tickets", icon: FileText, path: "/app/admin/tickets" },
     { name: "Documents", icon: FileUp, path: "/app/admin/documents" },
     { name: "Invoices", icon: Receipt, path: "/app/admin/invoices" },
     { name: "Users", icon: Users, path: "/app/admin/users" },

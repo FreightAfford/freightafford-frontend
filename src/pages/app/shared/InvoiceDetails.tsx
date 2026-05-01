@@ -36,8 +36,6 @@ const InvoiceDetails = () => {
   const [isSubmitProofModalOpen, setIsSubmitProofModalOpen] =
     useState<boolean>(false);
 
-  console.log(invoice);
-
   if (isPending) return <SmallLoader />;
 
   if (error)

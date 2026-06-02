@@ -116,8 +116,9 @@ const ChatWindow = ({
   // ── Header label ───────────────────────────────────────────────────────────
   const headerName = isCSO
     ? session.customer.fullname
-    : `${session.assignedCSO?.fullname.split(" ")[0]} ${session.assignedCSO?.fullname.split(" ")[1]}` ||
-      "Support";
+    : session.assignedCSO?.fullname === undefined
+      ? "Support"
+      : session.assignedCSO?.fullname;
 
   const headerStatus =
     session.status === "waiting"
@@ -141,7 +142,7 @@ const ChatWindow = ({
             )}
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 capitalize">
+            <h3 className="truncate font-bold text-slate-900 capitalize">
               {headerName}
             </h3>
             <span className="text-[11px] font-medium tracking-wider text-slate-500 uppercase">

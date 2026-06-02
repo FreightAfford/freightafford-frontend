@@ -267,7 +267,7 @@ const CustomerChatView = () => {
           </div>
           {activeSession.freightRequest && (
             <StatusBadge
-              status={activeSession.freightRequest?.status.replace("_", " ")}
+              status={activeSession.freightRequest?.status?.replace("_", " ")}
             />
           )}
         </div>

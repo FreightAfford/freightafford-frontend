@@ -207,7 +207,6 @@ const CustomerChatView = () => {
     });
   };
 
-  console.log(activeSession);
   // ── Loading ────────────────────────────────────────────────────────────────
   if (
     isLoadingSessions ||

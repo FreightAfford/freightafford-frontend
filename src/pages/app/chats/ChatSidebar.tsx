@@ -1,14 +1,14 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { MessageCircle, Search, UserIcon } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import cn from "../../../utils/cn";
+import type { ChatSession } from "../../../chat.types";
 import {
   chatKeys,
   useGetAllSessions,
   useGetBulkUnreadCounts,
 } from "../../../hooks/useChatService";
-import type { ChatSession } from "../../../chat.types";
+import cn from "../../../utils/cn";
 
 interface ChatSidebarProps {
   activeSessionId?: string;
@@ -18,7 +18,10 @@ interface ChatSidebarProps {
 const STATUS_FILTERS = ["all", "waiting", "active", "closed"] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 
-const ChatSidebar = ({ activeSessionId, onSelectSession }: ChatSidebarProps) => {
+const ChatSidebar = ({
+  activeSessionId,
+  onSelectSession,
+}: ChatSidebarProps) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const queryClient = useQueryClient();
@@ -31,7 +34,7 @@ const ChatSidebar = ({ activeSessionId, onSelectSession }: ChatSidebarProps) => 
   const { counts: unreadCounts } = useGetBulkUnreadCounts(sessionIds);
 
   const filtered = sessions.filter((s) =>
-    s.customer.fullname.toLowerCase().includes(search.toLowerCase()),
+    s.customer.fullname?.toLowerCase().includes(search?.toLowerCase()),
   );
 
   // Zero the unread badge immediately when the CSO opens a session
@@ -55,7 +58,7 @@ const ChatSidebar = ({ activeSessionId, onSelectSession }: ChatSidebarProps) => 
             Messages
           </h2>
           <div className="rounded-full bg-slate-100 p-2">
-            <MessageCircle className="h-5 w-5 text-slate-600"/>
+            <MessageCircle className="h-5 w-5 text-slate-600" />
           </div>
         </div>
         <div className="relative mb-3">
@@ -75,7 +78,7 @@ const ChatSidebar = ({ activeSessionId, onSelectSession }: ChatSidebarProps) => 
               key={status}
               onClick={() => setStatusFilter(status)}
               className={cn(
-                "flex-1 rounded-lg py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
+                "flex-1 rounded-lg py-1 text-[10px] font-bold tracking-wider uppercase transition-all",
                 statusFilter === status
                   ? "bg-indigo-600 text-white"
                   : "text-slate-400 hover:bg-slate-100",
@@ -173,7 +176,8 @@ const ChatSidebar = ({ activeSessionId, onSelectSession }: ChatSidebarProps) => 
                           : "text-slate-500",
                       )}
                     >
-                      {session.type === "request_linked" && session.freightRequest
+                      {session.type === "request_linked" &&
+                      session.freightRequest
                         ? `${session.freightRequest.originPort} → ${session.freightRequest.destinationPort}`
                         : "General enquiry"}
                     </p>

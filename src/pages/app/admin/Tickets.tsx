@@ -13,7 +13,6 @@ import TableControls from "../../../components/app/TableControls";
 import { useTableQuery } from "../../../hooks/useTableQuery";
 import { useGetAllTickets } from "../../../hooks/useTicketService";
 
-
 const Tickets = () => {
   const navigate = useNavigate();
   const {
@@ -67,42 +66,38 @@ const Tickets = () => {
 
   return (
     <div className="space-y-8">
-      {hasAnyData || hasResults ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <>
-            <h1 className="text-2xl font-bold text-slate-900">
-              Support Management
-            </h1>
-            <p className="mt-1 text-slate-500">
-              Manage and resolve global logistics support requests.
-            </p>
-          </>
-        </motion.div>
-      ) : null}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Support Management
+          </h1>
+          <p className="mt-1 text-slate-500">
+            Manage and resolve global logistics support requests.
+          </p>
+        </>
+      </motion.div>
 
       {/* Stats Summary */}
-      {hasAnyData && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="grid grid-cols-3 gap-6"
-        >
-          <StatsCard title="Total Tickets" value={totalAll || 0} icon={Mail} />
-          <StatsCard
-            title="Pending Review"
-            value={pendingReview || 0}
-            icon={Clock}
-          />
-          <StatsCard
-            title="Open Threads"
-            value={openThreads || 0}
-            icon={CircleDot}
-          />
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="grid grid-cols-3 gap-6"
+      >
+        <StatsCard title="Total Tickets" value={totalAll || 0} icon={Mail} />
+        <StatsCard
+          title="Pending Review"
+          value={pendingReview || 0}
+          icon={Clock}
+        />
+        <StatsCard
+          title="Open Threads"
+          value={openThreads || 0}
+          icon={CircleDot}
+        />
+      </motion.div>
 
       {/* Table/List View */}
       {hasAnyData && (

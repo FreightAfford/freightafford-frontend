@@ -9,12 +9,14 @@ import AdminOverview from "../pages/app/admin/Overview";
 import AdminRequests from "../pages/app/admin/Requests";
 import Tickets from "../pages/app/admin/Tickets";
 import AdminUsers from "../pages/app/admin/Users";
+import ChatInterface from "../pages/app/chats/ChatInterface";
 import CustomerBookings from "../pages/app/customer/Bookings";
 import CustomerDocuments from "../pages/app/customer/Documents";
 import CustomerInvoices from "../pages/app/customer/Invoices";
 import CustomerOverview from "../pages/app/customer/Overview";
 import CustomerProfile from "../pages/app/customer/Profile";
 import CustomerRequests from "../pages/app/customer/Requests";
+import CustomerSupport from "../pages/app/customer/Support";
 import BookingDetails from "../pages/app/shared/BookingDetails";
 import InvoiceDetails from "../pages/app/shared/InvoiceDetails";
 import RequestDetails from "../pages/app/shared/RequestDetails";
@@ -32,7 +34,6 @@ import LandingPage from "../pages/home/LandingPage";
 import TermsPage from "../pages/home/TermsPage";
 import ProtectedRoute from "./ProtectedRoute";
 import Unauthorized from "./Unauthorized";
-import CustomerSupport from "../pages/app/customer/Support";
 
 // const LandingPage = lazy(() => import("../pages/home/LandingPage"));
 // const TermsPage = lazy(() => import("../pages/home/TermsPage"));
@@ -114,6 +115,7 @@ const AppRoutes = createBrowserRouter([
           { path: "invoices/:id", Component: InvoiceDetails },
           { path: "profile", Component: CustomerProfile },
           { path: "support", Component: CustomerSupport },
+          { path: "chats", Component: ChatInterface },
         ],
       },
 
@@ -140,6 +142,7 @@ const AppRoutes = createBrowserRouter([
           { path: "users", Component: AdminUsers },
           { path: "users/:id", Component: UserDetails },
           { path: "logs", Component: AdminLogs },
+          { path: "chats", Component: ChatInterface },
         ],
       },
     ],

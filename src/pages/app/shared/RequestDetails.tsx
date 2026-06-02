@@ -8,6 +8,7 @@ import {
   Container,
   FileText,
   MapPin,
+  MessageCircle,
   MessageSquare,
   Package,
   User,
@@ -92,8 +93,33 @@ const RequestDetails = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* <Button variant="outline">Download PDF</Button> */}
-            {/* {request.status === "pending" && <Button>Edit Request</Button>} */}
+            {/* ── Customer: Chat about this request ── */}
+            {user.role === "customer" && (
+              <button
+                onClick={() =>
+                  navigate("/app/customer/chats", {
+                    state: {
+                      chatContext: {
+                        type: "request_linked",
+                        freightRequestId: request._id,
+                        bookingId:
+                          request.booking?._id ??
+                          (typeof request.booking === "string"
+                            ? request.booking
+                            : undefined),
+                        label: `REQ-${request._id?.slice(-8).toUpperCase()}`,
+                        route: `${request.originPort} → ${request.destinationPort}`,
+                      },
+                    },
+                  })
+                }
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 active:scale-95"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chat about this request
+              </button>
+            )}
+
             {user.role === "admin" && (
               <>
                 {(request.status === "pending" ||
@@ -117,7 +143,6 @@ const RequestDetails = () => {
                     <AlertCircle className="h-6 w-6" /> Counter
                   </Button>
                 )}
-
                 {(request.status === "pending" ||
                   request.status === "countered") && (
                   <Button
@@ -143,7 +168,6 @@ const RequestDetails = () => {
               <MapPin className="text-brand h-7 w-7" />
               Shipment Details
             </h2>
-
             <div className="max-small-mobile:grid-cols-1 grid grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
@@ -166,7 +190,6 @@ const RequestDetails = () => {
                     </div>
                   </div>
                 </div>
-
                 <div>
                   <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
                     Container
@@ -181,7 +204,6 @@ const RequestDetails = () => {
                   </div>
                 </div>
               </div>
-
               <div className="space-y-6">
                 <div>
                   <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
@@ -194,7 +216,6 @@ const RequestDetails = () => {
                     </span>
                   </div>
                 </div>
-
                 <div className="max-small-desktop:grid-cols-1 max-tablet:grid-cols-2 max-medium-mobile:grid-cols-1 grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
@@ -222,6 +243,7 @@ const RequestDetails = () => {
               </div>
             </div>
           </div>
+
           <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
             <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-slate-900">
               <FileText className="text-brand h-7 w-7" />
@@ -261,7 +283,6 @@ const RequestDetails = () => {
                   </>
                 )}
               </h2>
-
               {request.status === "countered" && (
                 <div className="mb-4">
                   <p className="mb-1 text-sm font-medium text-purple-700">
@@ -272,7 +293,6 @@ const RequestDetails = () => {
                   </p>
                 </div>
               )}
-
               <div>
                 <p
                   className={cn(
@@ -298,7 +318,6 @@ const RequestDetails = () => {
                       "You couldn't agreed to our counter offer."}
                 </p>
               </div>
-
               {request.status === "countered" && user.role === "customer" && (
                 <div className="mt-6 flex gap-3">
                   <Button
@@ -328,6 +347,7 @@ const RequestDetails = () => {
               )}
             </div>
           )}
+
           <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
             <h2 className="mb-6 flex items-center gap-2 text-xl font-semibold text-slate-900">
               <Clock className="text-brand h-7 w-7" />
@@ -353,7 +373,6 @@ const RequestDetails = () => {
                   </p>
                 </div>
               </div>
-
               {request.adminActionAt && (
                 <div className="flex gap-4">
                   <div className="flex flex-col items-center">
@@ -396,8 +415,9 @@ const RequestDetails = () => {
             </div>
           </div>
         </div>
+
+        {/* Right Column */}
         <div className="max-small-desktop:space-y-4 space-y-8">
-          {/* Pricing Card */}
           <div className="max-small-desktop:px-4 max-tablet:p-6 rounded-2xl bg-slate-900 p-6 text-white shadow-lg shadow-slate-200">
             <h3 className="mb-4 text-sm font-medium tracking-wider text-slate-400 uppercase">
               Proposed Price
@@ -423,7 +443,6 @@ const RequestDetails = () => {
                 <span className="italic">No counter offer made</span>
               )}
             </div>
-
             <div className="space-y-3 border-t border-white/10 pt-6">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Size</span>
@@ -481,25 +500,9 @@ const RequestDetails = () => {
               </Link>
             </div>
           </div>
-          {/* <div className="max-small-desktop:px-4 max-tablet:p-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 font-semibold text-slate-900">Quick Actions</h2>
-            <div className="space-y-2">
-              <Button
-                variant="ghost"
-                className="h-10 w-full justify-start text-sm font-normal"
-              >
-                <File className="mr-2 h-5 w-5" /> Check Invoice
-              </Button>
-              <Button
-                variant="ghost"
-                className="h-10 w-full justify-start text-sm font-normal"
-              >
-                <FileText className="mr-2 h-5 w-5" /> View Documents
-              </Button>
-            </div>
-          </div> */}
         </div>
       </div>
+
       <Modal
         isOpen={isCounterModalOpen}
         onClose={() => setIsCounterModalOpen(false)}

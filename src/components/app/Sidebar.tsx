@@ -6,6 +6,7 @@ import {
   HelpCircle,
   LayoutDashboard,
   LogOut,
+  MessageSquare,
   Receipt,
   Ship,
   User,
@@ -41,6 +42,8 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
       icon: CalendarCheck,
       path: "/app/customer/bookings",
     },
+    { name: "Live Chat", icon: MessageSquare, path: "/app/customer/chats" },
+    { name: "Support", icon: HelpCircle, path: "/app/customer/support" },
     {
       name: "Documents",
       icon: FileText,
@@ -48,7 +51,6 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     },
     { name: "Invoices", icon: Receipt, path: "/app/customer/invoices" },
     { name: "Profile", icon: User, path: "/app/customer/profile" },
-    { name: "Support", icon: HelpCircle, path: "/app/customer/support" },
   ];
 
   const adminLinks = [
@@ -56,6 +58,8 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     { name: "Freight Requests", icon: FileSearch, path: "/app/admin/requests" },
     { name: "Bookings", icon: CalendarCheck, path: "/app/admin/bookings" },
     // { name: "Sailing Schedule", icon: Calendar, path: "/app/admin/schedule" },
+
+    { name: "Live Chat", icon: MessageSquare, path: "/app/admin/chats" },
     { name: "Tickets", icon: FileText, path: "/app/admin/tickets" },
     { name: "Documents", icon: FileUp, path: "/app/admin/documents" },
     { name: "Invoices", icon: Receipt, path: "/app/admin/invoices" },
@@ -69,7 +73,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     <>
       {isOpen && (
         <div
-          className="max-tablet:block fixed inset-0 z-40 hidden bg-slate-900/50 backdrop-blur-sm"
+          className="max-tablet:block fixed inset-0 z-45 hidden bg-slate-900/50 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
         />
       )}

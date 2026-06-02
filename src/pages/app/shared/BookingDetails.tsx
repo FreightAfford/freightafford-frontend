@@ -9,6 +9,7 @@ import {
   History,
   Info,
   MapPin,
+  MessageCircle,
   Package,
   Plus,
   Ship,
@@ -97,6 +98,35 @@ const BookingDetails = () => {
 
           <div className="max-small-mobile:justify-start flex flex-wrap items-center justify-end gap-2">
             {/* <Button variant="outline">Download Confirmation</Button> */}
+            {user?.role === "customer" && (
+              <button
+                onClick={() =>
+                  navigate("/app/customer/chats", {
+                    state: {
+                      chatContext: {
+                        type: "request_linked",
+                        // Booking is always tied to a FreightRequest
+                        freightRequestId:
+                          booking.freightRequest?._id ??
+                          (typeof booking.freightRequest === "string"
+                            ? booking.freightRequest
+                            : undefined),
+                        bookingId: booking._id,
+                        label: booking.bookingNumber,
+                        route: booking.freightRequest
+                          ? `${booking.freightRequest.originPort} → ${booking.freightRequest.destinationPort}`
+                          : booking.bookingNumber,
+                      },
+                    },
+                  })
+                }
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 active:scale-95"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chat about this booking
+              </button>
+            )}
+
             {user?.role === "admin" && (
               <>
                 <Button onClick={() => setIsUpdateShippingModalOpen(true)}>

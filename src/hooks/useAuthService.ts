@@ -15,6 +15,7 @@ import {
   updateUserProfileApi,
   verifyOtpApi,
 } from "../services/api/auth";
+import { socketService } from "../services/socket/socket.service";
 
 export const useRegister = () => {
   const { mutate: register, isPending } = useMutation({
@@ -65,6 +66,7 @@ export const useLogout = () => {
   const { mutate: logout, isPending } = useMutation({
     mutationFn: logoutApi,
     onSuccess: (response) => {
+      socketService.disconnect();
       queryClient.clear();
       toast.success(response.message);
     },

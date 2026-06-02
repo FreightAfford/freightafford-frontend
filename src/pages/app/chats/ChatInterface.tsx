@@ -46,7 +46,7 @@ const ChatInterface = () => {
   if (!user) return null;
 
   return (
-    <div className="flex h-[calc(100vh-125px)] max-tablet:h-[calc(100vh-100px)] max-mobile:h-[calc(100vh-80px)] overflow-hidden rounded-xl border border-slate-200 bg-green-400 shadow-sm">
+    <div className="max-tablet:h-[calc(100vh-100px)] max-mobile:h-[calc(100vh-80px)] flex h-[calc(100vh-125px)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       {isCSO ? <CSODashboard /> : <CustomerChatView />}
     </div>
   );

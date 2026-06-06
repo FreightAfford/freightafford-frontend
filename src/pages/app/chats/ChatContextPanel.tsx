@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { Link } from "react-router";
 import type { ChatSession } from "../../../chat.types";
+import StatusBadge from "../../../components/app/StatusBadge";
 import {
   useAcceptSession,
   useCloseSession,
@@ -131,10 +132,12 @@ const ChatContextPanel = ({
             <Mail className="h-4.5 w-4.5 text-slate-400" />
             <span className="truncate">{customer.email}</span>
           </div>
-          <div className="flex items-start gap-3 text-sm text-slate-600">
-            <Shield className="h-4.5 w-4.5 text-slate-400" />
-            <span className="line-clamp-2">{customer.companyName}</span>
-          </div>
+          {customer.companyName && (
+            <div className="flex items-start gap-3 text-sm text-slate-600">
+              <Shield className="h-4.5 w-4.5 text-slate-400" />
+              <span className="line-clamp-2">{customer.companyName}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -152,28 +155,17 @@ const ChatContextPanel = ({
               <ExternalLink className="h-4 w-4" />
             </Link>
           </div>
-          <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+          <div className="rounded-xl bg-white p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm font-bold text-slate-900">
-                {freightRequest._id?.slice(-10).toUpperCase()}
-              </span>
-              <span
-                className={cn(
-                  "rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase",
-                  freightRequest.status === "pending"
-                    ? "border-amber-100 bg-amber-50 text-amber-600"
-                    : "border-blue-100 bg-blue-50 text-blue-600",
-                )}
-              >
-                {freightRequest.status}
-              </span>
+              <span className="text-sm font-bold text-slate-900">Info</span>
+              <StatusBadge status={freightRequest.status} />
             </div>
             <div className="mb-3 space-y-2">
               <div className="flex items-start gap-2 text-sm">
                 <MapPin className="mt-0.5 h-4.5 w-4.5 text-slate-400" />
                 <div className="flex-1">
                   <p className="font-medium text-slate-500">Origin</p>
-                  <p className="font-bold text-slate-900 capitalize">
+                  <p className="line-clamp-2 font-bold text-slate-900 capitalize">
                     {freightRequest.originPort}
                   </p>
                 </div>
@@ -182,14 +174,15 @@ const ChatContextPanel = ({
                 <MapPin className="mt-0.5 h-4.5 w-4.5 text-slate-400" />
                 <div className="flex-1">
                   <p className="font-medium text-slate-500">Destination</p>
-                  <p className="font-bold text-slate-900 capitalize">
+                  <p className="line-clamp-2 font-bold text-slate-900 capitalize">
                     {freightRequest.destinationPort}
                   </p>
                 </div>
               </div>
             </div>
             <p className="rounded-lg bg-slate-50 p-2 text-sm text-slate-500 italic">
-              {freightRequest.containerQuantity}x {freightRequest.containerSize}
+              {freightRequest.containerQuantity} x{" "}
+              {freightRequest.containerSize}
             </p>
           </div>
         </div>
@@ -231,26 +224,36 @@ const ChatContextPanel = ({
                 {booking.vessel ?? "TBA"}
               </span>
             </div>
-            {booking.sailingDate && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-xl bg-slate-50 p-3">
-                  <p className="mb-1 text-[11px] font-bold text-slate-400 uppercase">
-                    Sailing Date
-                  </p>
-                  <p className="text-sm font-bold text-slate-900">
-                    {new Date(booking.sailingDate).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-slate-50 p-3">
-                  <p className="mb-1 text-[11px] font-bold text-slate-400 uppercase">
-                    Status
-                  </p>
-                  <p className="text-sm font-bold text-slate-900 capitalize">
-                    {booking.status.replace("_", " ")}
-                  </p>
-                </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-500">Status</span>
+              <span className="font-bold text-slate-900 capitalize">
+                {booking.status === "awaiting_confirmation"
+                  ? "pending"
+                  : booking.status}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="mb-1 text-[11px] font-bold text-slate-400 uppercase">
+                  ETD
+                </p>
+                <p className="text-sm font-bold text-slate-900 italic">
+                  {booking.sailingDate ? (
+                    <>{new Date(booking.sailingDate!).toLocaleDateString()}</>
+                  ) : (
+                    "TBA"
+                  )}
+                </p>
               </div>
-            )}
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="mb-1 text-[11px] font-bold text-slate-400 uppercase">
+                  S. Line
+                </p>
+                <p className="text-sm font-bold text-slate-900 capitalize italic">
+                  {booking.shippingLine ?? "TBA"}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       ) : (

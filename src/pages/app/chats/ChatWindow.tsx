@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type SubmitEvent,
 } from "react";
 import type { ChatSession } from "../../../chat.types";
 import { useUser } from "../../../hooks/useAuthService";
@@ -83,7 +84,7 @@ const ChatWindow = ({
   );
 
   const handleSend = useCallback(
-    (e?: React.FormEvent) => {
+    (e?: SubmitEvent<HTMLFormElement>) => {
       e?.preventDefault();
       if (!input.trim()) return;
 
@@ -99,6 +100,17 @@ const ChatWindow = ({
       socketService.emit.stopTyping(session._id);
     },
     [input, session._id],
+  );
+
+  // Enter submits, Shift+Enter inserts a newline
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    },
+    [handleSend],
   );
 
   // Cleanup timer on unmount
@@ -339,6 +351,7 @@ const ChatWindow = ({
               ref={textareaRef}
               value={input}
               onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
               disabled={isInputDisabled}
               placeholder="Type your message here..."
               rows={1}

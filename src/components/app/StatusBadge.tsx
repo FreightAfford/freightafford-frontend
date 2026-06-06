@@ -16,7 +16,7 @@ interface StatusBadgeProps {
 
 const StatusBadge = ({ status, className }: StatusBadgeProps) => {
   const getStatusStyles = (s: string) => {
-    switch (s.toLowerCase()) {
+    switch (s?.toLowerCase()) {
       case "active":
       case "accepted":
       case "paid":
@@ -52,7 +52,7 @@ const StatusBadge = ({ status, className }: StatusBadgeProps) => {
         className,
       )}
     >
-      {status.replace("_", " ")}
+      {status?.replace("_", " ")}
     </span>
   );
 };

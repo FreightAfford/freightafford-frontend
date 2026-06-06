@@ -43,9 +43,11 @@ const ChatButton = ({ chatContext }: ChatButtonProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
+    // One-time intent flag — tells CustomerChatView this was a deliberate
+    // navigation (not a reload). Cleared immediately on mount over there.
+    sessionStorage.setItem("chat_intent", "true");
+
     navigate("/app/customer/chats", {
-      // Passed as route state — invisible in the URL bar
-      // CustomerChatView reads this via useLocation().state
       state: { chatContext: chatContext ?? { type: "general" } },
     });
   };

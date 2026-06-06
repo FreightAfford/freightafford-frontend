@@ -96,7 +96,8 @@ const RequestDetails = () => {
             {/* ── Customer: Chat about this request ── */}
             {user.role === "customer" && (
               <button
-                onClick={() =>
+                onClick={() => {
+                  sessionStorage.setItem("chat_intent", "true");
                   navigate("/app/customer/chats", {
                     state: {
                       chatContext: {
@@ -111,8 +112,8 @@ const RequestDetails = () => {
                         route: `${request.originPort} → ${request.destinationPort}`,
                       },
                     },
-                  })
-                }
+                  });
+                }}
                 className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 active:scale-95"
               >
                 <MessageCircle className="h-4 w-4" />

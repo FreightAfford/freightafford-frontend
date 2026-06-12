@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { useDeleteBL, useGetBL, useUploadBL } from "../../hooks/useBLService";
+import { useConfirm } from "../../hooks/useConfirm";
 import { formatFileSize, getStatusColor } from "../../utils/helpers";
 import {
   uploadBLSchema,
@@ -52,6 +53,7 @@ export const BillOfLadingManager = ({
   bookingId,
   role,
 }: BillOfLadingManagerProps) => {
+  const { confirm, ConfirmDialog } = useConfirm();
   const { uploadBL, isPending } = useUploadBL();
   const { bls, isPending: isLoading } = useGetBL(bookingId);
   const { deleteBL, isPending: isDeleting } = useDeleteBL();
@@ -364,8 +366,17 @@ export const BillOfLadingManager = ({
                     </Link>
                     {role && (
                       <button
-                        onClick={() => {
-                          deleteBL(bl._id);
+                        onClick={async () => {
+                          const ok = await confirm({
+                            title: "Confirm Deletion",
+                            message:
+                              "Are you sure you want to delete this document? This action cannot be undone.",
+                            confirmText: "Yes, Delete",
+                            cancelText: "No, Cancel",
+                            variant: "danger",
+                          });
+
+                          if (ok) deleteBL(bl._id);
                         }}
                         disabled={isDeleting}
                         className="rounded-lg p-2 text-slate-400 transition-all hover:bg-red-50 hover:text-red-500"
@@ -380,7 +391,7 @@ export const BillOfLadingManager = ({
             })}
           </>
         )}
-
+        {ConfirmDialog}
         {!bls?.length && (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">

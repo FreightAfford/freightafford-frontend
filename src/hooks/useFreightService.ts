@@ -7,6 +7,7 @@ import {
   getAllFreightRequestApi,
   getFreightRequestApi,
   getMyFreightRequestApi,
+  rejectFreightRequestApi,
   respondToCounterApi,
 } from "../services/api/freight";
 
@@ -86,6 +87,24 @@ export const useCounterFreightRequest = (id: string) => {
   });
 
   return { counterRequest, isPending };
+};
+
+export const useRejectFreightRequest = (id: string) => {
+  const queryClient = useQueryClient();
+
+  const { mutate: rejectRequest, isPending } = useMutation({
+    mutationFn: rejectFreightRequestApi,
+    onSuccess: () => {
+      toast.success("Rejected freight request successfully!");
+
+      queryClient.invalidateQueries({ queryKey: ["adminFreightRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["freightRequest", id] });
+    },
+    onError: (err) =>
+      toast.error(err.message || "Unable to reject freight request"),
+  });
+
+  return { rejectRequest, isPending };
 };
 
 export const useRespondToCounter = (id: string) => {

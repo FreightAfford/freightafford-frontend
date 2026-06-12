@@ -1,7 +1,18 @@
 import { z } from "zod";
 
 export const uploadBLSchema = z.object({
-  type: z.enum(["house", "master"], "Choose one of the two type option"),
+  type: z.enum(
+    [
+      "house",
+      "master",
+      "release_order",
+      "booking_confirmation",
+      "draft_bill_of_lading",
+      "original_bill_of_lading",
+    ],
+    "Select a valid document type",
+  ),
+  status: z.enum(["drafted", "finalized"], "Select a valid status"),
   file: z
     .instanceof(FileList)
     .refine(

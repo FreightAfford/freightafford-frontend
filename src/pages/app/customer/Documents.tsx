@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router";
+import { getDocTypeLabel } from "../../../components/app/BillOfLadingManager";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import SmallLoader from "../../../components/SmallLoader";
@@ -92,7 +93,7 @@ const CustomerDocuments = () => {
                         target="_blank"
                         className="line-clamp-2 font-bold text-slate-900 capitalize"
                       >
-                        {bl.type} Bill of Lading - {bl.booking.bookingNumber}
+                        {getDocTypeLabel(bl.type)}: {bl.fileName}{" "}
                       </Link>
                       <span
                         className={`rounded-full border px-2 py-0.5 text-sm font-bold tracking-wider uppercase ${getStatusColor(bl.status)}`}
@@ -102,7 +103,8 @@ const CustomerDocuments = () => {
                     </div>
                     <div className="flex items-center gap-3 text-sm tracking-wider text-slate-400 uppercase">
                       <span className="flex items-center gap-1">
-                        <Clock className="h-4.5 w-4.5" />v{bl.version} •{" "}
+                        {bl.booking.bookingNumber} •{" "}
+                        <Clock className="h-4.5 w-4.5" />{" "}
                         {moment(bl.createdAt).format("ll")}
                       </span>
                       <span>{formatFileSize(bl.fileSize)}</span>

@@ -3,7 +3,14 @@ import { apiClient } from "../configurations/apiConfig";
 
 export const uploadBillOfLadingApi = async (data: {
   bookingId: string;
-  type: "house" | "master";
+  type:
+    | "house"
+    | "master"
+    | "release_order"
+    | "booking_confirmation"
+    | "draft_bill_of_lading"
+    | "original_bill_of_lading";
+  status: "drafted" | "finalized";
   file: FileList;
 }) => {
   try {
@@ -11,6 +18,7 @@ export const uploadBillOfLadingApi = async (data: {
 
     formData.append("bookingId", data.bookingId);
     formData.append("type", data.type);
+    formData.append("status", data.status!);
     formData.append("document", data.file[0]);
 
     const response = await apiClient.post("/bl", formData, {

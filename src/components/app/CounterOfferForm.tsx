@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useConfirm } from "../../hooks/useConfirm";
 import { useCounterFreightRequest } from "../../hooks/useFreightService";
 import {
   counterFreightSchema,
@@ -15,6 +16,7 @@ const CounterOfferForm = ({
   request: any;
   onCancel: () => void;
 }) => {
+  const { confirm, ConfirmDialog } = useConfirm();
   const { counterRequest, isPending } = useCounterFreightRequest(request?._id);
 
   const {
@@ -25,8 +27,21 @@ const CounterOfferForm = ({
     resolver: zodResolver(counterFreightSchema),
   });
 
-  const onCounterFreight = (data: CounterFreightFormValues) =>
-    counterRequest({ id: request._id, data }, { onSuccess: () => onCancel() });
+  const onCounterFreight = async (data: CounterFreightFormValues) => {
+    const ok = await confirm({
+      title: "Confirm Counter Offer",
+      message: "Are you sure you want to send this counter offer?",
+      confirmText: "Yes, Send",
+      cancelText: "No, Cancel",
+      variant: "warning",
+    });
+
+    if (ok)
+      counterRequest(
+        { id: request._id, data },
+        { onSuccess: () => onCancel() },
+      );
+  };
 
   return (
     <form onSubmit={handleSubmit(onCounterFreight)} className="space-y-6">
@@ -59,13 +74,19 @@ const CounterOfferForm = ({
         )}
       </div>
       <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
-        <Button type="button" variant="ghost" onClick={onCancel}>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onCancel}
+          disabled={isPending}
+        >
           Cancel
         </Button>
-        <Button type="submit" isLoading={isPending}>
+        <Button type="submit" isLoading={isPending} disabled={isPending}>
           Send Counter Offer
         </Button>
       </div>
+      {ConfirmDialog}
     </form>
   );
 };

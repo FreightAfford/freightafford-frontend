@@ -32,5 +32,13 @@ export const counterFreightSchema = z.object({
     .max(500, "Reason is too long"),
 });
 
+export const rejectFreightSchema = z.object({
+  reason: z
+    .string()
+    .min(10, "Reason must be at least 10 characters")
+    .max(500, "Reason is too long"),
+});
+
 export type FreightRequestFormValues = z.infer<typeof freightRequestSchema>;
 export type CounterFreightFormValues = z.infer<typeof counterFreightSchema>;
+export type RejectFreightFormValues = z.infer<typeof rejectFreightSchema>;

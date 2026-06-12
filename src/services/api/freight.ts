@@ -64,6 +64,26 @@ export const counterFreightRequestApi = async ({
   }
 };
 
+export const rejectFreightRequestApi = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: { reason: string };
+}) => {
+  try {
+    const response = await apiClient.patch(
+      `/freight-request/admin/${id}/reject`,
+      data,
+    );
+
+    return response.data.data;
+  } catch (error) {
+    if (error instanceof AxiosError) throw error.response?.data;
+    if (error instanceof Error) throw error.message;
+  }
+};
+
 export const respondToCounterApi = async ({
   id,
   decision,

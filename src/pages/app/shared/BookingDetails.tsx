@@ -33,12 +33,14 @@ import Modal from "../../../components/Modal";
 import SmallLoader from "../../../components/SmallLoader";
 import { useUser } from "../../../hooks/useAuthService";
 import { useGetSingleBooking } from "../../../hooks/useBookingService";
+import { useConfirm } from "../../../hooks/useConfirm";
 import { useGetInvoiceByBooking } from "../../../hooks/useInvoiceService";
 
 const BookingDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useUser();
+  const { confirm, ConfirmDialog } = useConfirm();
   const { booking, isPending, sbError } = useGetSingleBooking(id!);
   // const { events, isPending: isTracking } = useGetBookingTrackingEvents(id!);
   const { isPending: isLoading, invoice } = useGetInvoiceByBooking(id!);
@@ -100,26 +102,36 @@ const BookingDetails = () => {
             {/* <Button variant="outline">Download Confirmation</Button> */}
             {user?.role === "customer" && (
               <button
-                onClick={() => {
-                  sessionStorage.setItem("chat_intent", "true");
-                  navigate("/app/customer/chats", {
-                    state: {
-                      chatContext: {
-                        type: "request_linked",
-                        // Booking is always tied to a FreightRequest
-                        freightRequestId:
-                          booking.freightRequest?._id ??
-                          (typeof booking.freightRequest === "string"
-                            ? booking.freightRequest
-                            : undefined),
-                        bookingId: booking._id,
-                        label: booking.bookingNumber,
-                        route: booking.freightRequest
-                          ? `${booking.freightRequest.originPort} → ${booking.freightRequest.destinationPort}`
-                          : booking.bookingNumber,
-                      },
-                    },
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: "Start Booking Chat",
+                    message: "Do you want to start a chat about this booking?",
+                    confirmText: "Yes, Start Chat",
+                    cancelText: "No, Cancel",
+                    variant: "primary",
                   });
+
+                  if (ok) {
+                    sessionStorage.setItem("chat_intent", "true");
+                    navigate("/app/customer/chats", {
+                      state: {
+                        chatContext: {
+                          type: "request_linked",
+                          // Booking is always tied to a FreightRequest
+                          freightRequestId:
+                            booking.freightRequest?._id ??
+                            (typeof booking.freightRequest === "string"
+                              ? booking.freightRequest
+                              : undefined),
+                          bookingId: booking._id,
+                          label: booking.bookingNumber,
+                          route: booking.freightRequest
+                            ? `${booking.freightRequest.originPort} → ${booking.freightRequest.destinationPort}`
+                            : booking.bookingNumber,
+                        },
+                      },
+                    });
+                  }
                 }}
                 className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 active:scale-95"
               >
@@ -627,6 +639,7 @@ const BookingDetails = () => {
           onCancel={() => setIsInvoiceModalOpen(false)}
         />
       </Modal>
+      {ConfirmDialog}
     </>
   );
 };

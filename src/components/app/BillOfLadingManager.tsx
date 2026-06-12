@@ -26,6 +26,28 @@ interface BillOfLadingManagerProps {
   role: boolean;
 }
 
+export const getDocTypeLabel = (type: string) => {
+  switch (type) {
+    case "house":
+      return "House BL";
+    case "master":
+      return "Master BL";
+    case "release_order":
+      return "Release Order";
+    case "booking_confirmation":
+      return "Booking Confirmation";
+    case "draft_bill_of_lading":
+      return "Draft Bill of Lading";
+    case "original_bill_of_lading":
+      return "Original Bill of Lading";
+    default:
+      return type
+        .split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+  }
+};
+
 export const BillOfLadingManager = ({
   bookingId,
   role,
@@ -49,7 +71,7 @@ export const BillOfLadingManager = ({
 
   const onUploadBL = (data: UploadBLValues) => {
     uploadBL(
-      { bookingId, type: data.type, file: data.file },
+      { bookingId, type: data.type, status: data.status!, file: data.file },
       {
         onSuccess: () => {
           reset();
@@ -106,7 +128,7 @@ export const BillOfLadingManager = ({
             </div>
 
             <form onSubmit={handleSubmit(onUploadBL)} className="space-y-4">
-              <div>
+              {/* <div>
                 <label className="mb-2 block text-sm font-medium tracking-wider text-slate-500 uppercase">
                   BL Type
                 </label>
@@ -134,6 +156,52 @@ export const BillOfLadingManager = ({
                 </div>
                 {errors.type && (
                   <p className="text-sm text-red-500">{errors.type.message}</p>
+                )}
+              </div> */}
+
+              <div>
+                <label className="mb-2 block text-xs font-medium tracking-wider text-slate-500 uppercase">
+                  Document Type
+                </label>
+                <select
+                  {...register("type")}
+                  className="focus:ring-brand/20 focus:border-brand w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all outline-none focus:ring-2"
+                  disabled={isPending}
+                >
+                  <option value="release_order">Release Order</option>
+                  <option value="booking_confirmation">
+                    Booking Confirmation
+                  </option>
+                  <option value="draft_bill_of_lading">
+                    Draft Bill of Lading
+                  </option>
+                  <option value="original_bill_of_lading">
+                    Original Bill of Lading
+                  </option>
+                  <option value="house">House Bill of Lading</option>
+                  <option value="master">Master Bill of Lading</option>
+                </select>
+                {errors.type && (
+                  <p className="text-sm text-red-500">{errors.type.message}</p>
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-xs font-medium tracking-wider text-slate-500 uppercase">
+                  Status (OPTIONAL)
+                </label>
+                <select
+                  {...register("status")}
+                  className="focus:ring-brand/20 focus:border-brand w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all outline-none focus:ring-2"
+                  disabled={isPending}
+                >
+                  {/* <option value="pending_amendment">Pending Amendment</option> */}
+                  <option value="drafted">Drafted</option>
+                  <option value="finalized">Finalized</option>
+                </select>
+                {errors.status && (
+                  <p className="text-sm text-red-500">
+                    {errors.status.message}
+                  </p>
                 )}
               </div>
 
@@ -264,9 +332,9 @@ export const BillOfLadingManager = ({
                         <Link
                           to={bl.documentUrl}
                           target="_blank"
-                          className="text-sm font-bold text-slate-900 capitalize"
+                          className="line-clamp-2 text-sm font-bold text-slate-900 capitalize"
                         >
-                          {bl.type} Bill of Lading
+                          {getDocTypeLabel(bl.type)}: {bl.fileName}
                         </Link>
                         <span
                           className={`rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${getStatusColor(bl.status)}`}

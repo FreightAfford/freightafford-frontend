@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useConfirm } from "../../hooks/useConfirm";
 import { useCreateFreightRequest } from "../../hooks/useFreightService";
 import cn from "../../utils/cn";
 import {
@@ -16,6 +17,7 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
 
   const formattedDate = defaultDate.toISOString().split("T")[0];
   const { createRequest, isPending } = useCreateFreightRequest();
+  const { confirm, ConfirmDialog } = useConfirm();
   const {
     register,
     handleSubmit,
@@ -28,8 +30,17 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
 
   const containerSize = watch("containerSize");
 
-  const onCreateRequest = (data: FreightRequestFormValues) =>
-    createRequest(data, { onSuccess: () => onCancel() });
+  const onCreateRequest = async (data: FreightRequestFormValues) => {
+    const ok = await confirm({
+      title: "Confirm Freight Request",
+      message: "Are you sure you want to submit this freight request?",
+      confirmText: "Yes, Submit",
+      cancelText: "No, Cancel",
+      variant: "primary",
+    });
+
+    if (ok) createRequest(data, { onSuccess: () => onCancel() });
+  };
 
   return (
     <form onSubmit={handleSubmit(onCreateRequest)} className="space-y-6">
@@ -137,6 +148,7 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
         <Button type="submit" isLoading={isPending}>
           Submit Request
         </Button>
+        {ConfirmDialog}
       </div>
     </form>
   );

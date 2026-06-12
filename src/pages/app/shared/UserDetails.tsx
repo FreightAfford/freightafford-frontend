@@ -26,6 +26,7 @@ import {
   useGetSingleUser,
   useUpdateUserByAdmin,
 } from "../../../hooks/useAuthService";
+import { useConfirm } from "../../../hooks/useConfirm";
 import cn from "../../../utils/cn";
 import {
   userSchema,
@@ -35,6 +36,7 @@ import {
 const UserDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { confirm, ConfirmDialog } = useConfirm();
   const {
     user,
     requests,
@@ -73,8 +75,16 @@ const UserDetails = () => {
 
   const { updateUser, isPending: isUpdating } = useUpdateUserByAdmin();
 
-  const onUpdateUser = (data: UserFormValues) =>
-    updateUser({ userId: id as string, data });
+  const onUpdateUser = async (data: UserFormValues) => {
+    const ok = await confirm({
+      title: "Confirm Update",
+      message: "Are you sure you want to update this user's information?",
+      confirmText: "Yes, Update",
+      cancelText: "No, Cancel",
+      variant: "primary",
+    });
+    if (ok) updateUser({ userId: id as string, data });
+  };
 
   if (isPending || isRefetching) return <SmallLoader />;
 
@@ -457,6 +467,7 @@ const UserDetails = () => {
             </form>
           </motion.div>
         )}
+        {ConfirmDialog}
       </AnimatePresence>
     </>
   );

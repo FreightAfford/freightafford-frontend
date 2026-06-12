@@ -1,15 +1,23 @@
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, type ReactNode } from "react";
+import cn from "../utils/cn";
 
 interface ModalProps {
-  title: string;
+  title?: string;
   children: ReactNode;
   isOpen: boolean;
   onClose: () => void;
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
-const Modal = ({ title, isOpen, onClose, children }: ModalProps) => {
+const Modal = ({
+  title,
+  isOpen,
+  onClose,
+  children,
+  size = "md",
+}: ModalProps) => {
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "unset";
@@ -17,6 +25,13 @@ const Modal = ({ title, isOpen, onClose, children }: ModalProps) => {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
+
+  const sizeClasses = {
+    sm: "max-w-md",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
+  };
 
   return (
     <AnimatePresence>
@@ -33,7 +48,10 @@ const Modal = ({ title, isOpen, onClose, children }: ModalProps) => {
             initial={{ scale: 0.95, y: 20, opacity: 0 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20, opacity: 0 }}
-            className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className={cn(
+              "relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl",
+              sizeClasses[size],
+            )}
           >
             <div className="flex items-center justify-between border-b border-slate-100 p-6">
               <h2 className="text-xl font-bold text-slate-900">{title}</h2>

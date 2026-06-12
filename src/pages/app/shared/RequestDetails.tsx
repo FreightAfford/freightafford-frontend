@@ -27,6 +27,7 @@ import CounterOfferForm from "../../../components/app/CounterOfferForm";
 import RejectRequestForm from "../../../components/app/RejectRequestForm";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { useUser } from "../../../hooks/useAuthService";
+import { useConfirm } from "../../../hooks/useConfirm";
 import {
   useAcceptFreightRequest,
   useGetFreightRequest,
@@ -36,6 +37,7 @@ import cn from "../../../utils/cn";
 
 const RequestDetails = () => {
   const { user } = useUser();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [isCounterModalOpen, setIsCounterModalOpen] = useState<boolean>(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState<boolean>(false);
   const [isDecision, setIsDecision] = useState<"accept" | "reject">("accept");
@@ -50,7 +52,17 @@ const RequestDetails = () => {
   );
   const handleDecision = (decision: "accept" | "reject") =>
     respondToCounter({ id: request._id, decision });
-  const handleAccept = () => acceptFreight(request?._id);
+  const handleAccept = async () => {
+    const ok = await confirm({
+      title: "Accept Freight Request",
+      message: "Are you sure you want to accept this freight request?",
+      confirmText: "Yes, Accept",
+      cancelText: "No, Cancel",
+      variant: "warning",
+    });
+
+    if (ok) acceptFreight(request?._id);
+  };
 
   if (isPending) return <SmallLoader />;
 
@@ -96,23 +108,34 @@ const RequestDetails = () => {
             {/* ── Customer: Chat about this request ── */}
             {user.role === "customer" && (
               <button
-                onClick={() => {
-                  sessionStorage.setItem("chat_intent", "true");
-                  navigate("/app/customer/chats", {
-                    state: {
-                      chatContext: {
-                        type: "request_linked",
-                        freightRequestId: request._id,
-                        bookingId:
-                          request.booking?._id ??
-                          (typeof request.booking === "string"
-                            ? request.booking
-                            : undefined),
-                        label: `REQ-${request._id?.slice(-8).toUpperCase()}`,
-                        route: `${request.originPort} → ${request.destinationPort}`,
-                      },
-                    },
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: "Start Request Chat",
+                    message:
+                      "Do you want to start a chat regarding this freight request?",
+                    confirmText: "Yes, Start Chat",
+                    cancelText: "No, Cancel",
+                    variant: "primary",
                   });
+
+                  if (ok) {
+                    sessionStorage.setItem("chat_intent", "true");
+                    navigate("/app/customer/chats", {
+                      state: {
+                        chatContext: {
+                          type: "request_linked",
+                          freightRequestId: request._id,
+                          bookingId:
+                            request.booking?._id ??
+                            (typeof request.booking === "string"
+                              ? request.booking
+                              : undefined),
+                          label: `REQ-${request._id?.slice(-8).toUpperCase()}`,
+                          route: `${request.originPort} → ${request.destinationPort}`,
+                        },
+                      },
+                    });
+                  }
                 }}
                 className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 active:scale-95"
               >
@@ -519,8 +542,12 @@ const RequestDetails = () => {
         onClose={() => setIsRejectModalOpen(false)}
         title="Reject Freight Requests"
       >
-        <RejectRequestForm onCancel={() => setIsRejectModalOpen(false)} />
+        <RejectRequestForm
+          request={request}
+          onCancel={() => setIsRejectModalOpen(false)}
+        />
       </Modal>
+      {ConfirmDialog}
     </>
   );
 };

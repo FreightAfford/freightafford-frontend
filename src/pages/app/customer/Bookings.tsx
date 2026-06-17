@@ -113,7 +113,6 @@ const CustomerBookings = () => {
             { label: "Status", key: "status", sortable: true },
             { label: "Shipping Line", key: "shippingLine", sortable: true },
             "Commodity",
-            "Request",
           ]}
           sortConfig={sortConfig}
           onSort={handleSort}
@@ -154,9 +153,6 @@ const CustomerBookings = () => {
                 </TableCell>
                 <TableCell className="capitalize">
                   {booking.freightRequest.commodity}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge status={booking.freightRequest.status} />
                 </TableCell>
               </TableRow>
             ))}

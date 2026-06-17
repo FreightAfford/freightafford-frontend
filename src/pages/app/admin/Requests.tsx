@@ -1,6 +1,6 @@
 import { Ship, X } from "lucide-react";
 import { motion } from "motion/react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import SmallLoader from "../../../components/SmallLoader";
@@ -8,11 +8,18 @@ import Pagination from "../../../components/app/Pagination";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
 import TableControls from "../../../components/app/TableControls";
-import { useGetAllFreightRequests } from "../../../hooks/useFreightService";
+import { useConfirm } from "../../../hooks/useConfirm";
+import {
+  useAcceptFreightRequestBatch,
+  useGetAllFreightRequests,
+} from "../../../hooks/useFreightService";
 import { useTableQuery } from "../../../hooks/useTableQuery";
 
 const AdminRequests = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const batchId = searchParams.get("batchId");
+  const { confirm, ConfirmDialog } = useConfirm();
   const {
     page,
     limit,
@@ -33,7 +40,9 @@ const AdminRequests = () => {
   });
 
   const { requests, total, totalAll, isPending, error, refetch, isRefetching } =
-    useGetAllFreightRequests(params);
+    useGetAllFreightRequests(batchId ? { batchId } : params);
+  const { acceptBatch, isPending: isAccepting } =
+    useAcceptFreightRequestBatch();
 
   const totalPages = Math.ceil(total / limit!);
 
@@ -56,6 +65,7 @@ const AdminRequests = () => {
 
   return (
     <>
+      {ConfirmDialog}
       {hasAnyData || hasResults ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -70,7 +80,41 @@ const AdminRequests = () => {
           </p>
         </motion.div>
       ) : null}
-
+      {batchId && (
+        <div className="mb-4 flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+          <span className="text-sm text-amber-800">
+            Showing {requests.length} request{requests.length !== 1 ? "s" : ""}{" "}
+            from this batch
+          </span>
+          <div className="flex items-center gap-3">
+            <Button
+              size="sm"
+              onClick={async () => {
+                const ok = await confirm({
+                  title: "Accept entire batch?",
+                  message: `This will accept all pending requests in this batch (${requests.length} total).`,
+                  confirmText: "Yes, Accept All",
+                  cancelText: "Cancel",
+                  variant: "primary",
+                });
+                if (ok)
+                  acceptBatch(batchId, {
+                    onSuccess: () => navigate(window.location.pathname),
+                  });
+              }}
+              isLoading={isAccepting}
+            >
+              Accept All
+            </Button>
+            <button
+              onClick={() => navigate(window.location.pathname)}
+              className="text-sm font-medium text-amber-700 hover:underline"
+            >
+              Clear filter
+            </button>
+          </div>
+        </div>
+      )}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -133,16 +177,23 @@ const AdminRequests = () => {
                 onClick={() => navigate(`/app/admin/requests/${request._id}`)}
               >
                 <TableCell>{(index + 1).toString().padStart(2, "0")}</TableCell>
-                <TableCell className="text-brand hover:text-brand/80 max-w-37.5 truncate font-medium capitalize">
-                  {request.customer.companyName || request.customer.fullname}
+                <TableCell className="text-brand hover:text-brand/80 font-medium capitalize">
+                  <div
+                    className="max-w-37.5 truncate"
+                    title={
+                      request.customer.companyName || request.customer.fullname
+                    }
+                  >
+                    {request.customer.companyName || request.customer.fullname}
+                  </div>
                 </TableCell>
                 <TableCell className="uppercase">
                   {request.containerSize}
                 </TableCell>
-                <TableCell className="capitalize">
+                <TableCell className="max-w-37.5 truncate capitalize">
                   {request.originPort}
                 </TableCell>
-                <TableCell className="capitalize">
+                <TableCell className="max-w-37.5 truncate capitalize">
                   {request.destinationPort}
                 </TableCell>
                 <TableCell>${request.proposedPrice.toLocaleString()}</TableCell>

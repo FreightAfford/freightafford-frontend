@@ -121,12 +121,14 @@ const AdminUsers = () => {
                 onClick={() => navigate(`/app/admin/users/${user._id}`)}
               >
                 <TableCell>{(index + 1).toString().padStart(2, "0")}</TableCell>
-                <TableCell className="text-brand font-medium capitalize">
+                <TableCell className="text-brand max-w-37.5 truncate font-medium capitalize">
                   {user.fullname}
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell className="uppercase italic">{user.role}</TableCell>
-                <TableCell>{user.companyName || "N/A"}</TableCell>
+                <TableCell className="max-w-37.5 truncate capitalize">
+                  {user.companyName || "N/A"}
+                </TableCell>
                 <TableCell>
                   {user.isEmailVerified ? (
                     <StatusBadge status="verified" />

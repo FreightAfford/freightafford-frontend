@@ -113,7 +113,6 @@ const AdminBookings = () => {
             { label: "Status", key: "status", sortable: true },
             { label: "Shipping Line", key: "shippingLine", sortable: true },
             "Commodity",
-            "Request",
           ]}
           sortConfig={sortConfig}
           onSort={handleSort}
@@ -150,11 +149,8 @@ const AdminBookings = () => {
               <TableCell>
                 {booking.shippingLine || <span className="italic">TBA</span>}
               </TableCell>
-              <TableCell className="capitalize">
+              <TableCell className="max-w-37.5 truncate capitalize">
                 {booking.freightRequest.commodity}
-              </TableCell>
-              <TableCell>
-                <StatusBadge status={booking.freightRequest.status} />
               </TableCell>
             </TableRow>
           ))}

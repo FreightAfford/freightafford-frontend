@@ -1,5 +1,6 @@
 import { MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useConfirm } from "../../../hooks/useConfirm";
 
 // ─── ChatButton ───────────────────────────────────────────────────────────────
 //
@@ -41,27 +42,41 @@ interface ChatButtonProps {
 
 const ChatButton = ({ chatContext }: ChatButtonProps) => {
   const navigate = useNavigate();
+  const { confirm, ConfirmDialog } = useConfirm();
 
-  const handleClick = () => {
-    // One-time intent flag — tells CustomerChatView this was a deliberate
-    // navigation (not a reload). Cleared immediately on mount over there.
-    sessionStorage.setItem("chat_intent", "true");
-
-    navigate("/app/customer/chats", {
-      state: { chatContext: chatContext ?? { type: "general" } },
+  const handleClick = async () => {
+    const ok = await confirm({
+      title: "Start Chat",
+      message: "Do you want to start a live chat?",
+      confirmText: "Yes, Start Chat",
+      cancelText: "No, Cancel",
+      variant: "primary",
     });
+
+    if (ok) {
+      // One-time intent flag — tells CustomerChatView this was a deliberate
+      // navigation (not a reload). Cleared immediately on mount over there.
+      sessionStorage.setItem("chat_intent", "true");
+
+      navigate("/app/customer/chats", {
+        state: { chatContext: chatContext ?? { type: "general" } },
+      });
+    }
   };
 
   return (
-    <button
-      onClick={handleClick}
-      className="group fixed right-6 bottom-6 z-50 flex items-center overflow-hidden rounded-full bg-blue-600 px-4 py-4 text-white shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-blue-700"
-    >
-      <MessageCircle className="h-6 w-6 shrink-0" />
-      <span className="ml-0 max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 group-hover:ml-2 group-hover:max-w-50 group-hover:opacity-100">
-        Chat with Support
-      </span>
-    </button>
+    <>
+      <button
+        onClick={handleClick}
+        className="group fixed right-6 bottom-6 z-50 flex items-center overflow-hidden rounded-full bg-blue-600 px-4 py-4 text-white shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-blue-700"
+      >
+        <MessageCircle className="h-6 w-6 shrink-0" />
+        <span className="ml-0 max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 group-hover:ml-2 group-hover:max-w-50 group-hover:opacity-100">
+          Chat with Support
+        </span>
+      </button>
+      {ConfirmDialog}
+    </>
   );
 };
 

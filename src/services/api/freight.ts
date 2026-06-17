@@ -4,9 +4,13 @@ import { apiClient } from "../configurations/apiConfig";
 
 export const createFreightRequestApi = async (
   data: FreightRequestFormValues,
+  quantity: number,
 ) => {
   try {
-    const response = await apiClient.post("/freight-request", data);
+    const response = await apiClient.post("/freight-request", {
+      ...data,
+      quantity,
+    });
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) throw error.response?.data;
@@ -107,6 +111,18 @@ export const acceptFreightRequestApi = async (id: string) => {
   try {
     const res = await apiClient.patch(`/freight-request/admin/${id}/accept`);
     return res.data.data;
+  } catch (error) {
+    if (error instanceof AxiosError) throw error.response?.data;
+    if (error instanceof Error) throw error.message;
+  }
+};
+
+export const acceptFreightRequestBatchApi = async (batchId: string) => {
+  try {
+    const response = await apiClient.patch(
+      `/freight-request/batch/${batchId}/accept`,
+    );
+    return response.data;
   } catch (error) {
     if (error instanceof AxiosError) throw error.response?.data;
     if (error instanceof Error) throw error.message;

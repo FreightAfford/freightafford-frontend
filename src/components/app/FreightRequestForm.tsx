@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useConfirm } from "../../hooks/useConfirm";
 import { useCreateFreightRequest } from "../../hooks/useFreightService";
@@ -18,9 +19,15 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
   const formattedDate = defaultDate.toISOString().split("T")[0];
   const { createRequest, isPending } = useCreateFreightRequest();
   const { confirm, ConfirmDialog } = useConfirm();
+  const [quantity, setQuantity] = useState<number>(1);
+
+  // Tracks which button triggered the current submit, so onSuccess knows whether to close or clone
+  const [submitIntent, setSubmitIntent] = useState<"done" | "clone">("done");
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
     watch,
   } = useForm<FreightRequestFormValues>({
@@ -33,13 +40,30 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
   const onCreateRequest = async (data: FreightRequestFormValues) => {
     const ok = await confirm({
       title: "Confirm Freight Request",
-      message: "Are you sure you want to submit this freight request?",
+      message:
+        quantity > 1
+          ? `Are you sure you want to submit ${quantity} identical freight requests?`
+          : "Are you sure you want to submit this freight request?",
       confirmText: "Yes, Submit",
       cancelText: "No, Cancel",
       variant: "primary",
     });
 
-    if (ok) createRequest(data, { onSuccess: () => onCancel() });
+    if (!ok) return;
+
+    createRequest(
+      { data, quantity },
+      {
+        onSuccess: () => {
+          if (submitIntent === "clone") {
+            reset({ cargoReadyDate: formattedDate });
+            setQuantity(1);
+          } else {
+            onCancel();
+          }
+        },
+      },
+    );
   };
 
   return (
@@ -141,11 +165,39 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
           placeholder="Any special requirements..."
         />
       </div>
-      <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+      <div className="flex items-center gap-3">
+        <label className="font-medium text-slate-700">
+          How many identical / bulk requests?
+        </label>
+        <input
+          type="number"
+          min={1}
+          max={50}
+          value={quantity}
+          onChange={(e) =>
+            setQuantity(Math.min(50, Math.max(1, Number(e.target.value) || 1)))
+          }
+          disabled={isPending}
+          className="focus-visible:ring-brand h-12 flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 ring-offset-white placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        />
+      </div>
+      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-4">
         <Button onClick={onCancel} type="button" variant="ghost">
           Cancel
         </Button>
-        <Button type="submit" isLoading={isPending}>
+        <Button
+          type="submit"
+          variant="outline"
+          isLoading={isPending && submitIntent === "clone"}
+          onClick={() => setSubmitIntent("clone")}
+        >
+          Submit & Add Another
+        </Button>
+        <Button
+          type="submit"
+          isLoading={isPending && submitIntent === "done"}
+          onClick={() => setSubmitIntent("done")}
+        >
           Submit Request
         </Button>
         {ConfirmDialog}

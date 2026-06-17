@@ -177,17 +177,19 @@ const CustomerRequests = () => {
                 <TableCell className="font-medium">
                   {request.containerSize.toUpperCase()}
                 </TableCell>
-                <TableCell className="capitalize">
+                <TableCell className="max-w-37.5 truncate capitalize">
                   {request.originPort}
                 </TableCell>
-                <TableCell className="capitalize">
+                <TableCell className="max-w-37.5 truncate capitalize">
                   {request.destinationPort}
                 </TableCell>
                 <TableCell>${request.proposedPrice.toLocaleString()}</TableCell>
                 <TableCell>
                   <StatusBadge status={request.status} />
                 </TableCell>
-                <TableCell>{request.commodity}</TableCell>
+                <TableCell className="capitalize">
+                  {request.commodity}
+                </TableCell>
                 <TableCell>
                   {moment(request.cargoReadyDate).format("LL")}
                 </TableCell>

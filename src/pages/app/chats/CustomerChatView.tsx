@@ -20,6 +20,7 @@ import {
   useGetMySessions,
 } from "../../../hooks/useChatService";
 import { useChatSocket } from "../../../hooks/useChatSocket";
+import { useConfirm } from "../../../hooks/useConfirm";
 import type { ChatContext } from "../../../pages/app/chats/ChatButton";
 import {
   SOCKET_EVENTS,
@@ -198,31 +199,41 @@ const CustomerChatView = () => {
     onQueueUpdate: handleQueueUpdate,
     onSessionUpdated: handleSessionUpdated,
   });
-
-  const handleStartChat = () => {
-    const payload =
-      !startingFresh &&
-      chatContext?.type === "request_linked" &&
-      chatContext.freightRequestId
-        ? {
-            type: "request_linked" as const,
-            freightRequestId: chatContext.freightRequestId,
-            bookingId: chatContext.bookingId,
-          }
-        : { type: "general" as const };
-
-    setIsSessionLoading(true);
-    createSession(payload, {
-      onSuccess: ({ session, queuePosition: pos }) => {
-        setIsSessionLoading(false);
-        setActiveSession(session);
-        setQueuePosition(pos);
-        setStartingFresh(false);
-      },
-      onError: () => {
-        setIsSessionLoading(false);
-      },
+  const { confirm, ConfirmDialog } = useConfirm();
+  const handleStartChat = async () => {
+    const ok = await confirm({
+      title: "Start Chat",
+      message: "Do you want to start a live chat?",
+      confirmText: "Yes, Start Chat",
+      cancelText: "No, Cancel",
+      variant: "primary",
     });
+
+    if (ok) {
+      const payload =
+        !startingFresh &&
+        chatContext?.type === "request_linked" &&
+        chatContext.freightRequestId
+          ? {
+              type: "request_linked" as const,
+              freightRequestId: chatContext.freightRequestId,
+              bookingId: chatContext.bookingId,
+            }
+          : { type: "general" as const };
+
+      setIsSessionLoading(true);
+      createSession(payload, {
+        onSuccess: ({ session, queuePosition: pos }) => {
+          setIsSessionLoading(false);
+          setActiveSession(session);
+          setQueuePosition(pos);
+          setStartingFresh(false);
+        },
+        onError: () => {
+          setIsSessionLoading(false);
+        },
+      });
+    }
   };
 
   if (isLoadingSessions || isSessionLoading) {
@@ -246,6 +257,7 @@ const CustomerChatView = () => {
 
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
+        {ConfirmDialog}
         <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-50">
           <MessageCircle className="h-10 w-10 text-blue-600" />
         </div>

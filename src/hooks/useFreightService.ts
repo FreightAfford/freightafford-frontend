@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
   acceptFreightRequestApi,
+  acceptFreightRequestBatchApi,
   counterFreightRequestApi,
   createFreightRequestApi,
   getAllFreightRequestApi,
@@ -10,12 +11,19 @@ import {
   rejectFreightRequestApi,
   respondToCounterApi,
 } from "../services/api/freight";
+import type { FreightRequestFormValues } from "../validations/freightValidation";
 
 export const useCreateFreightRequest = () => {
   const queryClient = useQueryClient();
 
   const { mutate: createRequest, isPending } = useMutation({
-    mutationFn: createFreightRequestApi,
+    mutationFn: ({
+      data,
+      quantity,
+    }: {
+      data: FreightRequestFormValues;
+      quantity: number;
+    }) => createFreightRequestApi(data, quantity),
     onSuccess: (res) => {
       toast.success(res.message);
 
@@ -139,4 +147,19 @@ export const useAcceptFreightRequest = (id: string) => {
   });
 
   return { acceptFreight, isPending };
+};
+
+export const useAcceptFreightRequestBatch = () => {
+  const queryClient = useQueryClient();
+
+  const { mutate: acceptBatch, isPending } = useMutation({
+    mutationFn: acceptFreightRequestBatchApi,
+    onSuccess: (res) => {
+      toast.success(res.message);
+      queryClient.invalidateQueries({ queryKey: ["adminFreightRequests"] });
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  return { acceptBatch, isPending };
 };

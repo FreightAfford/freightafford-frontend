@@ -156,7 +156,7 @@ const Tickets = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="group-hover:text-brand line-clamp-1 font-semibold text-slate-900 transition-colors">
+                      <span className="group-hover:text-brand max-w-64 truncate font-semibold text-slate-900 transition-colors">
                         {ticket.subject}
                       </span>
                       <span className="line-clamp-1 text-sm text-slate-400">

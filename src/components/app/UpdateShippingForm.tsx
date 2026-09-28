@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useUpdateBookingShipping } from "../../hooks/useBookingService";
 import cn from "../../utils/cn";
 import {
@@ -8,12 +8,14 @@ import {
 } from "../../validations/bookingValidation";
 import Button from "../Button";
 import Input from "../Input";
+import VesselSelect from "./VesselSelect";
 
 interface UpdateShippingFormProps {
   bookingId: string;
   initialData: {
     shippingLine?: string;
     vessel?: string;
+    vesselImo?: string;
     sailingDate?: string;
     carrierBookingNumber?: string;
   };
@@ -31,11 +33,14 @@ const UpdateShippingForm = ({
     handleSubmit,
     formState: { errors },
     watch,
+    control,
+    setValue,
   } = useForm<UpdateBookingShippingFormValues>({
     resolver: zodResolver(updateShippingSchema),
     defaultValues: {
       shippingLine: initialData.shippingLine || "",
       vessel: initialData.vessel || "",
+      vesselImo: initialData.vesselImo || undefined,
       sailingDate: initialData.sailingDate
         ? new Date(initialData.sailingDate).toISOString().split("T")[0]
         : today,
@@ -45,6 +50,7 @@ const UpdateShippingForm = ({
   const { isPending, updateBookingShipping } = useUpdateBookingShipping();
 
   const shippingLine = watch("shippingLine");
+  const vesselImo = watch("vesselImo");
   const onUpdateBookingShipping = (data: UpdateBookingShippingFormValues) =>
     updateBookingShipping(
       { id: bookingId, data },
@@ -83,12 +89,23 @@ const UpdateShippingForm = ({
           )}
         </div>
 
-        <Input
-          label="Vessel Name"
-          placeholder="e.g. Maersk Eindhoven"
-          {...register("vessel")}
-          error={errors.vessel?.message}
-          disabled={isPending}
+        <Controller
+          name="vessel"
+          control={control}
+          render={({ field }) => (
+            <VesselSelect
+              label="Vessel Name"
+              placeholder="e.g. Maersk Eindhoven"
+              value={field.value}
+              imo={vesselImo}
+              onChange={(name, imo) => {
+                field.onChange(name);
+                setValue("vesselImo", imo);
+              }}
+              error={errors.vessel?.message}
+              disabled={isPending}
+            />
+          )}
         />
         <Input
           label="Sailing Date (ETD)"

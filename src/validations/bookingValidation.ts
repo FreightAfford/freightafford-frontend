@@ -2,7 +2,11 @@ import { z } from "zod";
 
 export const updateShippingSchema = z.object({
   shippingLine: z.string().min(1, "Shipping line is required"),
-  vessel: z.string().min(1, "Vessel is required"),
+  vessel: z.string().trim().min(1, "Vessel is required"),
+  vesselImo: z
+    .string()
+    .regex(/^\d{7}$/, "Invalid IMO number")
+    .optional(),
   sailingDate: z.string().min(1, "Sailing date is required"),
   carrierBookingNumber: z.string().min(1, "Carrier booking number is required"),
 });

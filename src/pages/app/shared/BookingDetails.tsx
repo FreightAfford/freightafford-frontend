@@ -240,6 +240,11 @@ const BookingDetails = () => {
                   <p className="mt-1 font-medium text-slate-900">
                     {booking.vessel || "Not Assigned"}
                   </p>
+                  {booking.vesselImo && (
+                    <p className="text-sm text-slate-500">
+                      IMO {booking.vesselImo}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -612,6 +617,7 @@ const BookingDetails = () => {
           initialData={{
             shippingLine: booking.shippingLine,
             vessel: booking.vessel,
+            vesselImo: booking.vesselImo,
             sailingDate: booking.sailingDate,
             carrierBookingNumber: booking.carrierBookingNumber,
           }}

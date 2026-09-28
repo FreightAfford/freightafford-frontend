@@ -247,6 +247,11 @@ const RequestDetails = () => {
                     <Package className="h-6 w-6 text-slate-400" />
                     <span className="font-medium capitalize">
                       {request.commodity}
+                      {request.commodityCode && (
+                        <span className="ml-2 font-mono text-xs text-slate-400">
+                          {request.commodityCode}
+                        </span>
+                      )}
                     </span>
                   </div>
                 </div>

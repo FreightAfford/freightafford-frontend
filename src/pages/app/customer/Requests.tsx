@@ -197,8 +197,8 @@ const CustomerRequests = () => {
                 <TableCell>
                   <StatusBadge status={request.status} />
                 </TableCell>
-                <TableCell className="capitalize">
-                  {request.commodity}
+                <TableCell className="max-w-50 truncate capitalize">
+                  <span title={request.commodity}>{request.commodity}</span>
                 </TableCell>
                 <TableCell>
                   {moment(request.cargoReadyDate).format("LL")}

@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { useConfirm } from "../../hooks/useConfirm";
 import { useCreateFreightRequest } from "../../hooks/useFreightService";
+import type { Commodity } from "../../services/api/commodity";
 import {
   formatPortLabel,
   type PortLocation,
@@ -15,6 +16,7 @@ import {
 } from "../../validations/freightValidation";
 import Button from "../Button";
 import Input from "../Input";
+import CommoditySelect from "./CommoditySelect";
 import PortSelect from "./PortSelect";
 
 const CONTAINER_SIZES = [
@@ -52,6 +54,7 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
   const [copies, setCopies] = useState<number>(1);
   const [origin, setOrigin] = useState<PortLocation | null>(null);
   const [destination, setDestination] = useState<PortLocation | null>(null);
+  const [commodity, setCommodity] = useState<Commodity | null>(null);
 
   // Tracks which button triggered the current submit, so onSuccess knows whether to close or clone
   const [submitIntent, setSubmitIntent] = useState<"done" | "clone">("done");
@@ -60,6 +63,7 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
     cargoReadyDate: formattedDate,
     originPortCode: "",
     destinationPortCode: "",
+    commodityCode: "",
   };
 
   const {
@@ -80,6 +84,13 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
     if (field === "originPortCode") setOrigin(loc);
     else setDestination(loc);
     setValue(field, loc?.code ?? "", { shouldValidate: isSubmitted });
+  };
+
+  const pickCommodity = (next: Commodity | null) => {
+    setCommodity(next);
+    setValue("commodityCode", next?.code ?? "", {
+      shouldValidate: isSubmitted,
+    });
   };
 
   const swapPorts = () => {
@@ -115,6 +126,7 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
             reset(emptyValues);
             setOrigin(null);
             setDestination(null);
+            setCommodity(null);
             setCopies(1);
           } else {
             onCancel();
@@ -219,6 +231,15 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
           </p>
         )}
 
+        <CommoditySelect
+          label="Commodity"
+          placeholder="Search, e.g. furniture or fish"
+          value={commodity}
+          onChange={pickCommodity}
+          error={errors.commodityCode?.message}
+          disabled={isPending}
+        />
+
         <div className="max-medium-mobile:grid-cols-1 grid grid-cols-2 gap-4">
           <Input
             label="Containers"
@@ -238,13 +259,6 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
             placeholder="e.g. 15000"
             {...register("cargoWeight", { valueAsNumber: true })}
             error={errors.cargoWeight?.message}
-            disabled={isPending}
-          />
-          <Input
-            label="Commodity"
-            placeholder="e.g. Electronics"
-            {...register("commodity")}
-            error={errors.commodity?.message}
             disabled={isPending}
           />
           <Input

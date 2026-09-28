@@ -13,7 +13,10 @@ export const freightRequestSchema = z
   .object({
     originPortCode: portCode("an origin"),
     destinationPortCode: portCode("a destination"),
-    commodity: z.string().min(2, "Commodity is required"),
+    // Maersk commodity code — only set by picking from the commodity search
+    commodityCode: z
+      .string("Choose a commodity from the search results")
+      .regex(/^\d{6}$/, "Choose a commodity from the search results"),
     cargoWeight: z
       .number("Add cargo weight")
       .positive("Cargo weight must be greater than 0"),

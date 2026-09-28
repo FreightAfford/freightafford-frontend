@@ -1,6 +1,7 @@
 import {
   AlertCircle,
   ArrowLeft,
+  ArrowRight,
   Calendar,
   Check,
   CheckCircle2,
@@ -192,91 +193,94 @@ const RequestDetails = () => {
               <MapPin className="text-brand h-7 w-7" />
               Shipment Details
             </h2>
-            <div className="max-small-mobile:grid-cols-1 grid grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div>
+            <div className="space-y-6">
+              <div>
+                <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                  Route
+                </label>
+                <div className="max-small-desktop:grid-cols-1 max-small-tablet:grid-cols-[1fr_auto_1fr] max-medium-mobile:grid-cols-1 mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+                  <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                    <p className="text-xs font-medium tracking-wider text-slate-400 uppercase">
+                      Origin
+                    </p>
+                    <p className="mt-1 font-medium break-words text-slate-900 capitalize">
+                      {request.originPort || "Origin Not Specified"}
+                    </p>
+                    {request.originPortCode && (
+                      <p className="mt-1 font-mono text-xs text-slate-400 uppercase">
+                        {request.originPortCode}
+                      </p>
+                    )}
+                  </div>
+                  <ArrowRight className="text-brand max-small-desktop:rotate-90 max-small-tablet:rotate-0 max-medium-mobile:rotate-90 mx-auto h-5 w-5 shrink-0" />
+                  <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                    <p className="text-xs font-medium tracking-wider text-slate-400 uppercase">
+                      Destination
+                    </p>
+                    <p className="mt-1 font-medium break-words text-slate-900 capitalize">
+                      {request.destinationPort || "Destination Not Specified"}
+                    </p>
+                    {request.destinationPortCode && (
+                      <p className="mt-1 font-mono text-xs text-slate-400 uppercase">
+                        {request.destinationPortCode}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="max-small-desktop:grid-cols-2 max-small-tablet:grid-cols-3 max-medium-mobile:grid-cols-2 max-small-mobile:grid-cols-1 grid grid-cols-3 gap-x-6 gap-y-5 border-t border-slate-100 pt-6">
+                <div className="col-span-full min-w-0">
                   <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
-                    Route
+                    Commodity
                   </label>
-                  <div className="mt-2 flex items-center gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className="bg-brand h-2.5 w-2.5 rounded-full" />
-                      <div className="h-8 w-px bg-slate-100" />
-                      <div className="border-brand h-2.5 w-2.5 rounded-full border-2" />
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      <span className="font-medium text-slate-900 capitalize">
-                        {request.originPort || "Origin Not Specified"}
-                        {request.originPortCode && (
-                          <span className="ml-2 font-mono text-xs text-slate-400 uppercase">
-                            {request.originPortCode}
-                          </span>
-                        )}
-                      </span>
-                      <span className="font-medium text-slate-900 capitalize">
-                        {request.destinationPort || "Destination Not Specified"}
-                        {request.destinationPortCode && (
-                          <span className="ml-2 font-mono text-xs text-slate-400 uppercase">
-                            {request.destinationPortCode}
-                          </span>
-                        )}
-                      </span>
+                  <div className="mt-2 flex items-start gap-2 text-slate-900">
+                    <Package className="h-6 w-6 shrink-0 text-slate-400" />
+                    <div className="min-w-0">
+                      <p className="font-medium break-words capitalize">
+                        {request.commodity}
+                      </p>
+                      {request.commodityCode && (
+                        <p className="mt-0.5 font-mono text-xs text-slate-400">
+                          {request.commodityCode}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
                     Container
                   </label>
                   <div className="mt-2 flex items-center gap-2 text-slate-900">
-                    <Container className="h-6 w-6 text-slate-400" />
+                    <Container className="h-6 w-6 shrink-0 text-slate-400" />
                     <span className="font-medium uppercase">
                       {request.containerQuantity}
-                      <span className="mx-2 lowercase">x</span>
+                      <span className="mx-1.5 lowercase">x</span>
                       {request.containerSize}
                     </span>
                   </div>
                 </div>
-              </div>
-              <div className="space-y-6">
-                <div>
+                <div className="min-w-0">
                   <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
-                    Commodity
+                    Weight
                   </label>
                   <div className="mt-2 flex items-center gap-2 text-slate-900">
-                    <Package className="h-6 w-6 text-slate-400" />
-                    <span className="font-medium capitalize">
-                      {request.commodity}
-                      {request.commodityCode && (
-                        <span className="ml-2 font-mono text-xs text-slate-400">
-                          {request.commodityCode}
-                        </span>
-                      )}
+                    <Weight className="h-6 w-6 shrink-0 text-slate-400" />
+                    <span className="font-medium">
+                      {request.cargoWeight?.toLocaleString() || "0"} kg
                     </span>
                   </div>
                 </div>
-                <div className="max-small-desktop:grid-cols-1 max-tablet:grid-cols-2 max-medium-mobile:grid-cols-1 grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
-                      Weight
-                    </label>
-                    <div className="mt-2 flex items-center gap-2 text-slate-900">
-                      <Weight className="h-6 w-6 text-slate-400" />
-                      <span className="font-medium">
-                        {request.cargoWeight?.toLocaleString() || "0"} kg
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
-                      Ready Date
-                    </label>
-                    <div className="mt-2 flex items-center gap-2 text-slate-900">
-                      <Calendar className="h-6 w-6 text-slate-400" />
-                      <span className="font-medium">
-                        {moment(request.cargoReadyDate).format("l")}
-                      </span>
-                    </div>
+                <div className="min-w-0">
+                  <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                    Ready Date
+                  </label>
+                  <div className="mt-2 flex items-center gap-2 text-slate-900">
+                    <Calendar className="h-6 w-6 shrink-0 text-slate-400" />
+                    <span className="font-medium">
+                      {moment(request.cargoReadyDate).format("ll")}
+                    </span>
                   </div>
                 </div>
               </div>

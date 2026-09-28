@@ -207,9 +207,19 @@ const RequestDetails = () => {
                     <div className="flex flex-col gap-4">
                       <span className="font-medium text-slate-900 capitalize">
                         {request.originPort || "Origin Not Specified"}
+                        {request.originPortCode && (
+                          <span className="ml-2 font-mono text-xs text-slate-400 uppercase">
+                            {request.originPortCode}
+                          </span>
+                        )}
                       </span>
                       <span className="font-medium text-slate-900 capitalize">
                         {request.destinationPort || "Destination Not Specified"}
+                        {request.destinationPortCode && (
+                          <span className="ml-2 font-mono text-xs text-slate-400 uppercase">
+                            {request.destinationPortCode}
+                          </span>
+                        )}
                       </span>
                     </div>
                   </div>

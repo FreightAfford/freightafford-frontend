@@ -192,9 +192,19 @@ const AdminRequests = () => {
                 </TableCell>
                 <TableCell className="max-w-37.5 truncate capitalize">
                   {request.originPort}
+                  {request.originPortCode && (
+                    <span className="ml-1 font-mono text-xs text-slate-400 uppercase">
+                      {request.originPortCode}
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell className="max-w-37.5 truncate capitalize">
                   {request.destinationPort}
+                  {request.destinationPortCode && (
+                    <span className="ml-1 font-mono text-xs text-slate-400 uppercase">
+                      {request.destinationPortCode}
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell>${request.proposedPrice.toLocaleString()}</TableCell>
                 <TableCell>

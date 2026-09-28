@@ -1,26 +1,40 @@
 import { z } from "zod";
 
-export const freightRequestSchema = z.object({
-  originPort: z.string().min(2, "Origin port is required"),
-  destinationPort: z.string().min(2, "Destination port is required"),
-  commodity: z.string().min(2, "Commodity is required"),
-  cargoWeight: z
-    .number("Add cargo weight")
-    .positive("Cargo weight must be greater than 0"),
-  cargoReadyDate: z.string().min(1, "Cargo ready date is required"),
-  proposedPrice: z
-    .number("Add proposed price")
-    .positive("Proposed price must be greater than 0"),
-  notes: z.string().optional(),
-  containerSize: z.enum(
-    ["20ft Std", "40ft Std", "40ft HC", "45ft HC"],
-    "Input your container size",
-  ),
-  containerQuantity: z
-    .number("Add container quantity")
-    .int("Container quantity must be a whole number")
-    .positive("Container quantity must be at least 1"),
-});
+// UN/LOCODE, e.g. NGLOS, CNSHA — only set by picking from the Maersk port search
+const portCode = (label: string) =>
+  z
+    .string(`Choose ${label} port from the search results`)
+    .regex(
+      /^[A-Z]{2}[A-Z2-9]{3}$/,
+      `Choose ${label} port from the search results`,
+    );
+
+export const freightRequestSchema = z
+  .object({
+    originPortCode: portCode("an origin"),
+    destinationPortCode: portCode("a destination"),
+    commodity: z.string().min(2, "Commodity is required"),
+    cargoWeight: z
+      .number("Add cargo weight")
+      .positive("Cargo weight must be greater than 0"),
+    cargoReadyDate: z.string().min(1, "Cargo ready date is required"),
+    proposedPrice: z
+      .number("Add proposed price")
+      .positive("Proposed price must be greater than 0"),
+    notes: z.string().optional(),
+    containerSize: z.enum(
+      ["20ft Std", "40ft Std", "40ft HC", "45ft HC"],
+      "Choose a container size",
+    ),
+    containerQuantity: z
+      .number("Add container quantity")
+      .int("Container quantity must be a whole number")
+      .positive("Container quantity must be at least 1"),
+  })
+  .refine((data) => data.originPortCode !== data.destinationPortCode, {
+    message: "Origin and destination must be different ports",
+    path: ["destinationPortCode"],
+  });
 
 export const counterFreightSchema = z.object({
   counterPrice: z

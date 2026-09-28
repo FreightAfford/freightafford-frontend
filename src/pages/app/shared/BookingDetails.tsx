@@ -24,6 +24,7 @@ import AmendmentsManager from "../../../components/app/AmendmentsManager";
 import { BillOfLadingManager } from "../../../components/app/BillOfLadingManager";
 import ContainerManifestManager from "../../../components/app/ContainerManifestManager";
 import CreateInvoiceForm from "../../../components/app/CreateInvoiceForm";
+import MaerskTrackingTimeline from "../../../components/app/MaerskTrackingTimeline";
 import StatusBadge from "../../../components/app/StatusBadge";
 import UpdateShippingForm from "../../../components/app/UpdateShippingForm";
 import UpdateStatusForm from "../../../components/app/UpdateStatusForm";
@@ -192,6 +193,8 @@ const BookingDetails = () => {
                   {booking.sailingDate
                     ? `ETD: ${moment(booking.sailingDate).format("ll")}`
                     : "ETD TBA"}
+                  {booking.eta &&
+                    ` · ETA: ${moment(booking.eta).format("ll")}`}
                 </p>
               </div>
             </div>
@@ -269,7 +272,42 @@ const BookingDetails = () => {
                 </div>
               </div>
             </div>
+
+            {(booking.sailingDate || booking.eta) && (
+              <div className="max-small-mobile:grid-cols-1 mt-6 grid grid-cols-2 gap-8 border-t border-slate-100 pt-6">
+                <div>
+                  <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                    Sailing Date (ETD)
+                  </label>
+                  <p className="mt-1 font-medium text-slate-900">
+                    {booking.sailingDate
+                      ? moment(booking.sailingDate).format("ll")
+                      : "TBA"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                    Arrival (ETA)
+                  </label>
+                  <p className="mt-1 font-medium text-slate-900">
+                    {booking.eta ? moment(booking.eta).format("ll") : "TBA"}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
+
+          {booking.shippingLine === "Maersk" && (
+            <MaerskTrackingTimeline
+              bookingId={booking._id}
+              isStaff={user?.role === "admin" || user?.role === "cso"}
+              hasReference={
+                !!booking.carrierBookingNumber || !!booking.containers?.length
+              }
+              multipleContainers={(booking.containers?.length ?? 0) > 1}
+              lastSyncedAt={booking.maerskSync?.lastSyncedAt}
+            />
+          )}
 
           {/* Cargo Specifications */}
           {booking.freightRequest && (

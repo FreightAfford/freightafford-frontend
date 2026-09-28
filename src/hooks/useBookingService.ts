@@ -3,8 +3,10 @@ import { toast } from "react-toastify";
 import {
   addContainersApi,
   getAllBookingsApi,
+  getBookingMaerskEventsApi,
   getMyBookingsApi,
   getSingleBookingApi,
+  syncBookingMaerskApi,
   updateBookingShippingApi,
   updateBookingStatusApi,
 } from "../services/api/booking";
@@ -121,4 +123,45 @@ export const useAddContainer = () => {
   });
 
   return { mutate, isPending };
+};
+
+export const useGetBookingMaerskEvents = (id: string, enabled: boolean) => {
+  const { data, isPending, isFetching, error } = useQuery({
+    queryKey: ["maerskEvents", id],
+    queryFn: () => getBookingMaerskEventsApi(id),
+    enabled: !!id && enabled,
+    // Maersk's public tracking quota is small: no retries or focus refetches
+    staleTime: 30 * 60 * 1000,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
+  return {
+    tracking: data,
+    isPending,
+    isFetching,
+    error: error as { message?: string } | null,
+  };
+};
+
+const SYNC_MESSAGES: Record<string, string> = {
+  updated: "Booking updated from Maersk tracking.",
+  unchanged: "Already up to date with Maersk.",
+  not_found: "Maersk has no events for this booking yet.",
+};
+
+export const useSyncBookingMaersk = () => {
+  const queryClient = useQueryClient();
+
+  const { mutate: syncBooking, isPending } = useMutation({
+    mutationFn: syncBookingMaerskApi,
+    onSuccess: (res, id) => {
+      queryClient.invalidateQueries({ queryKey: ["booking", id] });
+      queryClient.invalidateQueries({ queryKey: ["maerskEvents", id] });
+      toast.success(SYNC_MESSAGES[res.outcome] ?? "Synced with Maersk.");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  return { syncBooking, isPending };
 };

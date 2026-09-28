@@ -80,3 +80,63 @@ export const addContainersApi = async (data: {
     if (error instanceof Error) throw error.message;
   }
 };
+
+export type TrackingClassifier = "ACT" | "EST" | "PLN";
+
+export interface MaerskShipmentEvent {
+  id: string;
+  type: "TRANSPORT" | "EQUIPMENT" | "SHIPMENT";
+  code: string;
+  classifier: TrackingClassifier;
+  dateTime: string;
+  label: string;
+  location?: { name?: string; code?: string };
+  vessel?: { name?: string; imo?: string };
+  voyage?: string;
+  container?: string;
+  empty?: boolean;
+}
+
+export interface MaerskMilestone {
+  at: string;
+  classifier: TrackingClassifier;
+  locationCode?: string;
+  locationName?: string;
+  vessel?: { name?: string; imo?: string };
+  voyage?: string;
+}
+
+export interface MaerskTracking {
+  reference: string | null;
+  events: MaerskShipmentEvent[];
+  summary: {
+    departure: MaerskMilestone | null;
+    arrival: MaerskMilestone | null;
+    hasDeparted: boolean;
+    hasArrived: boolean;
+  };
+}
+
+export const getBookingMaerskEventsApi = async (
+  id: string,
+): Promise<MaerskTracking> => {
+  try {
+    const response = await apiClient.get(`/booking/${id}/maersk-events`);
+    return response.data.data;
+  } catch (error) {
+    if (error instanceof AxiosError) throw error.response?.data;
+    if (error instanceof Error) throw error.message;
+    throw error;
+  }
+};
+
+export const syncBookingMaerskApi = async (id: string) => {
+  try {
+    const response = await apiClient.post(`/booking/admin/${id}/maersk-sync`);
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) throw error.response?.data;
+    if (error instanceof Error) throw error.message;
+    throw error;
+  }
+};

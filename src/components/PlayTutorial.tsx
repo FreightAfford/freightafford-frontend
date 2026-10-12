@@ -35,7 +35,7 @@ const PlayTutorial = ({
           <iframe
             className="max-small-tablet:h-125 max-small-mobile:h-100 h-150 w-5xl rounded-[10px]"
             src="https://embed.app.guidde.com/playbooks/tzebpni6auYjZkJ8fh8qkh?mode=videoOnly"
-            title="Create and Submit Freight Requests on Freight Afford Platform"
+            title="Create and Submit Freight Requests on Freightafford Platform"
             referrerPolicy="unsafe-url"
             allowFullScreen={true}
             allow="clipboard-write"
@@ -44,7 +44,7 @@ const PlayTutorial = ({
           <div className="hidden">
             <p>
               00:00: This tutorial guides you through creating freight requests
-              on the Freight Afford
+              on the Freightafford
             </p>
             <p>00:03: Logistics platform.</p>
             <p>
@@ -112,7 +112,7 @@ const PlayTutorial = ({
               02:29: Once you click on the submit request button, the
               information will be sent to the
             </p>
-            <p>02:33: Freight Afford Logistics team,</p>
+            <p>02:33: Freightafford Logistics team,</p>
             <p>02:35: and a freight request will be created immediately.</p>
             <p>
               02:41: So here I can simply click to view the details of the
@@ -127,7 +127,7 @@ const PlayTutorial = ({
               request. And
             </p>
             <p>
-              02:54: that's how you make freight requests on your Freight Afford
+              02:54: that's how you make freight requests on your Freightafford
               Logistics Dashboard.
             </p>
             <p>02:57: dashboard.</p>
@@ -135,7 +135,7 @@ const PlayTutorial = ({
               03:04: You have successfully created and submitted a freight
               request
             </p>
-            <p>03:07: using the Freight Afford Logistics platform.</p>
+            <p>03:07: using the Freightafford Logistics platform.</p>
             <p>
               03:09: Next, you can track your requests or explore additional
               features

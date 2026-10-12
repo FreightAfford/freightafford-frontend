@@ -166,7 +166,7 @@ const AdminUsers = () => {
         <EmptyState
           icon={<Ship className="text-brand h-10 w-10" />}
           title="No Users Yet"
-          description="You don't have any users / customers registered on FreightAfford."
+          description="You don't have any users / customers registered on Freightafford."
         />
       )}
     </>

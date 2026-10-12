@@ -1,5 +1,5 @@
-import { Ship } from "lucide-react";
 import { motion } from "motion/react";
+import Logo from "./Logo";
 
 const Loader = () => {
   return (
@@ -19,23 +19,15 @@ const Loader = () => {
       {/* Centered content */}
       <div className="flex flex-col items-center">
         <motion.div
-          animate={{
-            y: [0, -10, 0],       // float up and down
-            rotate: [0, 15, -15, 0], // slight rotation
-          }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Ship className="text-brand h-20 w-20" />
-        </motion.div>
-
-        <motion.span
-          className="text-brand text-2xl font-bold tracking-tight mt-4"
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
+          animate={{ opacity: 1, y: [0, -8, 0] }}
+          transition={{
+            opacity: { duration: 0.6 },
+            y: { duration: 2.4, repeat: Infinity, ease: "easeInOut" },
+          }}
         >
-          Freight Afford
-        </motion.span>
+          <Logo className="max-small-mobile:h-14 h-20" />
+        </motion.div>
       </div>
     </div>
   );

@@ -29,15 +29,11 @@ import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import VerifyOtpPage from "../pages/auth/VerifyOtpPage";
 import NotFound from "../pages/errors/NotFound";
 import RootErrorBoundary from "../pages/errors/RootErrorBoundary";
-import FreightRulesPage from "../pages/home/FreightRulesPage";
 import LandingPage from "../pages/home/LandingPage";
-import TermsPage from "../pages/home/TermsPage";
 import ProtectedRoute from "./ProtectedRoute";
 import Unauthorized from "./Unauthorized";
 
 // const LandingPage = lazy(() => import("../pages/home/LandingPage"));
-// const TermsPage = lazy(() => import("../pages/home/TermsPage"));
-// const FreightRulesPage = lazy(() => import("../pages/home/FreightRulesPage"));
 
 // // Auth Pages
 // const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
@@ -80,8 +76,6 @@ const AppRoutes = createBrowserRouter([
     children: [
       // Public Routes
       { path: "/", Component: LandingPage },
-      { path: "/freight-rules", Component: FreightRulesPage },
-      { path: "/terms", Component: TermsPage },
 
       // Unauthorized
       { path: "/unauthorized", Component: Unauthorized },

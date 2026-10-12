@@ -1,4 +1,3 @@
-import { Ship } from "lucide-react";
 import {
   useEffect,
   useRef,
@@ -13,6 +12,7 @@ import Card from "../../components/Card";
 import { useResendOtp, useVerifyOtp } from "../../hooks/useAuthService";
 import AuthLayout from "../../layout/AuthLayout";
 
+import Logo from "../../components/Logo";
 const OTP_LENGTH = 6;
 
 const VerifyOtpPage = () => {
@@ -104,13 +104,8 @@ const VerifyOtpPage = () => {
   return (
     <AuthLayout>
       <div className="mx-auto w-full max-w-md">
-        <Link to="/" className="group flex items-center justify-center gap-2">
-          <div className="bg-brand/10 group-hover:bg-brand/20 rounded-xl p-2 transition-colors">
-            <Ship className="text-brand h-10 w-10" />
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-white">
-            Freight Afford
-          </span>
+        <Link to="/" className="flex justify-center">
+          <Logo className="h-14" />
         </Link>
         <h2 className="mt-8 text-center text-3xl font-extrabold text-white">
           Verify your email

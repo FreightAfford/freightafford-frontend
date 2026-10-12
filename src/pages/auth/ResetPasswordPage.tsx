@@ -1,6 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router";
 import AuthLayout from "../../layout/AuthLayout";
-import { Ship } from "lucide-react";
 import Card from "../../components/Card";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
@@ -12,6 +11,7 @@ import {
 } from "../../validations/authValidation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import Logo from "../../components/Logo";
 const ResetPasswordPage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -37,13 +37,8 @@ const ResetPasswordPage = () => {
   return (
     <AuthLayout>
       <div className="mx-auto w-full max-w-md">
-        <Link to="/" className="group flex items-center justify-center gap-2">
-          <div className="bg-brand/10 group-hover:bg-brand/20 rounded-xl p-2 transition-colors">
-            <Ship className="text-brand h-10 w-10" />
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-white">
-            Freight Afford
-          </span>
+        <Link to="/" className="flex justify-center">
+          <Logo className="h-14" />
         </Link>
         <h2 className="mt-8 text-center text-3xl font-extrabold text-white">
           Set New Password

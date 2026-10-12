@@ -183,7 +183,7 @@ const CustomerBookings = () => {
         <EmptyState
           icon={<Ship className="text-brand h-10 w-10" />}
           title="No Available Bookings Yet"
-          description="You don't have any bookings made on Freight Afford. Yet to receive shipping quotes through Freight Requests."
+          description="You don't have any bookings made on Freightafford. Yet to receive shipping quotes through Freight Requests."
           action={
             <Button
               onClick={() => navigate("/app/customer/requests")}

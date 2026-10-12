@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, ShieldCheck, Ship } from "lucide-react";
+import { Check, ShieldCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import Button from "../../components/Button";
@@ -13,6 +13,7 @@ import {
   type RegisterFormValues,
 } from "../../validations/authValidation";
 
+import Logo from "../../components/Logo";
 const calculatePasswordStrength = (password: string) => {
   let score = 0;
 
@@ -88,13 +89,8 @@ const RegisterPage = () => {
   return (
     <AuthLayout>
       <div className="mx-auto w-full max-w-md">
-        <Link to="/" className="group flex items-center justify-center gap-2">
-          <div className="bg-brand/10 group-hover:bg-brand/20 rounded-xl p-2 transition-colors">
-            <Ship className="text-brand h-10 w-10" />
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-white">
-            Freight Afford
-          </span>
+        <Link to="/" className="flex justify-center">
+          <Logo className="h-14" />
         </Link>
         <h2 className="mt-8 text-center text-3xl font-extrabold text-white">
           Create your account

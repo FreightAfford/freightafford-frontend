@@ -8,7 +8,6 @@ import {
   LogOut,
   MessageSquare,
   Receipt,
-  Ship,
   User,
   Users,
   X,
@@ -17,6 +16,7 @@ import { Link, NavLink, useNavigate } from "react-router";
 import { useLogout, useUser } from "../../hooks/useAuthService";
 import cn from "../../utils/cn";
 
+import Logo from "../Logo";
 interface SidebarProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
@@ -86,11 +86,8 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex items-center justify-between p-6">
-            <Link to="/" className="flex items-center gap-2">
-              <Ship className="text-brand h-8 w-8" />
-              <span className="text-xl font-bold tracking-tight text-white">
-                Freight Afford
-              </span>
+            <Link to="/" className="flex items-center">
+              <Logo className="-ml-3 h-10" />
             </Link>
             <button className="hidden p-1 text-slate-400 hover:text-white">
               <X className="h-6 w-6" />

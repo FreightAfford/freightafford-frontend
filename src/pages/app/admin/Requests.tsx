@@ -249,7 +249,7 @@ const AdminRequests = () => {
         <EmptyState
           icon={<Ship className="text-brand h-10 w-10" />}
           title="No Freight Requests Yet"
-          description="You don't have any customer freight request made on Freight Afford. Yet to receive shipping quotes through Freight Requests."
+          description="You don't have any customer freight request made on Freightafford. Yet to receive shipping quotes through Freight Requests."
         />
       )}
     </>

@@ -104,7 +104,7 @@ const CustomerInvoices = () => {
         <EmptyState
           icon={<Ship className="text-brand h-10 w-10" />}
           title="No Available Invoices Yet"
-          description="You don't have any bookings made on Freight Afford. Yet to receive invoices through Bookings. Create a Freight Request."
+          description="You don't have any bookings made on Freightafford. Yet to receive invoices through Bookings. Create a Freight Request."
           action={
             <Button
               onClick={() => navigate("/app/customer/requests")}

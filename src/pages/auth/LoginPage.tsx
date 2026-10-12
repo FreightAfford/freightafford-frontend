@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-import { Ship } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
@@ -16,6 +15,7 @@ import {
   type LoginFormValues,
 } from "../../validations/authValidation";
 
+import Logo from "../../components/Logo";
 const LoginPage = () => {
   const [role, setRole] = useState<"customer" | "admin">("customer");
   const navigate = useNavigate();
@@ -56,13 +56,8 @@ const LoginPage = () => {
   return (
     <AuthLayout>
       <div className="mx-auto w-full max-w-md">
-        <Link to="/" className="group flex items-center justify-center gap-2">
-          <div className="bg-brand/10 group-hover:bg-brand/20 rounded-xl p-2 transition-colors">
-            <Ship className="text-brand h-10 w-10" />
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-white">
-            Freight Afford
-          </span>
+        <Link to="/" className="flex justify-center">
+          <Logo className="h-14" />
         </Link>
         <h2 className="mt-8 text-center text-3xl font-extrabold text-white">
           Welcome Back

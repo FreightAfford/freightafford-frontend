@@ -10,6 +10,12 @@ import {
   updateBookingShippingApi,
   updateBookingStatusApi,
 } from "../services/api/booking";
+import {
+  advanceDemoTracking,
+  demoTracking,
+  isDemoTracking,
+  type DemoRoute,
+} from "../services/api/maerskMock";
 
 export const useGetMyBookings = (params: any) => {
   const { data, isPending, error, refetch, isRefetching } = useQuery({
@@ -30,7 +36,7 @@ export const useGetMyBookings = (params: any) => {
 
 export const useGetAllBookings = (params: any) => {
   const { data, isPending, error, refetch, isRefetching } = useQuery({
-    queryKey: ["adminbookings", params],
+    queryKey: ["adminBookings", params],
     queryFn: () => getAllBookingsApi(params),
   });
 
@@ -125,10 +131,17 @@ export const useAddContainer = () => {
   return { mutate, isPending };
 };
 
-export const useGetBookingMaerskEvents = (id: string, enabled: boolean) => {
+// `route` only feeds the development demo journey (see maerskMock.ts).
+export const useGetBookingMaerskEvents = (
+  id: string,
+  enabled: boolean,
+  route: DemoRoute = {},
+) => {
+  const demo = isDemoTracking();
   const { data, isPending, isFetching, error } = useQuery({
-    queryKey: ["maerskEvents", id],
-    queryFn: () => getBookingMaerskEventsApi(id),
+    queryKey: ["maerskEvents", id, demo ? "demo" : "live"],
+    queryFn: () =>
+      demo ? demoTracking(id, route) : getBookingMaerskEventsApi(id),
     enabled: !!id && enabled,
     // Maersk's public tracking quota is small: no retries or focus refetches
     staleTime: 30 * 60 * 1000,
@@ -154,11 +167,18 @@ export const useSyncBookingMaersk = () => {
   const queryClient = useQueryClient();
 
   const { mutate: syncBooking, isPending } = useMutation({
-    mutationFn: syncBookingMaerskApi,
+    // The demo journey never calls the real sync, which writes to the booking.
+    mutationFn: (id: string) =>
+      isDemoTracking() ? advanceDemoTracking(id) : syncBookingMaerskApi(id),
     onSuccess: (res, id) => {
-      queryClient.invalidateQueries({ queryKey: ["booking", id] });
+      if (!isDemoTracking())
+        queryClient.invalidateQueries({ queryKey: ["booking", id] });
       queryClient.invalidateQueries({ queryKey: ["maerskEvents", id] });
-      toast.success(SYNC_MESSAGES[res.outcome] ?? "Synced with Maersk.");
+      toast.success(
+        isDemoTracking()
+          ? "Demo journey moved on to the next event."
+          : (SYNC_MESSAGES[res.outcome] ?? "Synced with Maersk."),
+      );
     },
     onError: (err) => toast.error(err.message),
   });

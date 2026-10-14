@@ -14,11 +14,22 @@ import {
   useGetAllFreightRequests,
 } from "../../../hooks/useFreightService";
 import { useTableQuery } from "../../../hooks/useTableQuery";
+import { containerSizeLabel } from "../../../utils/format";
 
 const AdminRequests = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const batchId = searchParams.get("batchId");
+  // Drop only the batch, keeping the table's search/filter/sort/page in the URL
+  const clearBatch = () =>
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("batchId");
+        return next;
+      },
+      { replace: true },
+    );
   const { confirm, ConfirmDialog } = useConfirm();
   const {
     page,
@@ -37,6 +48,7 @@ const AdminRequests = () => {
     initialSortKey: "createdAt",
     initialSortDirection: "desc",
     initialLimit: 10,
+    filterKeys: ["status", "containerSize"],
   });
 
   const { requests, total, totalAll, isPending, error, refetch, isRefetching } =
@@ -100,7 +112,7 @@ const AdminRequests = () => {
                 });
                 if (ok)
                   acceptBatch(batchId, {
-                    onSuccess: () => navigate(window.location.pathname),
+                    onSuccess: clearBatch,
                   });
               }}
               isLoading={isAccepting}
@@ -108,7 +120,7 @@ const AdminRequests = () => {
               Accept All
             </Button>
             <button
-              onClick={() => navigate(window.location.pathname)}
+              onClick={clearBatch}
               className="inline-flex items-center gap-1 text-sm font-medium text-amber-700 hover:underline"
             >
               <X className="h-4 w-4" />
@@ -148,10 +160,10 @@ const AdminRequests = () => {
                 value: filters.containerSize || "",
                 onChange: (val) => handleFilterChange("containerSize", val),
                 options: [
-                  { value: "20ft Std", label: "20' Standard" },
-                  { value: "40ft Std", label: "40' Standard" },
-                  { value: "40ft HC", label: "40' High Cube" },
-                  { value: "45ft HC", label: "45' High Cube" },
+                  { value: "20ft Std", label: "20ft Standard" },
+                  { value: "40ft Std", label: "40ft Standard" },
+                  { value: "40ft HC", label: "40ft High Cube" },
+                  { value: "45ft HC", label: "45ft High Cube" },
                 ],
               },
             ]}
@@ -178,7 +190,11 @@ const AdminRequests = () => {
                 key={request._id}
                 onClick={() => navigate(`/app/admin/requests/${request._id}`)}
               >
-                <TableCell>{(index + 1).toString().padStart(2, "0")}</TableCell>
+                <TableCell>
+                  {((page - 1) * limit! + index + 1)
+                    .toString()
+                    .padStart(2, "0")}
+                </TableCell>
                 <TableCell className="text-brand hover:text-brand/80 font-medium capitalize">
                   <div
                     className="max-w-37.5 truncate"
@@ -189,8 +205,8 @@ const AdminRequests = () => {
                     {request.customer.companyName || request.customer.fullname}
                   </div>
                 </TableCell>
-                <TableCell className="uppercase">
-                  {request.containerSize}
+                <TableCell className="whitespace-nowrap">
+                  {containerSizeLabel(request.containerSize)}
                 </TableCell>
                 <TableCell className="max-w-37.5 truncate capitalize">
                   {request.originPort}

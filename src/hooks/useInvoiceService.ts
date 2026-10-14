@@ -32,6 +32,8 @@ export const useGetInvoiceByBooking = (bookingId: string) => {
     queryKey: ["invoice", bookingId],
     queryFn: () => getInvoiceByBookingApi(bookingId),
     enabled: !!bookingId,
+    // No invoice yet comes back as a 404; that's an answer, not a failure.
+    retry: false,
   });
 
   return { invoice, isPending, error };

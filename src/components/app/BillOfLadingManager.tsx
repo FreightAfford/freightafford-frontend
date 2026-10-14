@@ -88,11 +88,11 @@ export const BillOfLadingManager = ({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+    <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 @xl:p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-          <FileText className="text-brand h-7 w-7" />
-          Bill of Lading
+        <h2 className="flex items-center gap-2.5 text-base font-bold text-slate-900">
+          <FileText className="text-brand h-5 w-5" />
+          Bill of lading
         </h2>
         {role && (
           <Button
@@ -116,9 +116,7 @@ export const BillOfLadingManager = ({
             className="mb-8 rounded-2xl border border-slate-100 bg-slate-50 p-6 duration-300"
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-bold tracking-wider text-slate-900 uppercase">
-                Upload New BL
-              </h3>
+              <h3 className="font-bold text-slate-900">Upload a document</h3>
               <button
                 disabled={isPending}
                 onClick={() => {

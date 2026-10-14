@@ -43,8 +43,8 @@ import PortSelect from "./PortSelect";
 const CONTAINER_SIZES = [
   { value: "20ft Std", size: "20ft", kind: "Standard" },
   { value: "40ft Std", size: "40ft", kind: "Standard" },
-  { value: "40ft HC", size: "40ft", kind: "High cube" },
-  { value: "45ft HC", size: "45ft", kind: "High cube" },
+  { value: "40ft HC", size: "40ft", kind: "High Cube" },
+  { value: "45ft HC", size: "45ft", kind: "High Cube" },
 ] as const;
 
 const MAX_COPIES = 50;

@@ -32,6 +32,7 @@ const AdminBookings = () => {
     initialSortKey: "createdAt",
     initialSortDirection: "desc",
     initialLimit: 10,
+    filterKeys: ["status"],
   });
   const { bookings, isPending, error, refetch, isRefetching, total, totalAll } =
     useGetAllBookings(params);
@@ -122,7 +123,9 @@ const AdminBookings = () => {
               key={booking._id}
               onClick={() => navigate(`/app/admin/bookings/${booking._id}`)}
             >
-              <TableCell>{(index + 1).toString().padStart(2, "0")}</TableCell>
+              <TableCell>
+                {((page - 1) * limit! + index + 1).toString().padStart(2, "0")}
+              </TableCell>
               <TableCell className="text-brand font-medium">
                 {booking.bookingNumber}
               </TableCell>

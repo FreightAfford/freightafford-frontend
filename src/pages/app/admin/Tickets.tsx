@@ -32,6 +32,7 @@ const Tickets = () => {
     initialSortKey: "createdAt",
     initialSortDirection: "desc",
     initialLimit: 10,
+    filterKeys: ["status"],
   });
 
   const { tickets, error, isPending, isRefetching, refetch, total, totalAll } =
@@ -149,7 +150,9 @@ const Tickets = () => {
                   onClick={() => navigate(`/app/admin/tickets/${ticket._id}`)}
                 >
                   <TableCell>
-                    {(index + 1).toString().padStart(2, "0")}
+                    {((page - 1) * limit! + index + 1)
+                      .toString()
+                      .padStart(2, "0")}
                   </TableCell>
                   <TableCell className="text-brand font-medium">
                     {ticket.ticket_id}

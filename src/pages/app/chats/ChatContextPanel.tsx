@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "../../../components/ui/dropdown-menu";
 import cn from "../../../utils/cn";
+import { containersLabel } from "../../../utils/format";
 
 // ─── ChatContextPanel ─────────────────────────────────────────────────────────
 //
@@ -190,8 +191,10 @@ const ChatContextPanel = ({
               </div>
             </div>
             <p className="rounded-lg bg-slate-50 p-2 text-sm text-slate-500 italic">
-              {freightRequest.containerQuantity} x{" "}
-              {freightRequest.containerSize}
+              {containersLabel(
+                freightRequest.containerQuantity,
+                freightRequest.containerSize,
+              )}
             </p>
           </div>
         </div>

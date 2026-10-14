@@ -28,6 +28,7 @@ import {
   socketService,
 } from "../../../services/socket/socket.service";
 import ChatWindow from "./ChatWindow";
+import { containerSizeLabel } from "../../../utils/format";
 
 const CHAT_INTENT_KEY = "chat_intent";
 
@@ -312,7 +313,7 @@ const CustomerChatView = () => {
               <span className="font-bold">
                 {activeSession.booking.bookingNumber}
               </span>
-              {` • ${activeSession.freightRequest?.containerSize}`}
+              {` • ${containerSizeLabel(activeSession.freightRequest?.containerSize)}`}
             </span>
           </div>
           <StatusBadge

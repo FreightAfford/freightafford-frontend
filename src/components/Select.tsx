@@ -60,7 +60,9 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>(
     );
 
     return (
-      <div className="w-full space-y-1.5">
+      // relative: Radix adds a hidden native select for forms; keep it
+      // positioned inside the field so it never stretches the page.
+      <div className="relative w-full space-y-1.5">
         {label && (
           <FieldLabel htmlFor={selectId} optional={optional}>
             {label}

@@ -17,6 +17,7 @@ import VerifyToBook from "../../../components/app/VerifyToBook";
 import { useGetMyFreightRequests } from "../../../hooks/useFreightService";
 import { useKycStatus } from "../../../hooks/useKycService";
 import { useTableQuery } from "../../../hooks/useTableQuery";
+import { containerSizeLabel } from "../../../utils/format";
 
 const CustomerRequests = () => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ const CustomerRequests = () => {
     initialSortKey: "createdAt",
     initialSortDirection: "desc",
     initialLimit: 10,
+    filterKeys: ["status", "containerSize"],
   });
 
   const { requests, isPending, error, refetch, isRefetching, total, totalAll } =
@@ -148,10 +150,10 @@ const CustomerRequests = () => {
                 value: filters.containerSize || "",
                 onChange: (val) => handleFilterChange("containerSize", val),
                 options: [
-                  { value: "20ft Std", label: "20' Standard" },
-                  { value: "40ft Std", label: "40' Standard" },
-                  { value: "40ft HC", label: "40' High Cube" },
-                  { value: "45ft HC", label: "45' High Cube" },
+                  { value: "20ft Std", label: "20ft Standard" },
+                  { value: "40ft Std", label: "40ft Standard" },
+                  { value: "40ft HC", label: "40ft High Cube" },
+                  { value: "45ft HC", label: "45ft High Cube" },
                 ],
               },
             ]}
@@ -181,9 +183,13 @@ const CustomerRequests = () => {
                   navigate(`/app/customer/requests/${request._id}`)
                 }
               >
-                <TableCell>{(index + 1).toString().padStart(2, "0")}</TableCell>
-                <TableCell className="font-medium">
-                  {request.containerSize.toUpperCase()}
+                <TableCell>
+                  {((page - 1) * limit! + index + 1)
+                    .toString()
+                    .padStart(2, "0")}
+                </TableCell>
+                <TableCell className="font-medium whitespace-nowrap">
+                  {containerSizeLabel(request.containerSize)}
                 </TableCell>
                 <TableCell className="max-w-37.5 truncate capitalize">
                   {request.originPort}

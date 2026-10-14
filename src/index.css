@@ -26,6 +26,53 @@
   --breakpoint-mobile: 43.75em; /*700px*/
   --breakpoint-medium-mobile: 37.5em; /*600px*/
   --breakpoint-small-mobile: 30em; /*480px*/
+
+  /* Route lane motion: the ship rocks on the water, a ripple spreads from
+     it, and the lane drifts toward the destination while it is at sea. */
+  --animate-ship-bob: ship-bob 2.8s ease-in-out infinite;
+  --animate-ship-ripple: ship-ripple 2.4s ease-out infinite;
+  --animate-lane-x: lane-x 0.9s linear infinite;
+  --animate-lane-y: lane-y 0.9s linear infinite;
+  --animate-signal: signal 1.8s ease-out infinite;
+
+  @keyframes ship-bob {
+    0%,
+    100% {
+      transform: translateY(-1.5px) rotate(-4deg);
+    }
+    50% {
+      transform: translateY(1.5px) rotate(4deg);
+    }
+  }
+  @keyframes ship-ripple {
+    0% {
+      transform: scale(0.9);
+      opacity: 0.55;
+    }
+    100% {
+      transform: scale(2.1);
+      opacity: 0;
+    }
+  }
+  @keyframes lane-x {
+    to {
+      background-position-x: 12px;
+    }
+  }
+  @keyframes lane-y {
+    to {
+      background-position-y: 12px;
+    }
+  }
+  /* The "latest event" marker on the tracking rail. */
+  @keyframes signal {
+    0% {
+      box-shadow: 0 0 0 0 rgb(30 144 255 / 0.45);
+    }
+    100% {
+      box-shadow: 0 0 0 10px rgb(30 144 255 / 0);
+    }
+  }
 }
 
 @layer base {

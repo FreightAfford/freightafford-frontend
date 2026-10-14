@@ -78,10 +78,10 @@ const AmendmentsManager = ({
   if (isLoading) return <SmallLoader />;
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+    <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 @xl:p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-          <MessageSquare className="text-brand h-7 w-7" />
+        <h2 className="flex items-center gap-2.5 text-base font-bold text-slate-900">
+          <MessageSquare className="text-brand h-5 w-5" />
           Amendments
         </h2>
         {role === "customer" && (
@@ -107,8 +107,8 @@ const AmendmentsManager = ({
               className="mb-8 rounded-2xl border border-slate-100 bg-white p-6"
             >
               <div className="mb-6 flex items-center justify-between">
-                <h3 className="font-bold tracking-wider text-slate-900 uppercase">
-                  Request Amendment
+                <h3 className="font-bold text-slate-900">
+                  Request an amendment
                 </h3>
                 <button
                   onClick={() => setShowForm(false)}

@@ -1,20 +1,21 @@
 import {
-  AlertCircle,
   ArrowLeft,
-  ArrowRight,
-  Calendar,
+  Ban,
+  CalendarClock,
+  CalendarDays,
   Check,
   CheckCircle2,
-  Clock,
   Container,
-  FileText,
-  MapPin,
+  DollarSign,
+  HandCoins,
+  History,
+  Mail,
   MessageCircle,
-  MessageSquare,
-  Package,
+  MessageSquareText,
+  NotebookPen,
+  Ship,
   User,
   UserRound,
-  Weight,
   X,
   XCircle,
 } from "lucide-react";
@@ -28,14 +29,74 @@ import SmallLoader from "../../../components/SmallLoader";
 import CounterOfferForm from "../../../components/app/CounterOfferForm";
 import RejectRequestForm from "../../../components/app/RejectRequestForm";
 import StatusBadge from "../../../components/app/StatusBadge";
+import {
+  BackLink,
+  MetaItem,
+  PageHeader,
+  Panel,
+  Row,
+} from "../../../components/app/details/DetailParts";
+import ProgressTrack, {
+  type TrackStep,
+} from "../../../components/app/details/ProgressTrack";
+import RouteLane from "../../../components/app/details/RouteLane";
+import CargoPanel from "../../../components/app/details/CargoPanel";
 import { useUser } from "../../../hooks/useAuthService";
 import { useConfirm } from "../../../hooks/useConfirm";
+import { containersLabel, initials, money } from "../../../utils/format";
 import {
   useAcceptFreightRequest,
   useGetFreightRequest,
   useRespondToCounter,
 } from "../../../hooks/useFreightService";
-import cn from "../../../utils/cn";
+
+const day = (value?: string) =>
+  value ? moment(value).format("D MMM YYYY") : undefined;
+const stamp = (value?: string) =>
+  value ? moment(value).format("D MMM YYYY, h:mm a") : undefined;
+
+// Submitted → priced (or countered) → accepted, with rejection or expiry
+// stopping the track at the last step.
+const requestSteps = (
+  request: { status: string; createdAt?: string; adminActionAt?: string },
+  forCustomer: boolean,
+): TrackStep[] => {
+  const { status } = request;
+  const open = status === "pending" || status === "countered";
+  return [
+    { label: "Submitted", detail: day(request.createdAt), state: "done" },
+    {
+      label: status === "countered" ? "Counter offer sent" : "Pricing review",
+      detail:
+        status === "pending"
+          ? forCustomer
+            ? "Our team is reviewing your price"
+            : "Waiting for a price decision"
+          : status === "countered"
+            ? forCustomer
+              ? "Waiting for your answer"
+              : "Waiting for the customer's answer"
+            : day(request.adminActionAt),
+      state: open ? "current" : "done",
+    },
+    status === "rejected"
+      ? {
+          label: "Rejected",
+          detail: day(request.adminActionAt),
+          state: "stopped",
+        }
+      : status === "expired"
+        ? { label: "Expired", state: "stopped" }
+        : {
+            label: "Accepted",
+            detail:
+              status === "accepted"
+                ? day(request.adminActionAt)
+                : "A booking is created on acceptance",
+            state: status === "accepted" ? "done" : "upcoming",
+          },
+  ];
+};
 
 const RequestDetails = () => {
   const { user } = useUser();
@@ -86,484 +147,357 @@ const RequestDetails = () => {
       />
     );
 
+  const isAdmin = user.role === "admin";
+  const isCustomer = user.role === "customer";
+  const reference = `REQ-${request._id?.slice(-8).toUpperCase() ?? "N/A"}`;
+  const open = request.status === "pending" || request.status === "countered";
+  const bookingId =
+    typeof request.booking === "string"
+      ? request.booking
+      : request.booking?._id;
+  const total = request.adminCounterPrice || request.proposedPrice || 0;
+  const customer = request.customer ?? {};
+
+  const startChat = async () => {
+    const ok = await confirm({
+      title: "Start Request Chat",
+      message: "Do you want to start a chat regarding this freight request?",
+      confirmText: "Yes, Start Chat",
+      cancelText: "No, Cancel",
+      variant: "primary",
+    });
+    if (!ok) return;
+    sessionStorage.setItem("chat_intent", "true");
+    navigate("/app/customer/chats", {
+      state: {
+        chatContext: {
+          type: "request_linked",
+          freightRequestId: request._id,
+          bookingId,
+          label: reference,
+          route: `${request.originPort} → ${request.destinationPort}`,
+        },
+      },
+    });
+  };
+
+  const actionClass = "h-11 rounded-xl px-4 font-semibold";
+
   return (
-    <>
-      <div className="mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="group mb-4 flex items-center gap-2 text-slate-500 transition-colors hover:text-slate-900"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          Back to Requests
-        </button>
+    <div className="@container">
+      <BackLink label="Back to requests" onClick={() => navigate(-1)} />
 
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <div className="mb-1 flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-slate-900">
-                Request #{request._id?.slice(-8) || "N/A"}
-              </h1>
-              <StatusBadge status={request.status} />
-            </div>
-            <p className="text-slate-500">
-              Submitted on {moment(request.createdAt).format("ll")}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {/* ── Customer: Chat about this request ── */}
-            {user.role === "customer" && (
-              <button
-                onClick={async () => {
-                  const ok = await confirm({
-                    title: "Start Request Chat",
-                    message:
-                      "Do you want to start a chat regarding this freight request?",
-                    confirmText: "Yes, Start Chat",
-                    cancelText: "No, Cancel",
-                    variant: "primary",
-                  });
-
-                  if (ok) {
-                    sessionStorage.setItem("chat_intent", "true");
-                    navigate("/app/customer/chats", {
-                      state: {
-                        chatContext: {
-                          type: "request_linked",
-                          freightRequestId: request._id,
-                          bookingId:
-                            request.booking?._id ??
-                            (typeof request.booking === "string"
-                              ? request.booking
-                              : undefined),
-                          label: `REQ-${request._id?.slice(-8).toUpperCase()}`,
-                          route: `${request.originPort} → ${request.destinationPort}`,
-                        },
-                      },
-                    });
-                  }
-                }}
-                className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 active:scale-95"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Chat about this request
-              </button>
-            )}
-
-            {user.role === "admin" && (
-              <>
-                {(request.status === "pending" ||
-                  request.status === "countered") && (
-                  <Button
-                    icon={CheckCircle2}
-                    className="flex items-center gap-2 bg-green-500"
-                    title="Approve Request"
-                    disabled={isAccepting}
-                    onClick={handleAccept}
-                    isLoading={isAccepting}
-                  >
-                    Accept
-                  </Button>
-                )}
-                {request.status === "pending" && (
-                  <Button
-                    icon={AlertCircle}
-                    onClick={() => setIsCounterModalOpen(true)}
-                    title="Send Counter Offer"
-                    className="flex items-center gap-2 bg-indigo-500"
-                  >
-                    Counter
-                  </Button>
-                )}
-                {(request.status === "pending" ||
-                  request.status === "countered") && (
-                  <Button
-                    icon={XCircle}
-                    onClick={() => setIsRejectModalOpen(true)}
-                    className="flex items-center gap-2 bg-red-500"
-                    title="Reject Request"
-                  >
-                    Reject
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="max-small-desktop:gap-4 max-small-tablet:grid-cols-1 grid grid-cols-3 gap-8">
-        {/* Left Column: Main Info */}
-        <div className="max-small-desktop:space-y-4 col-span-2 space-y-8">
-          {/* Route & Container Section */}
-          <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h2 className="mb-6 flex items-center gap-2 text-xl font-semibold text-slate-900">
-              <MapPin className="text-brand h-7 w-7" />
-              Shipment Details
-            </h2>
-            <div className="space-y-6">
-              <div>
-                <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
-                  Route
-                </label>
-                <div className="max-small-desktop:grid-cols-1 max-small-tablet:grid-cols-[1fr_auto_1fr] max-medium-mobile:grid-cols-1 mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-                  <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-4">
-                    <p className="text-xs font-medium tracking-wider text-slate-400 uppercase">
-                      Origin
-                    </p>
-                    <p className="mt-1 font-medium break-words text-slate-900 capitalize">
-                      {request.originPort || "Origin Not Specified"}
-                    </p>
-                    {request.originPortCode && (
-                      <p className="mt-1 font-mono text-xs text-slate-400 uppercase">
-                        {request.originPortCode}
-                      </p>
-                    )}
-                  </div>
-                  <ArrowRight className="text-brand max-small-desktop:rotate-90 max-small-tablet:rotate-0 max-medium-mobile:rotate-90 mx-auto h-5 w-5 shrink-0" />
-                  <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-4">
-                    <p className="text-xs font-medium tracking-wider text-slate-400 uppercase">
-                      Destination
-                    </p>
-                    <p className="mt-1 font-medium break-words text-slate-900 capitalize">
-                      {request.destinationPort || "Destination Not Specified"}
-                    </p>
-                    {request.destinationPortCode && (
-                      <p className="mt-1 font-mono text-xs text-slate-400 uppercase">
-                        {request.destinationPortCode}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="max-small-desktop:grid-cols-2 max-small-tablet:grid-cols-3 max-medium-mobile:grid-cols-2 max-small-mobile:grid-cols-1 grid grid-cols-3 gap-x-6 gap-y-5 border-t border-slate-100 pt-6">
-                <div className="col-span-full min-w-0">
-                  <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
-                    Commodity
-                  </label>
-                  <div className="mt-2 flex items-start gap-2 text-slate-900">
-                    <Package className="h-6 w-6 shrink-0 text-slate-400" />
-                    <div className="min-w-0">
-                      <p className="font-medium break-words capitalize">
-                        {request.commodity}
-                      </p>
-                      {request.commodityCode && (
-                        <p className="mt-0.5 font-mono text-xs text-slate-400">
-                          {request.commodityCode}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="min-w-0">
-                  <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
-                    Container
-                  </label>
-                  <div className="mt-2 flex items-center gap-2 text-slate-900">
-                    <Container className="h-6 w-6 shrink-0 text-slate-400" />
-                    <span className="font-medium uppercase">
-                      {request.containerQuantity}
-                      <span className="mx-1.5 lowercase">x</span>
-                      {request.containerSize}
-                    </span>
-                  </div>
-                </div>
-                <div className="min-w-0">
-                  <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
-                    Weight
-                  </label>
-                  <div className="mt-2 flex items-center gap-2 text-slate-900">
-                    <Weight className="h-6 w-6 shrink-0 text-slate-400" />
-                    <span className="font-medium">
-                      {request.cargoWeight?.toLocaleString() || "0"} kg
-                    </span>
-                  </div>
-                </div>
-                <div className="min-w-0">
-                  <label className="text-sm font-medium tracking-wider text-slate-400 uppercase">
-                    Ready Date
-                  </label>
-                  <div className="mt-2 flex items-center gap-2 text-slate-900">
-                    <Calendar className="h-6 w-6 shrink-0 text-slate-400" />
-                    <span className="font-medium">
-                      {moment(request.cargoReadyDate).format("ll")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-slate-900">
-              <FileText className="text-brand h-7 w-7" />
-              Additional Notes
-            </h2>
-            <div className="rounded-xl bg-slate-50 p-4 leading-relaxed text-slate-600">
-              {request.notes ||
-                "No additional notes provided for this request."}
-            </div>
-          </div>
-
-          {(request.status === "countered" ||
-            request.status === "rejected") && (
-            <div
-              className={cn(
-                "rounded-2xl border p-6 shadow-sm",
-                request.status === "countered"
-                  ? "border-purple-100 bg-purple-50"
-                  : "border-red-100 bg-red-50",
+      <PageHeader
+        kicker="Freight request"
+        title={reference}
+        badge={<StatusBadge status={request.status} />}
+        meta={
+          <>
+            <MetaItem icon={CalendarDays}>
+              Submitted {day(request.createdAt)}
+            </MetaItem>
+            <MetaItem icon={Container}>
+              {containersLabel(
+                request.containerQuantity,
+                request.containerSize,
               )}
-            >
-              <h2
-                className={cn(
-                  "mb-4 flex items-center gap-2 text-xl font-semibold",
-                  request.status === "countered"
-                    ? "text-purple-900"
-                    : "text-red-900",
-                )}
-              >
-                {request.status === "countered" ? (
-                  <>
-                    <MessageSquare className="h-7 w-7" /> Counter Offer Details
-                  </>
-                ) : (
-                  <>
-                    <FileText className="h-7 w-7" /> Rejection Reason
-                  </>
-                )}
-              </h2>
-              {request.status === "countered" && (
-                <div className="mb-4">
-                  <p className="mb-1 text-sm font-medium text-purple-700">
-                    Counter Price
-                  </p>
-                  <p className="text-2xl font-bold text-purple-900">
-                    ${request.adminCounterPrice?.toLocaleString()}
-                  </p>
-                </div>
-              )}
-              <div>
-                <p
-                  className={cn(
-                    "mb-1 font-medium",
-                    request.status === "countered"
-                      ? "text-purple-700"
-                      : "text-red-700",
-                  )}
-                >
-                  {request.status === "countered" ? "Admin Message" : "Reason"}
-                </p>
-                <p
-                  className={cn(
-                    "leading-relaxed",
-                    request.status === "countered"
-                      ? "text-purple-800"
-                      : "text-red-800",
-                  )}
-                >
-                  {request.status === "countered"
-                    ? request.counterReason
-                    : request.rejectionReason ||
-                      "You couldn't agreed to our counter offer."}
-                </p>
-              </div>
-              {request.status === "countered" && user.role === "customer" && (
-                <div className="mt-6 flex gap-3">
-                  <Button
-                    icon={Check}
-                    className="bg-purple-600 hover:bg-purple-700"
-                    isLoading={isResponding && isDecision === "accept"}
-                    disabled={isResponding}
-                    onClick={() => {
-                      setIsDecision("accept");
-                      handleDecision("accept");
-                    }}
-                  >
-                    Accept Counter
-                  </Button>
-                  <Button
-                    icon={X}
-                    variant="outline"
-                    className="border-purple-200 text-purple-700 hover:bg-purple-100"
-                    isLoading={isResponding && isDecision === "reject"}
-                    disabled={isResponding}
-                    onClick={() => {
-                      setIsDecision("reject");
-                      handleDecision("reject");
-                    }}
-                  >
-                    Decline
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h2 className="mb-6 flex items-center gap-2 text-xl font-semibold text-slate-900">
-              <Clock className="text-brand h-7 w-7" />
-              Request History
-            </h2>
-            <div className="space-y-6">
-              <div className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="bg-brand/10 flex h-8 w-8 items-center justify-center rounded-full">
-                    <Check className="text-brand h-4 w-4" />
-                  </div>
-                  <div className="h-full w-px bg-slate-100" />
-                </div>
-                <div className="pb-6">
-                  <p className="font-medium text-slate-900">
-                    Request Submitted
-                  </p>
-                  <p className="text-slate-500">
-                    Your request has been received and is pending review.
-                  </p>
-                  <p className="mt-1 text-sm text-slate-400">
-                    {moment(request.createdAt).format("LLLL")}
-                  </p>
-                </div>
-              </div>
-              {request.adminActionAt && (
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full",
-                        request.status === "accepted"
-                          ? "bg-green-100"
-                          : "bg-orange-100",
-                      )}
-                    >
-                      {request.status === "accepted" ? (
-                        <Check className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <MessageSquare className="h-4 w-4 text-orange-600" />
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="font-medium text-slate-900">
-                      {request.status === "accepted"
-                        ? "Request Accepted"
-                        : request.status === "rejected"
-                          ? "Request Rejected"
-                          : "Counter Offer Received"}
-                    </p>
-                    <p className="text-slate-500">
-                      {request.status === "accepted"
-                        ? "The admin has accepted your request. You can now proceed to booking."
-                        : request.status === "rejected"
-                          ? "The admin has rejected your request."
-                          : "The admin has sent a counter offer for your review."}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-400">
-                      {moment(request.adminActionAt).format("LLLL")}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column */}
-        <div className="max-small-desktop:space-y-4 space-y-8">
-          <div className="max-small-desktop:px-4 max-tablet:p-6 rounded-2xl bg-slate-900 p-6 text-white shadow-lg shadow-slate-200">
-            <h3 className="mb-4 text-sm font-medium tracking-wider text-slate-400 uppercase">
-              Proposed Price
-            </h3>
-            <div className="mb-6 flex items-baseline gap-1">
-              <span className="text-4xl font-bold">
-                ${request.proposedPrice?.toLocaleString() || "0"}
-              </span>
-              <span className="text-xs text-slate-400">USD</span>
-            </div>
-            <h3 className="mb-4 border-t border-white/10 pt-6 text-sm font-medium tracking-wider text-slate-400 uppercase">
-              Counter Price
-            </h3>
-            <div className="mb-6 flex items-baseline gap-1">
-              {request?.adminCounterPrice ? (
-                <>
-                  <span className="text-4xl font-bold">
-                    ${request.adminCounterPrice?.toLocaleString() || "0"}
-                  </span>
-                  <span className="text-xs text-slate-400">USD</span>
-                </>
-              ) : (
-                <span className="italic">No counter offer made</span>
-              )}
-            </div>
-            <div className="space-y-3 border-t border-white/10 pt-6">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Size</span>
-                <span>
-                  {request.containerSize
-                    .toUpperCase()
-                    .replace("STD", "STANDARD")
-                    .replace("HC", "HIGH CUBE")}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Quantity</span>
-                <span>{request.containerQuantity}</span>
-              </div>
-              <div className="flex justify-between border-t border-white/10 pt-3 text-lg font-bold">
-                <span>Total</span>
-                <span>
-                  $
-                  {(request.adminCounterPrice
-                    ? request.adminCounterPrice || 0
-                    : request.proposedPrice || 0
-                  ).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="max-small-desktop:px-4 max-tablet:p-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-slate-900">
-              <User className="text-brand h-6 w-6" />
-              Customer Info
-            </h2>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-600 uppercase">
-                  {request.customer.fullname?.charAt(0) || "?"}
-                </div>
-                <div>
-                  <p className="line-clamp-1 font-medium text-slate-900 capitalize">
-                    {request.customer.fullname || "Unknown Customer"}
-                  </p>
-                  <p className="text-sm text-slate-500">Verified Customer</p>
-                </div>
-              </div>
-              <Link
-                to={
-                  user.role === "admin"
-                    ? `/app/admin/users/${request.customer._id}`
-                    : "/app/customer/profile"
-                }
-              >
+            </MetaItem>
+          </>
+        }
+        actions={
+          <>
+            {bookingId && (
+              <Link to={`/app/${user.role}/bookings/${bookingId}`}>
                 <Button
-                  icon={UserRound}
+                  icon={Ship}
                   variant="outline"
-                  className="h-9 w-full text-sm"
+                  className={`${actionClass} w-full`}
                 >
-                  View Profile
+                  View booking
                 </Button>
               </Link>
+            )}
+            {isCustomer && (
+              <Button
+                icon={MessageCircle}
+                onClick={startChat}
+                className={actionClass}
+              >
+                Chat about this request
+              </Button>
+            )}
+            {isAdmin && open && (
+              <Button
+                icon={CheckCircle2}
+                onClick={handleAccept}
+                isLoading={isAccepting}
+                disabled={isAccepting}
+                className={actionClass}
+              >
+                Accept
+              </Button>
+            )}
+            {isAdmin && request.status === "pending" && (
+              <Button
+                icon={HandCoins}
+                variant="outline"
+                onClick={() => setIsCounterModalOpen(true)}
+                className={actionClass}
+              >
+                Counter
+              </Button>
+            )}
+            {isAdmin && open && (
+              <Button
+                icon={XCircle}
+                variant="outline"
+                onClick={() => setIsRejectModalOpen(true)}
+                className={`${actionClass} border-red-200 text-red-700 hover:bg-red-50`}
+              >
+                Reject
+              </Button>
+            )}
+          </>
+        }
+      />
+
+      <RouteLane
+        origin={{ name: request.originPort, code: request.originPortCode }}
+        destination={{
+          name: request.destinationPort,
+          code: request.destinationPortCode,
+        }}
+        progress={request.status === "accepted" ? 0.5 : 0}
+        middle={
+          <span className="inline-flex items-center gap-1.5">
+            <CalendarClock aria-hidden="true" className="h-4 w-4" />
+            Cargo ready {day(request.cargoReadyDate)}
+          </span>
+        }
+      />
+
+      <ProgressTrack
+        label="Request progress"
+        steps={requestSteps(request, isCustomer)}
+      />
+
+      {/* Whatever needs an answer sits above the details. */}
+      {request.status === "countered" && (
+        <section className="border-brand/25 mb-6 rounded-2xl border bg-[#f2f8ff] p-5 @xl:p-6">
+          <div className="flex flex-col gap-4 @xl:flex-row @xl:items-start @xl:justify-between">
+            <div className="min-w-0">
+              <h2 className="flex items-center gap-2.5 text-base font-bold text-slate-900">
+                <HandCoins aria-hidden="true" className="text-brand h-5 w-5" />
+                Counter offer
+              </h2>
+              <p className="mt-3 max-w-xl leading-relaxed text-slate-600">
+                {request.counterReason || "No message was added."}
+              </p>
+            </div>
+            <div className="shrink-0 @xl:text-right">
+              <p className="text-sm text-slate-500">Offered price</p>
+              <p className="font-display text-3xl font-bold text-slate-900 tabular-nums">
+                {money(request.adminCounterPrice)}
+              </p>
             </div>
           </div>
+          {isCustomer && (
+            <div className="mt-5 flex flex-col gap-2 @md:flex-row">
+              <Button
+                icon={Check}
+                isLoading={isResponding && isDecision === "accept"}
+                disabled={isResponding}
+                onClick={() => {
+                  setIsDecision("accept");
+                  handleDecision("accept");
+                }}
+                className="h-11 rounded-xl px-5 font-semibold"
+              >
+                Accept counter offer
+              </Button>
+              <Button
+                icon={X}
+                variant="outline"
+                isLoading={isResponding && isDecision === "reject"}
+                disabled={isResponding}
+                onClick={() => {
+                  setIsDecision("reject");
+                  handleDecision("reject");
+                }}
+                className="h-11 rounded-xl bg-white px-5 font-semibold"
+              >
+                Decline
+              </Button>
+            </div>
+          )}
+        </section>
+      )}
+
+      {request.status === "rejected" && (
+        <section className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 @xl:p-6">
+          <h2 className="flex items-center gap-2.5 text-base font-bold text-red-900">
+            <Ban aria-hidden="true" className="h-5 w-5 text-red-600" />
+            Request rejected
+          </h2>
+          <p className="mt-3 leading-relaxed text-red-800">
+            {request.rejectionReason ||
+              "The counter offer was declined, so this request was closed."}
+          </p>
+        </section>
+      )}
+
+      <CargoPanel cargo={request}>
+        <div className="mt-5 border-t border-slate-100 pt-5">
+          <p className="flex items-center gap-2 text-sm text-slate-500">
+            <NotebookPen
+              aria-hidden="true"
+              className="h-4 w-4 text-slate-400"
+            />
+            Notes
+          </p>
+          {request.notes ? (
+            <p className="mt-1.5 max-w-3xl leading-relaxed whitespace-pre-line text-slate-700">
+              {request.notes}
+            </p>
+          ) : (
+            <p className="mt-1.5 text-slate-400">No notes were added.</p>
+          )}
+        </div>
+      </CargoPanel>
+
+      <div className="grid grid-cols-1 gap-6 @4xl:grid-cols-[minmax(0,1fr)_21rem]">
+        {/* Price and customer come first on narrow pages. */}
+        <aside className="grid content-start gap-6 @2xl:grid-cols-2 @4xl:order-2 @4xl:grid-cols-1">
+          <Panel title="Price" icon={DollarSign}>
+            <div className="space-y-3">
+              <Row
+                label={isCustomer ? "Your offer" : "Customer's offer"}
+                value={money(request.proposedPrice)}
+              />
+              <Row
+                label="Counter offer"
+                value={
+                  request.adminCounterPrice ? (
+                    money(request.adminCounterPrice)
+                  ) : (
+                    <span className="text-slate-400">None</span>
+                  )
+                }
+              />
+              <div className="border-t border-slate-100 pt-3">
+                <Row
+                  strong
+                  label={
+                    request.status === "accepted" ? "Agreed price" : "Total"
+                  }
+                  value={
+                    <>
+                      {money(total)}
+                      <span className="ml-1 text-xs font-medium text-slate-400">
+                        USD
+                      </span>
+                    </>
+                  }
+                />
+              </div>
+            </div>
+          </Panel>
+
+          <Panel title={isAdmin ? "Customer" : "Account"} icon={User}>
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className="bg-harbour font-display flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white"
+              >
+                {initials(customer.fullname || request.customerName)}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-slate-900 capitalize">
+                  {customer.fullname || request.customerName || "Unknown"}
+                </p>
+                <p className="flex items-center gap-1.5 truncate text-sm text-slate-500">
+                  <Mail aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">
+                    {customer.email || request.customerEmail}
+                  </span>
+                </p>
+              </div>
+            </div>
+            <Link
+              to={
+                isAdmin
+                  ? `/app/admin/users/${customer._id}`
+                  : "/app/customer/profile"
+              }
+              className="mt-4 block"
+            >
+              <Button
+                icon={UserRound}
+                variant="outline"
+                className="h-10 w-full rounded-xl font-semibold"
+              >
+                View profile
+              </Button>
+            </Link>
+          </Panel>
+        </aside>
+
+        <div className="min-w-0 space-y-6">
+          <Panel title="History" icon={History}>
+            <ol className="space-y-5">
+              <li className="flex gap-3">
+                <span className="bg-brand/10 text-brand flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+                  <MessageSquareText aria-hidden="true" className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-medium text-slate-900">
+                    Request submitted
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    {stamp(request.createdAt)}
+                  </p>
+                </div>
+              </li>
+              {request.adminActionAt && (
+                <li className="flex gap-3">
+                  <span
+                    className={
+                      request.status === "rejected"
+                        ? "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600"
+                        : "bg-kelp/10 text-kelp flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+                    }
+                  >
+                    {request.status === "rejected" ? (
+                      <Ban aria-hidden="true" className="h-4 w-4" />
+                    ) : request.status === "countered" ? (
+                      <HandCoins aria-hidden="true" className="h-4 w-4" />
+                    ) : (
+                      <Check aria-hidden="true" className="h-4 w-4" />
+                    )}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-medium text-slate-900">
+                      {request.status === "accepted"
+                        ? "Request accepted, booking created"
+                        : request.status === "rejected"
+                          ? "Request rejected"
+                          : "Counter offer sent"}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      {stamp(request.adminActionAt)}
+                    </p>
+                  </div>
+                </li>
+              )}
+            </ol>
+          </Panel>
         </div>
       </div>
 
       <Modal
         isOpen={isCounterModalOpen}
         onClose={() => setIsCounterModalOpen(false)}
-        title="Send Counter Offer"
+        title="Send counter offer"
       >
         <CounterOfferForm
           request={request}
@@ -573,7 +507,7 @@ const RequestDetails = () => {
       <Modal
         isOpen={isRejectModalOpen}
         onClose={() => setIsRejectModalOpen(false)}
-        title="Reject Freight Requests"
+        title="Reject freight request"
       >
         <RejectRequestForm
           request={request}
@@ -581,7 +515,7 @@ const RequestDetails = () => {
         />
       </Modal>
       {ConfirmDialog}
-    </>
+    </div>
   );
 };
 

@@ -79,17 +79,15 @@ const ContainerManifestManager = ({
   };
 
   return (
-    <div className="mt-8 border-t border-slate-100 pt-8">
-      <div className="max-medium-mobile:gap-2 mb-6 flex flex-wrap items-center justify-between">
+    <div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <Container className="text-brand h-7 w-7" />
-          <h3 className="text-sm font-bold tracking-wider text-slate-900 uppercase">
-            Container Manifest
-          </h3>
+          <Container className="text-brand h-5 w-5" />
+          <h3 className="font-bold text-slate-900">Container numbers</h3>
           {!isEditing &&
             booking.containers &&
             booking.containers.length > 0 && (
-              <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold tracking-widest text-slate-500 uppercase">
+              <div className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
                 {booking.containers.length} Unit
                 {booking.containers.length > 1 && "s"}
               </div>
@@ -239,17 +237,21 @@ const ContainerManifestManager = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3"
             >
-              <Container className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-              <p className="font-medium text-slate-500">
-                No containers assigned yet.
+              <p className="flex items-center gap-2.5 text-slate-500">
+                <Container
+                  aria-hidden="true"
+                  className="h-5 w-5 shrink-0 text-slate-400"
+                />
+                No container numbers yet.
               </p>
               {userRole === "admin" && !isEditing && (
                 <Button
                   icon={Plus}
                   type="button"
-                  className="mt-2"
+                  variant="outline"
+                  className="h-9 rounded-lg bg-white px-3 text-sm font-semibold"
                   onClick={handleStartEditing}
                 >
                   Add containers

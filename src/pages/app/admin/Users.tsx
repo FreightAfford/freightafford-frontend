@@ -31,6 +31,7 @@ const AdminUsers = () => {
     initialSortKey: "createdAt",
     initialSortDirection: "desc",
     initialLimit: 10,
+    filterKeys: ["role"],
   });
 
   const { users, isPending, error, refetch, isRefetching, total, totalAll } =
@@ -120,7 +121,11 @@ const AdminUsers = () => {
                 key={user._id}
                 onClick={() => navigate(`/app/admin/users/${user._id}`)}
               >
-                <TableCell>{(index + 1).toString().padStart(2, "0")}</TableCell>
+                <TableCell>
+                  {((page - 1) * limit! + index + 1)
+                    .toString()
+                    .padStart(2, "0")}
+                </TableCell>
                 <TableCell className="text-brand max-w-37.5 truncate font-medium capitalize">
                   {user.fullname}
                 </TableCell>

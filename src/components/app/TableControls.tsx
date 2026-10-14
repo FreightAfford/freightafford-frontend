@@ -79,7 +79,7 @@ const TableControls = ({
           {filters.map((filter) => (
             <div
               key={filter.key}
-              className="max-medium-mobile:flex-1 flex items-center gap-2"
+              className="max-medium-mobile:flex-1 relative flex items-center gap-2"
             >
               <label
                 htmlFor={`filter-${filter.key}`}

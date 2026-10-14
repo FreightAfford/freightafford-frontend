@@ -22,7 +22,7 @@ const DashboardLayout = () => {
     <div className="relative mx-auto min-h-screen max-w-375 bg-slate-50">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-      <div className="tablet:pl-64 flex h-screen flex-col overflow-auto">
+      <div className="tablet:pl-64 relative flex h-screen flex-col overflow-auto">
         <Topbar onMenuClick={() => setIsSidebarOpen(true)} />
 
         <main className="max-mobile:p-4 flex-1 p-8">

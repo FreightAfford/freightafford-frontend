@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
 import cn from "../../utils/cn";
 import Button from "../Button";
@@ -15,6 +16,12 @@ const Pagination = ({
   onPageChange,
   className,
 }: PaginationProps) => {
+  // A page past the end (e.g. an old URL after records shrank) jumps to the last page.
+  // totalPages is 0 until data loads, so this never fires mid-fetch.
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) onPageChange(totalPages);
+  }, [currentPage, totalPages, onPageChange]);
+
   if (totalPages <= 1) return null;
 
   const pages = Array.from({ length: Math.min(5, totalPages) }, (_, i) => {

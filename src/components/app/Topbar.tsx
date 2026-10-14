@@ -7,7 +7,7 @@ import Button from "../Button";
 const Topbar = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const { user, isPending } = useUser();
   const navigate = useNavigate();
-  const { canBook } = useKycStatus();
+  const { canBook } = useKycStatus(user?.role === "customer");
 
   return (
     <header className="max-mobile:px-4 sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-100 bg-white/80 px-8 py-3.5 backdrop-blur-md">

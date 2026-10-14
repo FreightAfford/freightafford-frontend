@@ -26,10 +26,12 @@ const keepApplication = (
     data,
   }));
 
-export const useKyc = () => {
+// Customers only: pass enabled=false for staff, who have no verification.
+export const useKyc = (enabled = true) => {
   const { data, isPending, error } = useQuery({
     queryKey: KYC_KEY,
     queryFn: getKycApi,
+    enabled,
   });
 
   return {
@@ -88,8 +90,8 @@ export const useSubmitKyc = () => {
  * Overview card and the booking gate. `canBook` is true once approved, or
  * while the backend isn't enforcing verification (KYC_ENFORCEMENT off).
  */
-export const useKycStatus = () => {
-  const { application, enforcement, isPending } = useKyc();
+export const useKycStatus = (enabled = true) => {
+  const { application, enforcement, isPending } = useKyc(enabled);
   const done = application ? completedSteps(application) : null;
   const doneCount = done ? Object.values(done).filter(Boolean).length : 0;
 

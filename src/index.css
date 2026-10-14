@@ -32,8 +32,26 @@
     @apply font-sans text-slate-900 antialiased;
   }
 
+  /* Headings and titles use Plus Jakarta Sans; everything else stays Inter.
+     For display text that isn't a heading, add the font-display class. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display;
+  }
+
   button {
     @apply cursor-pointer;
+  }
+
+  /* One scrollbar style everywhere: thin, a soft thumb, no track. Dark
+     surfaces (sidebar, mobile menu) use the .scrollbar-on-dark utility. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(100 116 139 / 0.4) transparent;
   }
 
   @media screen and (max-width: 62.5em) {
@@ -41,4 +59,9 @@
       font-size: 80%;
     }
   }
+}
+
+/* Scrollbar for dark (navy) surfaces, so the thumb stays visible. */
+@utility scrollbar-on-dark {
+  scrollbar-color: rgb(255 255 255 / 0.2) transparent;
 }

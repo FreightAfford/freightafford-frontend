@@ -209,7 +209,7 @@ const MobileDrawer = ({
 
             <motion.nav
               aria-label="Main"
-              className="flex-1 overflow-y-auto px-4 pt-6"
+              className="scrollbar-on-dark flex-1 overflow-y-auto px-4 pt-6"
               variants={drawerLinks}
               initial="hidden"
               animate="show"

@@ -1,22 +1,27 @@
 import {
+  BadgeCheck,
   Building,
   CheckCircle2,
   Mail,
   MapPin,
   Phone,
   Shield,
+  ShieldAlert,
   User,
 } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
+import { Link } from "react-router";
 import Button from "../../../components/Button";
 import Modal from "../../../components/Modal";
 import EditProfileForm from "../../../components/app/EditProfileForm";
 import UpdatePasswordForm from "../../../components/app/UpdatePasswordForm";
 import { useUser } from "../../../hooks/useAuthService";
+import { useKycStatus } from "../../../hooks/useKycService";
 
 const CustomerProfile = () => {
   const { user } = useUser();
+  const { canBook } = useKycStatus();
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] =
     useState<boolean>(false);
@@ -49,10 +54,24 @@ const CustomerProfile = () => {
               <h2 className="text-xl font-bold text-slate-900 capitalize">
                 {user?.fullname}
               </h2>
-              <div className="mt-1 flex items-center gap-2">
+              <div className="mt-1 flex flex-wrap items-center gap-2">
                 <span className="text-brand bg-brand/5 rounded-lg px-2 py-0.5 text-sm font-bold tracking-wider uppercase">
                   {user?.role}{" "}
                 </span>
+                {canBook ? (
+                  <span className="bg-kelp/10 text-kelp inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-sm font-semibold">
+                    <BadgeCheck aria-hidden="true" className="h-4 w-4" />
+                    Verified business
+                  </span>
+                ) : (
+                  <Link
+                    to="/app/customer/verification"
+                    className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-0.5 text-sm font-semibold text-slate-600 hover:bg-slate-200"
+                  >
+                    <ShieldAlert aria-hidden="true" className="h-4 w-4" />
+                    Not verified yet
+                  </Link>
+                )}
                 <span className="text-sm text-slate-400">
                   Joined {moment(user?.createdAt).format("ll")}
                 </span>

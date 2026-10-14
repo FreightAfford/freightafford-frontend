@@ -1,11 +1,13 @@
-import { Eye, Menu, Plus, User } from "lucide-react";
+import { Eye, Menu, Plus, ShieldCheck, User } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useUser } from "../../hooks/useAuthService";
+import { useKycStatus } from "../../hooks/useKycService";
 import Button from "../Button";
 
 const Topbar = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const { user, isPending } = useUser();
   const navigate = useNavigate();
+  const { canBook } = useKycStatus();
 
   return (
     <header className="max-mobile:px-4 sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-100 bg-white/80 px-8 py-3.5 backdrop-blur-md">
@@ -32,7 +34,16 @@ const Topbar = ({ onMenuClick }: { onMenuClick: () => void }) => {
           <Bell className="h-5 w-5" />
           <span className="bg-brand absolute top-2 right-2 h-2 w-2 rounded-full border-2 border-white" />
         </button> */}
-        {user.role === "customer" ? (
+        {user.role === "customer" && !canBook ? (
+          // Until verified, the main action is verifying, not requesting.
+          <Button
+            className="flex items-center gap-2"
+            onClick={() => navigate("/app/customer/verification")}
+          >
+            <ShieldCheck className="h-5 w-5" />
+            <span className="max-small-mobile:hidden">Verify business</span>
+          </Button>
+        ) : user.role === "customer" ? (
           <Button
             className="flex items-center gap-2"
             onClick={() => navigate("/app/customer/requests")}

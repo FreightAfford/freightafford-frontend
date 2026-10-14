@@ -9,6 +9,8 @@ import AdminOverview from "../pages/app/admin/Overview";
 import AdminRequests from "../pages/app/admin/Requests";
 import Tickets from "../pages/app/admin/Tickets";
 import AdminUsers from "../pages/app/admin/Users";
+import AdminVerificationReview from "../pages/app/admin/verifications/VerificationReview";
+import AdminVerifications from "../pages/app/admin/verifications/Verifications";
 import ChatInterface from "../pages/app/chats/ChatInterface";
 import CustomerBookings from "../pages/app/customer/Bookings";
 import CustomerDocuments from "../pages/app/customer/Documents";
@@ -17,6 +19,7 @@ import CustomerOverview from "../pages/app/customer/Overview";
 import CustomerProfile from "../pages/app/customer/Profile";
 import CustomerRequests from "../pages/app/customer/Requests";
 import CustomerSupport from "../pages/app/customer/Support";
+import CustomerVerification from "../pages/app/customer/verification/Verification";
 import BookingDetails from "../pages/app/shared/BookingDetails";
 import InvoiceDetails from "../pages/app/shared/InvoiceDetails";
 import RequestDetails from "../pages/app/shared/RequestDetails";
@@ -90,6 +93,35 @@ const AppRoutes = createBrowserRouter([
       { path: "/forgot-password", Component: ForgotPasswordPage },
       { path: "/reset-password/:token", Component: ResetPasswordPage },
 
+      // Dev-only review page for the KYC building blocks; dropped from
+      // production builds.
+      ...(import.meta.env.DEV
+        ? [
+            {
+              path: "/dev/kyc-kit",
+              lazy: async () => ({
+                Component: (await import("../pages/dev/KycKitPreview")).default,
+              }),
+            },
+            // The verification wizard without logging in, on the mock service.
+            {
+              path: "/dev/verification",
+              Component: () => (
+                <div className="max-mobile:p-4 min-h-screen bg-slate-50 p-8">
+                  <CustomerVerification />
+                </div>
+              ),
+            },
+            {
+              path: "/dev/input-styles",
+              lazy: async () => ({
+                Component: (await import("../pages/dev/InputStylesPreview"))
+                  .default,
+              }),
+            },
+          ]
+        : []),
+
       // Customer Routes
       {
         path: "/app/customer",
@@ -109,6 +141,7 @@ const AppRoutes = createBrowserRouter([
           { path: "invoices/:id", Component: InvoiceDetails },
           { path: "profile", Component: CustomerProfile },
           { path: "support", Component: CustomerSupport },
+          { path: "verification", Component: CustomerVerification },
           { path: "chats", Component: ChatInterface },
         ],
       },
@@ -135,6 +168,11 @@ const AppRoutes = createBrowserRouter([
           { path: "invoices/:id", Component: InvoiceDetails },
           { path: "users", Component: AdminUsers },
           { path: "users/:id", Component: UserDetails },
+          { path: "verifications", Component: AdminVerifications },
+          {
+            path: "verifications/:id",
+            Component: AdminVerificationReview,
+          },
           { path: "logs", Component: AdminLogs },
           { path: "chats", Component: ChatInterface },
         ],

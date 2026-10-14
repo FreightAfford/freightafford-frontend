@@ -8,6 +8,7 @@ import {
   LogOut,
   MessageSquare,
   Receipt,
+  ShieldCheck,
   User,
   Users,
   X,
@@ -32,6 +33,11 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
 
   const customerLinks = [
     { name: "Overview", icon: LayoutDashboard, path: "/app/customer" },
+    {
+      name: "Verification",
+      icon: ShieldCheck,
+      path: "/app/customer/verification",
+    },
     {
       name: "My Freight Requests",
       icon: FileSearch,
@@ -64,6 +70,11 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     { name: "Documents", icon: FileUp, path: "/app/admin/documents" },
     { name: "Invoices", icon: Receipt, path: "/app/admin/invoices" },
     { name: "Users", icon: Users, path: "/app/admin/users" },
+    {
+      name: "Verifications",
+      icon: ShieldCheck,
+      path: "/app/admin/verifications",
+    },
     // { name: "Audit Logs", icon: History, path: "/app/admin/logs" },
   ];
 

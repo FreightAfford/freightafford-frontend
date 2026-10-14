@@ -1,17 +1,19 @@
-import { Link, useNavigate, useParams } from "react-router";
-import AuthLayout from "../../layout/AuthLayout";
-import Card from "../../components/Card";
-import Input from "../../components/Input";
-import Button from "../../components/Button";
-import { useResetPassword } from "../../hooks/useAuthService";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router";
+import Button from "../../components/Button";
+import PasswordInput from "../../components/PasswordInput";
+import AccountAside from "../../components/auth/AccountAside";
+import TextLink from "../../components/auth/TextLink";
+import { useResetPassword } from "../../hooks/useAuthService";
+import AuthSplitLayout from "../../layout/AuthSplitLayout";
+import { AUTH_HEADING, AUTH_SUBMIT } from "../../utils/authStyles";
 import {
   resetPasswordSchema,
   type ResetPasswordValues,
 } from "../../validations/authValidation";
-import { zodResolver } from "@hookform/resolvers/zod";
 
-import Logo from "../../components/Logo";
 const ResetPasswordPage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -34,52 +36,54 @@ const ResetPasswordPage = () => {
       { onSuccess: () => navigate("/login") },
     );
   };
-  return (
-    <AuthLayout>
-      <div className="mx-auto w-full max-w-md">
-        <Link to="/" className="flex justify-center">
-          <Logo className="h-14" />
-        </Link>
-        <h2 className="mt-8 text-center text-3xl font-extrabold text-white">
-          Set New Password
-        </h2>
-        <p className="mt-2 text-center text-slate-400">
-          Please enter your new password below to secure your account.
-        </p>
-      </div>
 
-      <div className="mx-auto mt-8 w-full max-w-md">
-        <Card className="border border-white/20 p-4 shadow-2xl backdrop-blur-sm">
-          <form onSubmit={handleSubmit(onResetPassword)} className="space-y-6">
-            <Input
-              label="New Password"
-              type="password"
-              placeholder="************"
-              {...register("password")}
-              error={errors.password?.message}
-              disabled={isPending}
-            />
-            <Input
-              label="Confirm New Password"
-              type="password"
-              placeholder="************"
-              {...register("confirmPassword")}
-              error={errors.confirmPassword?.message}
-              disabled={isPending}
-            />
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full"
-              isLoading={isPending}
-              disabled={isPending}
-            >
-              Reset Password
-            </Button>
-          </form>
-        </Card>
-      </div>
-    </AuthLayout>
+  return (
+    <AuthSplitLayout aside={<AccountAside />}>
+      <h1 className={AUTH_HEADING}>Set a new password</h1>
+      <p className="mt-2 text-slate-500">
+        Choose a password you haven't used here before.
+      </p>
+
+      <form
+        noValidate
+        onSubmit={handleSubmit(onResetPassword)}
+        className="mt-8 space-y-5"
+      >
+        <PasswordInput
+          variant="icon"
+          icon={Lock}
+          label="New password"
+          autoComplete="new-password"
+          placeholder="At least 8 characters"
+          {...register("password")}
+          error={errors.password?.message}
+          disabled={isPending}
+        />
+        <PasswordInput
+          variant="icon"
+          icon={Lock}
+          label="Confirm new password"
+          autoComplete="new-password"
+          placeholder="Type it again"
+          {...register("confirmPassword")}
+          error={errors.confirmPassword?.message}
+          disabled={isPending}
+        />
+        <Button
+          type="submit"
+          size="lg"
+          className={AUTH_SUBMIT}
+          isLoading={isPending}
+          disabled={isPending}
+        >
+          Reset password
+        </Button>
+      </form>
+
+      <p className="mt-6 text-slate-500">
+        Remembered it? <TextLink to="/login">Log in</TextLink>
+      </p>
+    </AuthSplitLayout>
   );
 };
 export default ResetPasswordPage;

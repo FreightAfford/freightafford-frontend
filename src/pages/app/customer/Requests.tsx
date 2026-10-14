@@ -13,13 +13,17 @@ import Pagination from "../../../components/app/Pagination";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
 import TableControls from "../../../components/app/TableControls";
+import VerifyToBook from "../../../components/app/VerifyToBook";
 import { useGetMyFreightRequests } from "../../../hooks/useFreightService";
+import { useKycStatus } from "../../../hooks/useKycService";
 import { useTableQuery } from "../../../hooks/useTableQuery";
 
 const CustomerRequests = () => {
   const navigate = useNavigate();
   const [playTutorial, setPlayTutorial] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  // Requests become bookings, so they need a verified business.
+  const { canBook } = useKycStatus();
 
   const {
     page,
@@ -87,6 +91,7 @@ const CustomerRequests = () => {
             >
               <Button
                 onClick={() => setIsModalOpen(true)}
+                disabled={!canBook}
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" /> New Request
@@ -98,6 +103,7 @@ const CustomerRequests = () => {
               >
                 <Play className="h-4 w-4" /> Watch Tutorial
               </Button>
+              {!canBook && <VerifyToBook className="w-full justify-end" />}
             </motion.div>
           </>
         ) : null}
@@ -238,6 +244,7 @@ const CustomerRequests = () => {
             <div className="flex flex-wrap items-center justify-center gap-2">
               <Button
                 onClick={() => setIsModalOpen(true)}
+                disabled={!canBook}
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
@@ -250,6 +257,7 @@ const CustomerRequests = () => {
               >
                 <Play className="h-4 w-4" /> Watch Tutorial
               </Button>
+              {!canBook && <VerifyToBook className="w-full justify-center" />}
             </div>
           }
         />

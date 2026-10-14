@@ -6,13 +6,15 @@ import {
   type KeyboardEvent,
   type SubmitEvent,
 } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import Button from "../../components/Button";
-import Card from "../../components/Card";
+import KycChecklist from "../../components/auth/KycChecklist";
+import TextLink from "../../components/auth/TextLink";
 import { useResendOtp, useVerifyOtp } from "../../hooks/useAuthService";
-import AuthLayout from "../../layout/AuthLayout";
+import AuthSplitLayout from "../../layout/AuthSplitLayout";
+import { AUTH_HEADING, AUTH_SUBMIT, TEXT_LINK } from "../../utils/authStyles";
+import cn from "../../utils/cn";
 
-import Logo from "../../components/Logo";
 const OTP_LENGTH = 6;
 
 const VerifyOtpPage = () => {
@@ -102,71 +104,91 @@ const VerifyOtpPage = () => {
     resendOtp(email, { onSuccess: () => setTimer(60) });
   };
   return (
-    <AuthLayout>
-      <div className="mx-auto w-full max-w-md">
-        <Link to="/" className="flex justify-center">
-          <Logo className="h-14" />
-        </Link>
-        <h2 className="mt-8 text-center text-3xl font-extrabold text-white">
-          Verify your email
-        </h2>
-        <p className="mt-2 text-center text-slate-400">
-          We've sent a 6-digit code to your email address.
-        </p>
-      </div>
+    // After confirming their email, people verify their business next, so
+    // the checklist from sign-up stays beside them.
+    <AuthSplitLayout aside={<KycChecklist />}>
+      <h1 className={AUTH_HEADING}>Confirm your email</h1>
+      <p className="mt-2 leading-relaxed text-slate-500">
+        Enter the 6-digit code we sent to{" "}
+        {email ? (
+          <span className="font-medium break-all text-slate-900">{email}</span>
+        ) : (
+          "your email address"
+        )}
+        .
+      </p>
 
-      <div className="mx-auto mt-8 w-full max-w-md">
-        <Card
-          className="border border-white/20 p-4 shadow-2xl backdrop-blur-sm"
-          onPaste={handlePaste}
+      <form
+        noValidate
+        onSubmit={handleSubmit}
+        onPaste={handlePaste}
+        className="mt-8 space-y-5"
+      >
+        <fieldset>
+          <legend className="font-display mb-1.5 block text-sm font-semibold text-slate-800">
+            Verification code
+          </legend>
+          <div className="grid grid-cols-6 gap-2">
+            {otp.map((digit, i) => (
+              <input
+                key={i}
+                ref={(e) => {
+                  inputRefs.current[i] = e;
+                }}
+                onChange={(e) => handleInput(e.target.value, i)}
+                onKeyDown={(e) => handleKeyDown(e, i)}
+                type="text"
+                inputMode="numeric"
+                autoComplete={i === 0 ? "one-time-code" : "off"}
+                maxLength={1}
+                aria-label={`Digit ${i + 1} of ${OTP_LENGTH}`}
+                className={cn(
+                  "font-display h-14 min-w-0 rounded-xl border bg-white text-center text-xl font-bold text-slate-900 transition-[border-color,box-shadow] duration-150 outline-none focus:shadow-[0_0_0_3px_rgb(30_144_255/0.15)] disabled:opacity-60",
+                  error
+                    ? "border-red-400 bg-red-50/50"
+                    : digit
+                      ? "focus:border-brand border-slate-300"
+                      : "focus:border-brand border-slate-200 hover:border-slate-300",
+                )}
+                disabled={isPending}
+              />
+            ))}
+          </div>
+          {error && (
+            <p className="mt-1.5 text-sm font-medium text-red-600">{error}</p>
+          )}
+        </fieldset>
+
+        <Button
+          type="submit"
+          size="lg"
+          className={AUTH_SUBMIT}
+          disabled={isPending}
+          isLoading={isPending}
         >
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-6 gap-2">
-              {otp.map((_, i) => (
-                <input
-                  key={i}
-                  ref={(e) => {
-                    inputRefs.current[i] = e;
-                  }}
-                  onChange={(e) => handleInput(e.target.value, i)}
-                  onKeyDown={(e) => handleKeyDown(e, i)}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  className="focus:ring-brand h-14 rounded-lg border border-slate-200 px-3 py-2 text-center text-xl font-bold transition-all focus:ring-2 focus:outline-none"
-                  disabled={isPending}
-                />
-              ))}
-            </div>
+          Confirm email
+        </Button>
+      </form>
 
-            {error && <p className="text-center text-red-500">{error}</p>}
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full"
-              disabled={isPending}
-              isLoading={isPending}
-            >
-              Verify Code
-            </Button>
-            <div className="text-center">
-              <button
-                type="button"
-                disabled={timer > 0 || isPending}
-                onClick={handleResend}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 disabled:opacity-50"
-              >
-                {timer > 0
-                  ? `Resend code in ${timer}s`
-                  : isResending
-                    ? "Sending..."
-                    : "Resend code"}
-              </button>
-            </div>
-          </form>
-        </Card>
-      </div>
-    </AuthLayout>
+      <p className="mt-6 text-slate-500">
+        Didn't get it?{" "}
+        {timer > 0 ? (
+          <span className="font-medium text-slate-400">Resend in {timer}s</span>
+        ) : (
+          <button
+            type="button"
+            disabled={isPending || isResending}
+            onClick={handleResend}
+            className={TEXT_LINK}
+          >
+            {isResending ? "Sending…" : "Resend code"}
+          </button>
+        )}
+      </p>
+      <p className="mt-2 text-slate-500">
+        Wrong email? <TextLink to="/register">Sign up again</TextLink>
+      </p>
+    </AuthSplitLayout>
   );
 };
 export default VerifyOtpPage;

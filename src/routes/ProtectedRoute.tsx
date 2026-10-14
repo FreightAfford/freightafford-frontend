@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Navigate } from "react-router";
+import { Navigate, useLocation } from "react-router";
 import Loader from "../components/Loader";
 import { useUser } from "../hooks/useAuthService";
 
@@ -15,12 +15,21 @@ const ProtectedRoute = ({
   children,
 }: ProtectedRouteProps) => {
   const { user, isPending } = useUser();
+  const location = useLocation();
 
   if (isPending) return <Loader />;
 
   // if (isError) return <Navigate to={redirectPath} replace />;
 
-  if (!user) return <Navigate to={redirectPath} replace />;
+  // Remember where they were going, so login can send them back there.
+  if (!user)
+    return (
+      <Navigate
+        to={redirectPath}
+        replace
+        state={{ from: location.pathname + location.search }}
+      />
+    );
 
   if (allowedRoles && !allowedRoles.includes(user.role))
     return <Navigate to="/unauthorized" replace />;

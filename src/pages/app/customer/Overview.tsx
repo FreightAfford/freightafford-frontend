@@ -1,5 +1,6 @@
 import { CalendarCheck, FileSearch, FileText, Receipt, X } from "lucide-react";
 import StatsCard from "../../../components/app/StatsCard";
+import VerificationCard from "../../../components/app/VerificationCard";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import SmallLoader from "../../../components/SmallLoader";
@@ -35,6 +36,8 @@ const CustomerOverview = () => {
           Here's what's happening with your freight today.
         </p>
       </div>
+
+      <VerificationCard />
 
       {/* Stats Grid */}
       {data && (

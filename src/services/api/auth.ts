@@ -12,6 +12,10 @@ interface User {
   acceptTerms?: boolean;
   acceptedFreightRules?: boolean;
   otp?: string;
+  // Sent at sign-up. The backend doesn't store these yet.
+  phoneNumber?: string;
+  companyName?: string;
+  accountType?: "export_agent" | "exporter";
 }
 
 export const registerApi = async (user: User) => {
@@ -49,7 +53,14 @@ export const loginApi = async ({ email, password }: User) => {
     const response = await apiClient.post("/auth/login", { email, password });
     return response.data;
   } catch (error) {
-    if (error instanceof AxiosError) throw error.response?.data;
+    // Keep the HTTP status: the login page handles 401 and 403 differently.
+    if (error instanceof AxiosError)
+      throw error.response
+        ? { ...error.response.data, statusCode: error.response.status }
+        : {
+            message:
+              "Can't reach Freightafford. Check your connection and try again.",
+          };
     if (error instanceof Error) throw error.message;
   }
 };

@@ -2,8 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUpDown, Minus, Plus } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { useConfirm } from "../../hooks/useConfirm";
 import { useCreateFreightRequest } from "../../hooks/useFreightService";
+import { useKycStatus } from "../../hooks/useKycService";
 import type { Commodity } from "../../services/api/commodity";
 import {
   formatPortLabel,
@@ -50,6 +52,7 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
   const formattedDate = defaultDate.toISOString().split("T")[0];
 
   const { createRequest, isPending } = useCreateFreightRequest();
+  const { canBook } = useKycStatus();
   const { confirm, ConfirmDialog } = useConfirm();
   const [copies, setCopies] = useState<number>(1);
   const [origin, setOrigin] = useState<PortLocation | null>(null);
@@ -100,6 +103,12 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
   };
 
   const onCreateRequest = async (data: FreightRequestFormValues) => {
+    // The page already disables "New request" until verified; this catches
+    // any other way into the form.
+    if (!canBook) {
+      toast.error("Verify your business before you send a freight request.");
+      return;
+    }
     const route =
       origin && destination
         ? `${formatPortLabel(origin)} to ${formatPortLabel(destination)}`

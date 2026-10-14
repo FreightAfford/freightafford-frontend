@@ -55,7 +55,7 @@ export const useLogin = () => {
       toast.success(response.message);
       queryClient.setQueryData(["user"], response.user);
     },
-    onError: (err) => toast.error(err.message),
+    // The login page shows errors next to the form instead of as toasts.
   });
 
   return { login, isPending };

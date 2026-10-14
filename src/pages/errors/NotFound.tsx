@@ -1,4 +1,4 @@
-import { XCircle } from "lucide-react";
+import { ArrowLeft, XCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import Button from "../../components/Button";
@@ -35,6 +35,7 @@ const NotFound = () => {
             </p>
 
             <Button
+              icon={ArrowLeft}
               onClick={() => navigate(-1)}
               variant="outline"
               className="h-12 w-full"

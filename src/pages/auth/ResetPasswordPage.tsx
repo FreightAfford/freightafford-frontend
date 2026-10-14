@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Lock } from "lucide-react";
+import { KeyRound, Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import Button from "../../components/Button";
@@ -50,7 +50,6 @@ const ResetPasswordPage = () => {
         className="mt-8 space-y-5"
       >
         <PasswordInput
-          variant="icon"
           icon={Lock}
           label="New password"
           autoComplete="new-password"
@@ -60,7 +59,6 @@ const ResetPasswordPage = () => {
           disabled={isPending}
         />
         <PasswordInput
-          variant="icon"
           icon={Lock}
           label="Confirm new password"
           autoComplete="new-password"
@@ -70,6 +68,7 @@ const ResetPasswordPage = () => {
           disabled={isPending}
         />
         <Button
+          icon={KeyRound}
           type="submit"
           size="lg"
           className={AUTH_SUBMIT}

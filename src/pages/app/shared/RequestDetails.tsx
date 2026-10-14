@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Package,
   User,
+  UserRound,
   Weight,
   X,
   XCircle,
@@ -74,7 +75,11 @@ const RequestDetails = () => {
         title="Error loading requests"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => navigate(-1)}>
+          <Button
+            icon={ArrowLeft}
+            variant="outline"
+            onClick={() => navigate(-1)}
+          >
             Go back
           </Button>
         }
@@ -150,32 +155,35 @@ const RequestDetails = () => {
                 {(request.status === "pending" ||
                   request.status === "countered") && (
                   <Button
+                    icon={CheckCircle2}
                     className="flex items-center gap-2 bg-green-500"
                     title="Approve Request"
                     disabled={isAccepting}
                     onClick={handleAccept}
                     isLoading={isAccepting}
                   >
-                    <CheckCircle2 className="h-6 w-6" /> Accept
+                    Accept
                   </Button>
                 )}
                 {request.status === "pending" && (
                   <Button
+                    icon={AlertCircle}
                     onClick={() => setIsCounterModalOpen(true)}
                     title="Send Counter Offer"
                     className="flex items-center gap-2 bg-indigo-500"
                   >
-                    <AlertCircle className="h-6 w-6" /> Counter
+                    Counter
                   </Button>
                 )}
                 {(request.status === "pending" ||
                   request.status === "countered") && (
                   <Button
+                    icon={XCircle}
                     onClick={() => setIsRejectModalOpen(true)}
                     className="flex items-center gap-2 bg-red-500"
                     title="Reject Request"
                   >
-                    <XCircle className="h-6 w-6" /> Reject
+                    Reject
                   </Button>
                 )}
               </>
@@ -364,6 +372,7 @@ const RequestDetails = () => {
               {request.status === "countered" && user.role === "customer" && (
                 <div className="mt-6 flex gap-3">
                   <Button
+                    icon={Check}
                     className="bg-purple-600 hover:bg-purple-700"
                     isLoading={isResponding && isDecision === "accept"}
                     disabled={isResponding}
@@ -375,6 +384,7 @@ const RequestDetails = () => {
                     Accept Counter
                   </Button>
                   <Button
+                    icon={X}
                     variant="outline"
                     className="border-purple-200 text-purple-700 hover:bg-purple-100"
                     isLoading={isResponding && isDecision === "reject"}
@@ -537,7 +547,11 @@ const RequestDetails = () => {
                     : "/app/customer/profile"
                 }
               >
-                <Button variant="outline" className="h-9 w-full text-sm">
+                <Button
+                  icon={UserRound}
+                  variant="outline"
+                  className="h-9 w-full text-sm"
+                >
                   View Profile
                 </Button>
               </Link>

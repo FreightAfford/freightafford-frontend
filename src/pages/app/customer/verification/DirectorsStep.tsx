@@ -108,7 +108,6 @@ const DirectorsStep = ({
           >
             <FieldGrid>
               <Input
-                variant="icon"
                 icon={User}
                 label="Full name"
                 placeholder="As on their ID"
@@ -117,7 +116,6 @@ const DirectorsStep = ({
                 disabled={isPending}
               />
               <Input
-                variant="icon"
                 icon={Briefcase}
                 label="Role"
                 placeholder="Managing Director"
@@ -125,17 +123,21 @@ const DirectorsStep = ({
                 error={fieldErrors?.role?.message}
                 disabled={isPending}
               />
-              <Select
-                variant="icon"
-                icon={IdCard}
-                label="ID type"
-                options={ID_OPTIONS}
-                {...register(`directors.${index}.idType`)}
-                error={fieldErrors?.idType?.message}
-                disabled={isPending}
+              <Controller
+                control={control}
+                name={`directors.${index}.idType`}
+                render={({ field }) => (
+                  <Select
+                    icon={IdCard}
+                    label="ID type"
+                    options={ID_OPTIONS}
+                    {...field}
+                    error={fieldErrors?.idType?.message}
+                    disabled={isPending}
+                  />
+                )}
               />
               <Input
-                variant="icon"
                 icon={Hash}
                 label="ID number"
                 placeholder={ID_PLACEHOLDERS[idType]}

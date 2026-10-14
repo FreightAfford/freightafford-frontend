@@ -1,4 +1,4 @@
-import { Plus, Ship, X } from "lucide-react";
+import { Plus, RotateCw, Ship, X } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
@@ -48,7 +48,7 @@ const CustomerBookings = () => {
         title="Error loading bookings"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }
@@ -186,10 +186,10 @@ const CustomerBookings = () => {
           description="You don't have any bookings made on Freightafford. Yet to receive shipping quotes through Freight Requests."
           action={
             <Button
+              icon={Plus}
               onClick={() => navigate("/app/customer/requests")}
               className="flex items-center gap-2"
             >
-              <Plus className="h-4 w-4" />
               Create Request
             </Button>
           }

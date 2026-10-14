@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Hourglass, Send, Trash2 } from "lucide-react";
 import type { ReactNode } from "react";
 import Button from "../../../../components/Button";
 import cn from "../../../../utils/cn";
@@ -102,6 +102,7 @@ export const StepActions = ({
   >
     {onBack && (
       <Button
+        icon={ArrowLeft}
         type="button"
         variant="outline"
         size="lg"
@@ -115,6 +116,13 @@ export const StepActions = ({
     <Button
       type="submit"
       size="lg"
+      icon={
+        waitingForUploads
+          ? Hourglass
+          : submitLabel === "Submit for review"
+            ? Send
+            : ArrowRight
+      }
       isLoading={isSaving}
       disabled={isSaving || submitDisabled || waitingForUploads}
       className="max-small-mobile:w-full h-12 rounded-xl px-8 text-base font-semibold"

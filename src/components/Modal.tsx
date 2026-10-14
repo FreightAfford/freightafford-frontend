@@ -36,7 +36,7 @@ const Modal = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div className="max-medium-mobile:p-3 fixed inset-0 z-50 flex items-center justify-center p-6">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -53,7 +53,7 @@ const Modal = ({
               sizeClasses[size],
             )}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 p-6">
+            <div className="max-medium-mobile:px-4 max-medium-mobile:py-4 flex items-center justify-between border-b border-slate-100 p-6">
               <h2 className="text-xl font-bold text-slate-900">{title}</h2>
               <button
                 onClick={onClose}
@@ -62,7 +62,9 @@ const Modal = ({
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="max-h-[80vh] overflow-y-auto p-6">{children}</div>
+            <div className="max-medium-mobile:max-h-[85vh] max-medium-mobile:p-4 max-h-[80vh] overflow-y-auto p-6">
+              {children}
+            </div>
           </motion.div>
         </div>
       )}

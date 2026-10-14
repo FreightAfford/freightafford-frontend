@@ -1,4 +1,4 @@
-import { Menu, X } from "lucide-react";
+import { LayoutDashboard, LogIn, Menu, Ship, X } from "lucide-react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import {
   type ReactNode,
@@ -233,19 +233,20 @@ const MobileDrawer = ({
             <div className="space-y-3 border-t border-white/10 p-4">
               {dashboardPath ? (
                 <Link to={dashboardPath} onClick={onClose} className="block">
-                  <Button size="lg" className="w-full">
+                  <Button icon={LayoutDashboard} size="lg" className="w-full">
                     Go to dashboard
                   </Button>
                 </Link>
               ) : (
                 <>
                   <Link to="/register" onClick={onClose} className="block">
-                    <Button size="lg" className="w-full">
+                    <Button icon={Ship} size="lg" className="w-full">
                       Start booking
                     </Button>
                   </Link>
                   <Link to="/login" onClick={onClose} className="block">
                     <Button
+                      icon={LogIn}
                       size="lg"
                       variant="outline"
                       className="w-full border-white/25 text-white hover:bg-white/10"
@@ -341,19 +342,32 @@ const NavBar = ({ adaptive = false }: { adaptive?: boolean }) => {
           <div className="flex items-center gap-2">
             {dashboardPath ? (
               <Link to={dashboardPath}>
-                <Button size="md" className={cn(BAR_CTA, ink.cta)}>
+                <Button
+                  icon={LayoutDashboard}
+                  size="md"
+                  className={cn(BAR_CTA, ink.cta)}
+                >
                   Go to dashboard
                 </Button>
               </Link>
             ) : (
               <>
                 <Link to="/login" className="max-medium-mobile:hidden">
-                  <Button size="md" variant="ghost" className={ink.ghost}>
+                  <Button
+                    icon={LogIn}
+                    size="md"
+                    variant="ghost"
+                    className={ink.ghost}
+                  >
                     Log in
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button size="md" className={cn(BAR_CTA, ink.cta)}>
+                  <Button
+                    icon={Ship}
+                    size="md"
+                    className={cn(BAR_CTA, ink.cta)}
+                  >
                     Start booking
                   </Button>
                 </Link>

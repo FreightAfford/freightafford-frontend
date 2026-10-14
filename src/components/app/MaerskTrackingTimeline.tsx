@@ -1,4 +1,4 @@
-import { Radar, RefreshCw, Ship } from "lucide-react";
+import { History, Radar, RefreshCw, Ship } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
 import {
@@ -115,6 +115,7 @@ const MaerskTrackingTimeline = ({
         </div>
         {isStaff && hasReference && (
           <Button
+            icon={RefreshCw}
             variant="outline"
             onClick={() => syncBooking(bookingId)}
             isLoading={isSyncing}
@@ -122,7 +123,7 @@ const MaerskTrackingTimeline = ({
             className="flex items-center gap-2"
             title="Update dates, vessel and status from Maersk"
           >
-            <RefreshCw className="h-4 w-4" /> Sync now
+            Sync now
           </Button>
         )}
       </div>
@@ -155,7 +156,10 @@ const MaerskTrackingTimeline = ({
       ) : (
         <>
           <div className="max-small-mobile:grid-cols-1 mb-6 grid grid-cols-2 gap-3">
-            <Milestone label="Departure" milestone={tracking!.summary.departure} />
+            <Milestone
+              label="Departure"
+              milestone={tracking!.summary.departure}
+            />
             <Milestone label="Arrival" milestone={tracking!.summary.arrival} />
           </div>
 
@@ -176,8 +180,9 @@ const MaerskTrackingTimeline = ({
             <button
               type="button"
               onClick={() => setExpanded(true)}
-              className="text-brand mb-4 text-sm font-medium hover:underline"
+              className="text-brand mb-4 inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
             >
+              <History className="h-4 w-4" />
               Show {hidden} earlier events
             </button>
           )}

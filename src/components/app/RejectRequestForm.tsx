@@ -1,3 +1,4 @@
+import { Ban, MessageSquareText, X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useConfirm } from "../../hooks/useConfirm";
@@ -7,6 +8,7 @@ import {
   type RejectFreightFormValues,
 } from "../../validations/freightValidation";
 import Button from "../Button";
+import Textarea from "../Textarea";
 
 const RejectRequestForm = ({
   request,
@@ -40,22 +42,18 @@ const RejectRequestForm = ({
   };
   return (
     <form onSubmit={handleSubmit(onRejectFreight)} className="space-y-6">
-      <div className="space-y-1.5">
-        <label className="font-medium text-slate-700">
-          Reason for Rejection
-        </label>
-        <textarea
-          className="flex min-h-30 w-full rounded-md border border-slate-200 bg-white px-3 py-2 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
-          placeholder="Explain why this request is being rejected..."
-          {...register("reason")}
-          disabled={isPending}
-        />
-        {errors.reason && (
-          <p className="font-medium text-red-500">{errors.reason.message}</p>
-        )}
-      </div>
+      <Textarea
+        icon={MessageSquareText}
+        label="Reason for Rejection"
+        rows={4}
+        placeholder="Explain why this request is being rejected..."
+        {...register("reason")}
+        error={errors.reason?.message}
+        disabled={isPending}
+      />
       <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
         <Button
+          icon={X}
           type="button"
           variant="ghost"
           onClick={onCancel}
@@ -64,6 +62,7 @@ const RejectRequestForm = ({
           Cancel
         </Button>
         <Button
+          icon={Ban}
           type="submit"
           variant="primary"
           disabled={isPending}

@@ -1,3 +1,4 @@
+import { MailCheck, RotateCw } from "lucide-react";
 import {
   useEffect,
   useRef,
@@ -160,6 +161,7 @@ const VerifyOtpPage = () => {
         </fieldset>
 
         <Button
+          icon={MailCheck}
           type="submit"
           size="lg"
           className={AUTH_SUBMIT}
@@ -179,8 +181,9 @@ const VerifyOtpPage = () => {
             type="button"
             disabled={isPending || isResending}
             onClick={handleResend}
-            className={TEXT_LINK}
+            className={`${TEXT_LINK} inline-flex items-center gap-1`}
           >
+            <RotateCw aria-hidden="true" className="h-3.5 w-3.5" />
             {isResending ? "Sending…" : "Resend code"}
           </button>
         )}

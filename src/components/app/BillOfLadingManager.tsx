@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Activity,
   Clock,
   ExternalLink,
   FileText,
@@ -11,7 +12,7 @@ import {
 import moment from "moment";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { useDeleteBL, useGetBL, useUploadBL } from "../../hooks/useBLService";
 import { useConfirm } from "../../hooks/useConfirm";
@@ -21,6 +22,7 @@ import {
   type UploadBLValues,
 } from "../../validations/blValidation";
 import Button from "../Button";
+import Select from "../Select";
 
 interface BillOfLadingManagerProps {
   bookingId: string;
@@ -61,7 +63,7 @@ export const BillOfLadingManager = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const {
-    register,
+    control,
     handleSubmit,
     setValue,
     reset,
@@ -69,6 +71,7 @@ export const BillOfLadingManager = ({
     trigger,
   } = useForm<UploadBLValues>({
     resolver: zodResolver(uploadBLSchema),
+    defaultValues: { type: "release_order", status: "drafted" },
   });
 
   const onUploadBL = (data: UploadBLValues) => {
@@ -93,12 +96,12 @@ export const BillOfLadingManager = ({
         </h2>
         {role && (
           <Button
+            icon={Plus}
             variant="outline"
             size="sm"
             className="text-sm"
             onClick={() => setShowForm(true)}
           >
-            <Plus className="mr-1.5 h-3.5 w-3.5" />
             Add BL
           </Button>
         )}
@@ -161,51 +164,55 @@ export const BillOfLadingManager = ({
                 )}
               </div> */}
 
-              <div>
-                <label className="mb-2 block text-xs font-medium tracking-wider text-slate-500 uppercase">
-                  Document Type
-                </label>
-                <select
-                  {...register("type")}
-                  className="focus:ring-brand/20 focus:border-brand w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all outline-none focus:ring-2"
-                  disabled={isPending}
-                >
-                  <option value="release_order">Release Order</option>
-                  <option value="booking_confirmation">
-                    Booking Confirmation
-                  </option>
-                  <option value="draft_bill_of_lading">
-                    Draft Bill of Lading
-                  </option>
-                  <option value="original_bill_of_lading">
-                    Original Bill of Lading
-                  </option>
-                  <option value="house">House Bill of Lading</option>
-                  <option value="master">Master Bill of Lading</option>
-                </select>
-                {errors.type && (
-                  <p className="text-sm text-red-500">{errors.type.message}</p>
+              <Controller
+                control={control}
+                name="type"
+                render={({ field }) => (
+                  <Select
+                    icon={FileText}
+                    {...field}
+                    label="Document Type"
+                    placeholder="Choose a document type"
+                    options={[
+                      { value: "release_order", label: "Release Order" },
+                      {
+                        value: "booking_confirmation",
+                        label: "Booking Confirmation",
+                      },
+                      {
+                        value: "draft_bill_of_lading",
+                        label: "Draft Bill of Lading",
+                      },
+                      {
+                        value: "original_bill_of_lading",
+                        label: "Original Bill of Lading",
+                      },
+                      { value: "house", label: "House Bill of Lading" },
+                      { value: "master", label: "Master Bill of Lading" },
+                    ]}
+                    error={errors.type?.message}
+                    disabled={isPending}
+                  />
                 )}
-              </div>
-              <div>
-                <label className="mb-2 block text-xs font-medium tracking-wider text-slate-500 uppercase">
-                  Status (OPTIONAL)
-                </label>
-                <select
-                  {...register("status")}
-                  className="focus:ring-brand/20 focus:border-brand w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all outline-none focus:ring-2"
-                  disabled={isPending}
-                >
-                  {/* <option value="pending_amendment">Pending Amendment</option> */}
-                  <option value="drafted">Drafted</option>
-                  <option value="finalized">Finalized</option>
-                </select>
-                {errors.status && (
-                  <p className="text-sm text-red-500">
-                    {errors.status.message}
-                  </p>
+              />
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <Select
+                    icon={Activity}
+                    {...field}
+                    label="Status"
+                    placeholder="Choose a status"
+                    options={[
+                      { value: "drafted", label: "Drafted" },
+                      { value: "finalized", label: "Finalized" },
+                    ]}
+                    error={errors.status?.message}
+                    disabled={isPending}
+                  />
                 )}
-              </div>
+              />
 
               <div className="relative">
                 <input
@@ -280,6 +287,7 @@ export const BillOfLadingManager = ({
 
               <div className="flex gap-3 pt-2">
                 <Button
+                  icon={Upload}
                   type="submit"
                   className="flex-1"
                   isLoading={isPending}
@@ -289,6 +297,7 @@ export const BillOfLadingManager = ({
                   <span className="max-small-mobile:hidden ml-1">Document</span>
                 </Button>
                 <Button
+                  icon={X}
                   type="button"
                   variant="outline"
                   onClick={() => {

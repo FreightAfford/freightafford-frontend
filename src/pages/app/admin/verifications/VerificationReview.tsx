@@ -1,8 +1,10 @@
 import {
   ArrowLeft,
   BadgeCheck,
+  Ban,
   Flag,
   MessageSquareWarning,
+  ShieldCheck,
   X,
   XCircle,
 } from "lucide-react";
@@ -26,7 +28,7 @@ import { fieldLabel } from "../../../../utils/kycFields";
 const ACCOUNT_TYPES = { export_agent: "Export agent", exporter: "Exporter" };
 
 const textareaClass =
-  "focus:border-brand w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:shadow-[0_0_0_3px_rgb(30_144_255/0.15)]";
+  "focus:border-brand w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 leading-relaxed text-slate-900 outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-slate-400 hover:border-slate-300 focus:shadow-[0_0_0_3px_rgb(30_144_255/0.15)]";
 
 // The outcome of a review that's already been decided.
 const Outcome = ({ application }: { application: KycReviewItem }) => {
@@ -105,7 +107,9 @@ const VerificationReview = () => {
         description={error?.message || "It may have been removed."}
         action={
           <Link to="/app/admin/verifications">
-            <Button variant="outline">Back to verifications</Button>
+            <Button icon={ArrowLeft} variant="outline">
+              Back to verifications
+            </Button>
           </Link>
         }
       />
@@ -286,6 +290,7 @@ const VerificationReview = () => {
               <div className="space-y-2">
                 {flagged.length === 0 ? (
                   <Button
+                    icon={ShieldCheck}
                     onClick={approve}
                     disabled={isDeciding || rejecting}
                     className="h-11 w-full rounded-xl font-semibold"
@@ -295,6 +300,7 @@ const VerificationReview = () => {
                 ) : (
                   <>
                     <Button
+                      icon={MessageSquareWarning}
                       onClick={requestChanges}
                       disabled={isDeciding || emptyNote}
                       isLoading={isDeciding}
@@ -312,6 +318,7 @@ const VerificationReview = () => {
 
                 {!rejecting ? (
                   <Button
+                    icon={Ban}
                     variant="outline"
                     onClick={() => setRejecting(true)}
                     disabled={isDeciding}
@@ -338,6 +345,7 @@ const VerificationReview = () => {
                     />
                     <div className="flex gap-2">
                       <Button
+                        icon={X}
                         variant="outline"
                         onClick={() => setRejecting(false)}
                         className="h-10 flex-1 rounded-lg bg-white"
@@ -345,6 +353,7 @@ const VerificationReview = () => {
                         Cancel
                       </Button>
                       <Button
+                        icon={Ban}
                         onClick={reject}
                         disabled={!reason.trim() || isDeciding}
                         isLoading={isDeciding}

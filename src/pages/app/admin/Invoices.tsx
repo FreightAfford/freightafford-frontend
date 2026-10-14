@@ -1,4 +1,4 @@
-import { Eye, FileText, Ship, X } from "lucide-react";
+import { Eye, FileText, RotateCw, Ship, X } from "lucide-react";
 import moment from "moment";
 import { useNavigate } from "react-router";
 import StatusBadge from "../../../components/app/StatusBadge";
@@ -22,7 +22,7 @@ const AdminInvoices = () => {
         title="Error loading invoices"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }
@@ -97,10 +97,10 @@ const AdminInvoices = () => {
           description="You have not sent any invoices yet through Bookings."
           action={
             <Button
+              icon={Eye}
               className="flex items-center gap-2"
               onClick={() => navigate("/app/admin/bookings")}
             >
-              <Eye className="h-6 w-6" />
               See Bookings
             </Button>
           }

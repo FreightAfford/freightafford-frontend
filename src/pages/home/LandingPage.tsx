@@ -2,11 +2,14 @@ import {
   Anchor,
   ArrowLeftRight,
   CalendarDays,
+  CirclePlay,
   Database,
   MapPinned,
+  MessageSquare,
   PackageCheck,
   Route,
   Ship,
+  UserPlus,
 } from "lucide-react";
 import {
   MotionConfig,
@@ -469,11 +472,16 @@ const LandingPage = () => {
                 className="max-small-mobile:flex-col mt-10 flex gap-4"
               >
                 <Link to="/register" className="max-small-mobile:w-full">
-                  <Button size="lg" className="max-small-mobile:w-full">
+                  <Button
+                    icon={Ship}
+                    size="lg"
+                    className="max-small-mobile:w-full"
+                  >
                     Start Booking
                   </Button>
                 </Link>
                 <Button
+                  icon={CirclePlay}
                   size="lg"
                   variant="outline"
                   onClick={() => setPlayTutorial(true)}
@@ -707,6 +715,7 @@ const LandingPage = () => {
             >
               <Link to="/register" className="max-small-mobile:w-full">
                 <Button
+                  icon={UserPlus}
                   size="lg"
                   className="text-harbour max-small-mobile:w-full bg-white hover:bg-slate-100 hover:opacity-100"
                 >
@@ -718,6 +727,7 @@ const LandingPage = () => {
                 className="max-small-mobile:w-full"
               >
                 <Button
+                  icon={MessageSquare}
                   size="lg"
                   variant="outline"
                   className="max-small-mobile:w-full border-white/50 text-white hover:bg-white/10"

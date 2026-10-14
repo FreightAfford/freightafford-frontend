@@ -1,4 +1,4 @@
-import { Search, ShieldCheck, X } from "lucide-react";
+import { RotateCw, Search, ShieldCheck, X } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
@@ -62,7 +62,7 @@ const AdminVerifications = () => {
         title="Couldn't load verifications"
         description={error.message || "Something went wrong. Try again."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }
@@ -125,11 +125,11 @@ const AdminVerifications = () => {
               event.preventDefault();
               setParams({ q: searchInput.trim() });
             }}
-            className="max-tablet:w-full relative w-72"
+            className="max-tablet:w-full group relative w-72"
           >
             <Search
               aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400"
+              className="group-focus-within:text-brand pointer-events-none absolute top-1/2 left-3.5 h-[18px] w-[18px] -translate-y-1/2 text-slate-400 transition-colors"
             />
             <input
               type="search"
@@ -140,7 +140,7 @@ const AdminVerifications = () => {
               }}
               placeholder="Search business, applicant or CAC"
               aria-label="Search verifications"
-              className="focus:border-brand h-10 w-full rounded-lg border border-slate-200 pr-3 pl-9 text-sm outline-none focus:shadow-[0_0_0_3px_rgb(30_144_255/0.15)]"
+              className="focus:border-brand h-11 w-full rounded-xl border border-slate-200 bg-white pr-3 pl-11 text-[0.9375rem] text-slate-900 transition-[border-color,box-shadow] duration-150 outline-none placeholder:text-slate-400 hover:border-slate-300 focus:shadow-[0_0_0_3px_rgb(30_144_255/0.15)]"
             />
           </form>
         </div>

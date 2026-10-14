@@ -1,4 +1,11 @@
-import { CalendarCheck, FileSearch, FileText, Receipt, X } from "lucide-react";
+import {
+  CalendarCheck,
+  FileSearch,
+  FileText,
+  Receipt,
+  RotateCw,
+  X,
+} from "lucide-react";
 import StatsCard from "../../../components/app/StatsCard";
 import VerificationCard from "../../../components/app/VerificationCard";
 import Button from "../../../components/Button";
@@ -19,7 +26,7 @@ const CustomerOverview = () => {
         title="Error loading overview"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }

@@ -96,7 +96,6 @@ const BusinessStep = ({
         <FieldGrid>
           <div className="col-span-full">
             <Input
-              variant="icon"
               icon={Building2}
               label="Registered business name"
               placeholder="Okafor Agro Exports Ltd"
@@ -105,17 +104,21 @@ const BusinessStep = ({
               disabled={isPending}
             />
           </div>
-          <Select
-            variant="icon"
-            icon={FileBadge}
-            label="Registration type"
-            options={CAC_OPTIONS}
-            {...register("cacType")}
-            error={errors.cacType?.message}
-            disabled={isPending}
+          <Controller
+            control={control}
+            name="cacType"
+            render={({ field }) => (
+              <Select
+                icon={FileBadge}
+                label="Registration type"
+                options={CAC_OPTIONS}
+                {...field}
+                error={errors.cacType?.message}
+                disabled={isPending}
+              />
+            )}
           />
           <Input
-            variant="icon"
             icon={Hash}
             label="CAC number"
             placeholder="RC 1234567"
@@ -138,7 +141,6 @@ const BusinessStep = ({
         <FieldGrid>
           <div className="col-span-full">
             <Input
-              variant="icon"
               icon={Receipt}
               label="Tax identification number (optional)"
               placeholder="12345678-0001"
@@ -161,7 +163,6 @@ const BusinessStep = ({
       >
         <FieldGrid>
           <Input
-            variant="icon"
             icon={Ship}
             label="NEPC registration number"
             placeholder="As on the certificate"
@@ -198,7 +199,6 @@ const BusinessStep = ({
         <FieldGrid>
           <div className="col-span-full">
             <Input
-              variant="icon"
               icon={MapPin}
               label="Street address"
               placeholder="14 Wharf Road, Apapa"
@@ -209,7 +209,6 @@ const BusinessStep = ({
             />
           </div>
           <Input
-            variant="icon"
             icon={Building}
             label="City or town"
             placeholder="Lagos"
@@ -218,15 +217,20 @@ const BusinessStep = ({
             error={errors.address?.city?.message}
             disabled={isPending}
           />
-          <Select
-            variant="icon"
-            icon={MapIcon}
-            label="State"
-            placeholder="Choose a state"
-            options={NIGERIAN_STATES}
-            {...register("address.state")}
-            error={errors.address?.state?.message}
-            disabled={isPending}
+          <Controller
+            control={control}
+            name="address.state"
+            render={({ field }) => (
+              <Select
+                icon={MapIcon}
+                label="State"
+                placeholder="Choose a state"
+                options={NIGERIAN_STATES}
+                {...field}
+                error={errors.address?.state?.message}
+                disabled={isPending}
+              />
+            )}
           />
           {document(
             "address.proofOfAddress",

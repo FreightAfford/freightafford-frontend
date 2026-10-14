@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Checkbox from "../../../../components/Checkbox";
 import ApplicationSummary from "../../../../components/kyc/ApplicationSummary";
@@ -36,8 +36,9 @@ const ReviewStep = ({
     <button
       type="button"
       onClick={() => onEdit(step)}
-      className={`${TEXT_LINK} shrink-0 text-sm`}
+      className={`${TEXT_LINK} inline-flex shrink-0 items-center gap-1 text-sm`}
     >
+      <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
       Edit
     </button>
   );

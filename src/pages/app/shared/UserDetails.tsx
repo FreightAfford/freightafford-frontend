@@ -1,26 +1,35 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Activity,
   Anchor,
   ArrowLeft,
+  Building2,
   Calendar,
   CalendarCheck,
   CheckCircle2,
   Edit2,
   FileText,
+  Globe,
   Mail,
+  MapPin,
   Package,
+  Phone as PhoneIcon,
+  RotateCw,
   Save,
   Shield,
+  User,
   X,
 } from "lucide-react";
 import moment from "moment";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import Input from "../../../components/Input";
+import Select from "../../../components/Select";
+import Textarea from "../../../components/Textarea";
 import SmallLoader from "../../../components/SmallLoader";
 import {
   useGetSingleUser,
@@ -51,6 +60,7 @@ const UserDetails = () => {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
@@ -95,7 +105,7 @@ const UserDetails = () => {
         title="Error loading user"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }
@@ -140,18 +150,20 @@ const UserDetails = () => {
         <div className="flex items-center gap-3">
           {activeTab !== "edit" ? (
             <Button
+              icon={Edit2}
               onClick={() => setActiveTab("edit")}
               className="flex items-center gap-2"
             >
-              <Edit2 className="h-5 w-5" /> Edit Profile
+              Edit Profile
             </Button>
           ) : (
             <Button
+              icon={X}
               variant="outline"
               onClick={() => setActiveTab("overview")}
               className="flex items-center gap-2"
             >
-              <X className="h-5 w-5" /> Cancel
+              Cancel
             </Button>
           )}
         </div>
@@ -372,6 +384,7 @@ const UserDetails = () => {
               <div className="max-medium-mobile:grid-cols-1 mb-8 grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Input
+                    icon={User}
                     label="Full Name"
                     placeholder="Frank Andy"
                     {...register("fullname")}
@@ -382,6 +395,7 @@ const UserDetails = () => {
                 </div>
                 <div className="space-y-2">
                   <Input
+                    icon={Mail}
                     label="Email Address"
                     type="email"
                     placeholder="frank@example.com"
@@ -392,6 +406,7 @@ const UserDetails = () => {
                 </div>
                 <div className="space-y-2">
                   <Input
+                    icon={PhoneIcon}
                     label="Phone Number"
                     placeholder="+234 000 000 0000"
                     {...register("phoneNumber")}
@@ -401,6 +416,7 @@ const UserDetails = () => {
                 </div>
                 <div className="space-y-2">
                   <Input
+                    icon={Building2}
                     label="Company Name"
                     placeholder="Example Corporation"
                     {...register("companyName")}
@@ -411,6 +427,7 @@ const UserDetails = () => {
                 </div>
                 <div className="space-y-2">
                   <Input
+                    icon={Globe}
                     label="Country"
                     placeholder="Nigeria"
                     {...register("country")}
@@ -419,35 +436,40 @@ const UserDetails = () => {
                     className="capitalize"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="leading-none font-medium tracking-wide text-slate-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Status
-                  </label>
-                  <select
-                    {...register("status")}
-                    disabled={isUpdating}
-                    className="focus-visible:ring-brand flex h-12 w-full rounded-md border border-slate-200 bg-white px-3 py-2 ring-offset-white placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="suspended">Suspended</option>
-                  </select>
-                </div>
+                <Controller
+                  control={control}
+                  name="status"
+                  render={({ field }) => (
+                    <Select
+                      icon={Activity}
+                      {...field}
+                      label="Status"
+                      options={[
+                        { value: "active", label: "Active" },
+                        { value: "inactive", label: "Inactive" },
+                        { value: "suspended", label: "Suspended" },
+                      ]}
+                      error={errors.status?.message}
+                      disabled={isUpdating}
+                    />
+                  )}
+                />
 
-                <div className="max-medium-mobile:col-span-1 col-span-2 space-y-2">
-                  <label className="leading-none font-medium tracking-wide text-slate-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Address
-                  </label>
-                  <textarea
+                <div className="max-medium-mobile:col-span-1 col-span-2">
+                  <Textarea
+                    icon={MapPin}
+                    label="Address"
+                    rows={2}
                     {...register("companyAddress")}
+                    error={errors.companyAddress?.message}
                     disabled={isUpdating}
-                    rows={3}
-                    className="focus-visible:ring-brand flex h-16 w-full resize-none rounded-md border border-slate-200 bg-white px-3 py-2 capitalize ring-offset-white placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    className="capitalize"
                   />
                 </div>
               </div>
               <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-6">
                 <Button
+                  icon={X}
                   type="button"
                   variant="ghost"
                   onClick={() => setActiveTab("overview")}
@@ -456,12 +478,13 @@ const UserDetails = () => {
                   Cancel
                 </Button>
                 <Button
+                  icon={Save}
                   disabled={isUpdating}
                   isLoading={isUpdating}
                   type="submit"
                   className="flex items-center gap-2"
                 >
-                  {!isUpdating && <Save className="h-5 w-5" />}Save Changes
+                  Save Changes
                 </Button>
               </div>
             </form>

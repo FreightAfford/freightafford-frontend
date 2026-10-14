@@ -37,26 +37,26 @@ const Topbar = ({ onMenuClick }: { onMenuClick: () => void }) => {
         {user.role === "customer" && !canBook ? (
           // Until verified, the main action is verifying, not requesting.
           <Button
+            icon={ShieldCheck}
             className="flex items-center gap-2"
             onClick={() => navigate("/app/customer/verification")}
           >
-            <ShieldCheck className="h-5 w-5" />
             <span className="max-small-mobile:hidden">Verify business</span>
           </Button>
         ) : user.role === "customer" ? (
           <Button
+            icon={Plus}
             className="flex items-center gap-2"
             onClick={() => navigate("/app/customer/requests")}
           >
-            <Plus className="h-6 w-6" />
             <span className="max-small-mobile:hidden">Freight Request</span>
           </Button>
         ) : (
           <Button
+            icon={Eye}
             className="flex items-center gap-2"
             onClick={() => navigate("/app/admin/requests")}
           >
-            <Eye className="h-6 w-6" />
             <span className="max-small-mobile:hidden">Freight Requests</span>
           </Button>
         )}

@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -52,6 +53,25 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: rgb(100 116 139 / 0.4) transparent;
+  }
+
+  /* No autofill colouring: the browser keeps the filled value but the field
+     keeps its own background (the long transition holds off Chrome's tint). */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-slate-900);
+    caret-color: var(--color-slate-900);
+    -webkit-background-clip: text;
+    background-clip: text;
+    transition: background-color 600000s 0s;
+  }
+
+  input:autofill {
+    background-color: transparent;
+    filter: none;
   }
 
   @media screen and (max-width: 62.5em) {

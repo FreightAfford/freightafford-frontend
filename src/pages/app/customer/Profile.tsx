@@ -2,8 +2,10 @@ import {
   BadgeCheck,
   Building,
   CheckCircle2,
+  KeyRound,
   Mail,
   MapPin,
+  Pencil,
   Phone,
   Shield,
   ShieldAlert,
@@ -94,12 +96,14 @@ const CustomerProfile = () => {
               </div>
               <div className="max-small-mobile:grid-cols-1 max-small-mobile:gap-2 mt-8 grid w-full grid-cols-2 gap-4">
                 <Button
+                  icon={Pencil}
                   onClick={() => setIsEditModalOpen(true)}
                   variant="outline"
                 >
                   Edit Profile
                 </Button>
                 <Button
+                  icon={KeyRound}
                   variant="outline"
                   onClick={() => setIsPasswordModalOpen(true)}
                 >

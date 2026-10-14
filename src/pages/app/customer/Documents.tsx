@@ -3,6 +3,7 @@ import {
   ExternalLink,
   Eye,
   FileText,
+  RotateCw,
   Ship,
   Trash2,
   X,
@@ -30,7 +31,7 @@ const CustomerDocuments = () => {
         title="Error loading documents"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }
@@ -147,10 +148,10 @@ const CustomerDocuments = () => {
           description="No bill of lading document has been sent to you yet. Start by submitting your first request to receive shipping quotes."
           action={
             <Button
+              icon={Eye}
               className="flex items-center gap-2"
               onClick={() => navigate("/app/customer/bookings")}
             >
-              <Eye className="h-6 w-6" />
               See Bookings
             </Button>
           }

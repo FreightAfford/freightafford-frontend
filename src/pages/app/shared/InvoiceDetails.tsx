@@ -45,7 +45,11 @@ const InvoiceDetails = () => {
         title="Error loading invoice"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => navigate(-1)}>
+          <Button
+            icon={ArrowLeft}
+            variant="outline"
+            onClick={() => navigate(-1)}
+          >
             Go back
           </Button>
         }
@@ -76,24 +80,26 @@ const InvoiceDetails = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
+              icon={Download}
               variant="outline"
               className="flex items-center gap-2"
               onClick={() => window.open(invoice.documentUrl, "_blank")}
             >
-              <Download className="h-5 w-5" /> Download{" "}
-              {formatFileSize(invoice.fileSize)}
+              Download {formatFileSize(invoice.fileSize)}
             </Button>
             {user.role === "customer" && invoice.status === "pending" && (
               <Button
+                icon={File}
                 onClick={() => setIsSubmitProofModalOpen(true)}
                 className="flex items-center gap-2"
               >
-                <File className="h-5 w-5" /> Submit Payment Proof
+                Submit Payment Proof
               </Button>
             )}
             {user.role === "admin" && invoice.status === "pending" && (
               <>
                 <Button
+                  icon={CheckCircle}
                   className="flex items-center gap-2"
                   disabled={isAction === "approve" && isVerifying}
                   isLoading={isAction === "approve" && isVerifying}
@@ -102,9 +108,10 @@ const InvoiceDetails = () => {
                     verify({ invoiceId: invoice._id, action: "approve" });
                   }}
                 >
-                  <CheckCircle className="h-4 w-4" /> Mark as Paid
+                  Mark as Paid
                 </Button>
                 <Button
+                  icon={X}
                   isLoading={isAction === "reject" && isVerifying}
                   disabled={isAction === "reject" && isVerifying}
                   className="flex items-center gap-2 bg-red-500"
@@ -113,7 +120,7 @@ const InvoiceDetails = () => {
                     verify({ invoiceId: invoice._id, action: "reject" });
                   }}
                 >
-                  <X className="h-4 w-4" /> Reject Ref
+                  Reject Ref
                 </Button>
               </>
             )}
@@ -235,8 +242,8 @@ const InvoiceDetails = () => {
                 }
                 className="text-brand max-medium-mobile:text-sm flex items-center gap-1 font-medium hover:underline"
               >
+                <ExternalLink className="h-4 w-4" />
                 <span className="max-medium-mobile:hidden">View</span> Booking
-                <ExternalLink className="h-5 w-5" />
               </button>
             </div>
             <div className="max-medium-mobile:grid-cols-1 grid grid-cols-2 gap-6">

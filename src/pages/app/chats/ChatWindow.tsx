@@ -1,4 +1,4 @@
-import { Check, CheckCheck, Send, UserIcon } from "lucide-react";
+import { Check, CheckCheck, History, Send, UserIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   useCallback,
@@ -183,8 +183,9 @@ const ChatWindow = ({
           <div className="flex justify-center">
             <button
               onClick={loadEarlierMessages}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50"
             >
+              <History className="h-3.5 w-3.5" />
               Load earlier messages
             </button>
           </div>

@@ -1,8 +1,10 @@
-import { Loader2, X } from "lucide-react";
+import { Loader2, Ship, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { useSearchVessels } from "../../hooks/useVesselService";
 import type { Vessel } from "../../services/api/vessel";
 import cn from "../../utils/cn";
+import { FieldIcon, FieldLabel, FieldMessage } from "../field";
+import { FIELD_CONTROL, FIELD_MENU, fieldBox } from "../fieldStyles";
 
 interface VesselSelectProps {
   label: string;
@@ -112,14 +114,10 @@ const VesselSelect = ({
       ref={containerRef}
       className={cn("relative w-full space-y-1.5", className)}
     >
-      <label
-        htmlFor={inputId}
-        className="leading-none font-medium tracking-wide text-slate-700"
-      >
-        {label}
-      </label>
+      <FieldLabel htmlFor={inputId}>{label}</FieldLabel>
 
-      <div className="relative">
+      <div className={cn(fieldBox(!!error, disabled), "h-13")}>
+        <FieldIcon icon={Ship} error={!!error} />
         <input
           ref={inputRef}
           id={inputId}
@@ -129,6 +127,7 @@ const VesselSelect = ({
           aria-controls={listId}
           aria-autocomplete="list"
           aria-invalid={!!error || undefined}
+          aria-describedby={error ? `${inputId}-error` : undefined}
           autoComplete="off"
           value={value}
           title={value || undefined}
@@ -137,11 +136,7 @@ const VesselSelect = ({
           onChange={(e) => handleInput(e.target.value)}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          className={cn(
-            "focus-visible:ring-brand flex h-12 w-full truncate rounded-md border border-slate-200 bg-white px-3 py-2 ring-offset-white placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-            error && "border-red-500 focus-visible:ring-red-500",
-            imo ? "pr-32" : "pr-10",
-          )}
+          className={cn(FIELD_CONTROL, "truncate", imo ? "pr-32" : "pr-10")}
         />
 
         <div className="absolute top-1/2 right-3 flex -translate-y-1/2 items-center gap-2">
@@ -167,7 +162,7 @@ const VesselSelect = ({
             id={listId}
             role="listbox"
             aria-label={`${label} suggestions`}
-            className="absolute top-full right-0 left-0 z-30 mt-1 max-h-72 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg"
+            className={FIELD_MENU}
           >
             {isSearching && !vessels.length ? (
               <li className="flex items-center gap-2 px-4 py-3 text-sm text-slate-500">
@@ -196,8 +191,8 @@ const VesselSelect = ({
                   }}
                   onMouseEnter={() => setActive(i)}
                   className={cn(
-                    "flex cursor-pointer items-start justify-between gap-3 px-4 py-2.5",
-                    i === active && "bg-slate-50",
+                    "flex cursor-pointer items-start justify-between gap-3 rounded-lg px-3 py-2.5",
+                    i === active && "bg-slate-100",
                   )}
                 >
                   <span className="min-w-0 truncate text-sm font-medium text-slate-900">
@@ -213,7 +208,7 @@ const VesselSelect = ({
         )}
       </div>
 
-      {error && <p className="font-medium text-red-500">{error}</p>}
+      <FieldMessage id={inputId} error={error} />
     </div>
   );
 };

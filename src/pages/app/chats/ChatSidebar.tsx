@@ -61,14 +61,14 @@ const ChatSidebar = ({
             <MessageCircle className="h-5 w-5 text-slate-600" />
           </div>
         </div>
-        <div className="relative mb-3">
-          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <div className="group relative mb-3">
+          <Search className="group-focus-within:text-brand pointer-events-none absolute top-1/2 left-3.5 h-[18px] w-[18px] -translate-y-1/2 text-slate-400 transition-colors" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search conversations..."
-            className="w-full rounded-xl border-none bg-slate-100 py-2 pr-4 pl-9 text-sm transition-all focus:ring-2 focus:ring-blue-500/20"
+            className="focus:border-brand h-11 w-full rounded-xl border border-slate-200 bg-white pr-4 pl-11 text-[0.9375rem] text-slate-900 transition-[border-color,box-shadow] duration-150 outline-none placeholder:text-slate-400 hover:border-slate-300 focus:shadow-[0_0_0_3px_rgb(30_144_255/0.15)]"
           />
         </div>
         {/* Status filter tabs */}

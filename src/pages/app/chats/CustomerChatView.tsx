@@ -4,6 +4,7 @@ import {
   Loader2,
   MessageCircle,
   Package,
+  Plus,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
@@ -274,7 +275,11 @@ const CustomerChatView = () => {
           disabled={isSessionLoading}
           className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 disabled:opacity-60"
         >
-          {isSessionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isSessionLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MessageCircle className="h-4 w-4" />
+          )}
           Start Chat
         </button>
       </div>
@@ -351,8 +356,9 @@ const CustomerChatView = () => {
                 setQueuePosition(null);
                 setStartingFresh(true);
               }}
-              className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-bold text-white transition-all hover:bg-blue-700 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1 text-xs font-bold text-white transition-all hover:bg-blue-700 active:scale-95"
             >
+              <Plus className="h-3.5 w-3.5" />
               Start New Chat
             </button>
           </div>

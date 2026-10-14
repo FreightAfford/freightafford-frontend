@@ -4,7 +4,9 @@ import {
   ExternalLink,
   FileText,
   MessageSquare,
+  PencilLine,
   Plus,
+  Send,
   Upload,
   X,
 } from "lucide-react";
@@ -24,6 +26,7 @@ import {
   type AmendmentFormValues,
 } from "../../validations/amendment.validation";
 import Button from "../Button";
+import Textarea from "../Textarea";
 import SmallLoader from "../SmallLoader";
 
 const AmendmentsManager = ({
@@ -83,12 +86,13 @@ const AmendmentsManager = ({
         </h2>
         {role === "customer" && (
           <Button
+            icon={Plus}
             onClick={() => setShowForm(true)}
             size="sm"
             variant="outline"
             className="text-sm"
           >
-            <Plus className="mr-1.5 h-3.5 w-3.5" /> Amendment
+            Amendment
           </Button>
         )}
       </div>
@@ -166,20 +170,15 @@ const AmendmentsManager = ({
                       exit={{ opacity: 0, y: -10 }}
                       className="space-y-2"
                     >
-                      <label className="mb-1.5 block text-sm font-medium tracking-wider text-slate-500 uppercase">
-                        Corrections Details
-                      </label>
-                      <textarea
+                      <Textarea
+                        icon={PencilLine}
+                        label="Correction details"
+                        rows={4}
                         {...register("content")}
+                        error={errors.content?.message}
                         disabled={isPending}
                         placeholder="Describe the changes needed (e.g., 'Consignee address should be...', 'Change weight to...')"
-                        className="focus-visible:ring-brand flex h-30 w-full rounded-md border border-slate-200 bg-white px-3 py-2 ring-offset-white placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                       />
-                      {errors.content && (
-                        <p className="font-medium text-red-500">
-                          {errors.content.message}
-                        </p>
-                      )}
                     </motion.div>
                   ) : (
                     <motion.div
@@ -269,6 +268,7 @@ const AmendmentsManager = ({
 
                 <div className="flex gap-3 pt-4">
                   <Button
+                    icon={X}
                     type="button"
                     variant="outline"
                     onClick={() => setShowForm(false)}
@@ -277,6 +277,7 @@ const AmendmentsManager = ({
                     Cancel
                   </Button>
                   <Button
+                    icon={Send}
                     type="submit"
                     className="flex-1"
                     disabled={isPending}

@@ -7,6 +7,7 @@ import {
   Package,
   Phone,
   User,
+  UserPlus,
 } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -153,7 +154,6 @@ const RegisterPage = () => {
         </fieldset>
 
         <Input
-          variant="icon"
           icon={User}
           label="Full name"
           autoComplete="name"
@@ -163,7 +163,6 @@ const RegisterPage = () => {
           disabled={isPending}
         />
         <Input
-          variant="icon"
           icon={Mail}
           label="Work email"
           type="email"
@@ -174,7 +173,6 @@ const RegisterPage = () => {
           disabled={isPending}
         />
         <PhoneInput
-          variant="icon"
           icon={Phone}
           label="Phone number"
           {...register("phoneNumber")}
@@ -182,7 +180,6 @@ const RegisterPage = () => {
           disabled={isPending}
         />
         <Input
-          variant="icon"
           icon={Building2}
           label="Company name"
           autoComplete="organization"
@@ -194,7 +191,6 @@ const RegisterPage = () => {
 
         <div className="space-y-2">
           <PasswordInput
-            variant="icon"
             icon={Lock}
             label="Password"
             autoComplete="new-password"
@@ -231,6 +227,7 @@ const RegisterPage = () => {
         />
 
         <Button
+          icon={UserPlus}
           type="submit"
           size="lg"
           className={AUTH_SUBMIT}

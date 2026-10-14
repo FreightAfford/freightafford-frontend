@@ -34,7 +34,6 @@ const AuthorisationStep = ({
     .map((director) => director.fullName)
     .filter(Boolean);
   const {
-    register,
     control,
     handleSubmit,
     getValues,
@@ -66,15 +65,20 @@ const AuthorisationStep = ({
         description="A letter from your company confirming that you can book shipments for it on Freightafford. It should be on your company letterhead, name you, and be signed by one of the directors you added."
       >
         <FieldGrid>
-          <Select
-            variant="icon"
-            icon={PenLine}
-            label="Signed by"
-            placeholder="Choose a director"
-            options={signers}
-            {...register("signedBy")}
-            error={errors.signedBy?.message}
-            disabled={isPending}
+          <Controller
+            control={control}
+            name="signedBy"
+            render={({ field }) => (
+              <Select
+                icon={PenLine}
+                label="Signed by"
+                placeholder="Choose a director"
+                options={signers}
+                {...field}
+                error={errors.signedBy?.message}
+                disabled={isPending}
+              />
+            )}
           />
           <Controller
             control={control}

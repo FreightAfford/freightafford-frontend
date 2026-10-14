@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, Lock, Mail, MailWarning } from "lucide-react";
+import { AlertCircle, Lock, LogIn, Mail, MailWarning } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
@@ -99,7 +99,6 @@ const LoginPage = () => {
         className="mt-8 space-y-5"
       >
         <Input
-          variant="icon"
           icon={Mail}
           label="Email"
           type="email"
@@ -111,7 +110,6 @@ const LoginPage = () => {
         />
         <div className="space-y-2">
           <PasswordInput
-            variant="icon"
             icon={Lock}
             label="Password"
             {...register("password")}
@@ -146,6 +144,7 @@ const LoginPage = () => {
                 .
               </p>
               <Button
+                icon={Mail}
                 type="button"
                 size="sm"
                 className="mt-3"
@@ -172,6 +171,7 @@ const LoginPage = () => {
         )}
 
         <Button
+          icon={LogIn}
           type="submit"
           size="lg"
           className={AUTH_SUBMIT}

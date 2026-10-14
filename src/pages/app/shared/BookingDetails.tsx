@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Clock,
   Container,
+  FileSearch,
   FileText,
   History,
   Info,
@@ -12,6 +13,7 @@ import {
   MessageCircle,
   Package,
   Plus,
+  Receipt,
   Ship,
   User,
   Weight,
@@ -62,7 +64,11 @@ const BookingDetails = () => {
         title="Error loading booking"
         description={sbError.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => navigate(-1)}>
+          <Button
+            icon={ArrowLeft}
+            variant="outline"
+            onClick={() => navigate(-1)}
+          >
             Go back
           </Button>
         }
@@ -143,20 +149,25 @@ const BookingDetails = () => {
 
             {user?.role === "admin" && (
               <>
-                <Button onClick={() => setIsUpdateShippingModalOpen(true)}>
-                  <Ship className="mr-2" /> Shipping
+                <Button
+                  icon={Ship}
+                  onClick={() => setIsUpdateShippingModalOpen(true)}
+                >
+                  Shipping
                 </Button>
                 <Button
+                  icon={ChartNoAxesGantt}
                   variant="outline"
                   onClick={() => setIsUpdateStatusModalOpen(true)}
                 >
-                  <ChartNoAxesGantt className="mr-2" /> Status
+                  Status
                 </Button>
                 <Button
+                  icon={Plus}
                   onClick={() => setIsInvoiceModalOpen(true)}
                   className="flex items-center gap-2"
                 >
-                  <Plus className="h-4 w-4" /> Invoice
+                  Invoice
                 </Button>
               </>
             )}
@@ -193,8 +204,7 @@ const BookingDetails = () => {
                   {booking.sailingDate
                     ? `ETD: ${moment(booking.sailingDate).format("ll")}`
                     : "ETD TBA"}
-                  {booking.eta &&
-                    ` · ETA: ${moment(booking.eta).format("ll")}`}
+                  {booking.eta && ` · ETA: ${moment(booking.eta).format("ll")}`}
                 </p>
               </div>
             </div>
@@ -479,6 +489,7 @@ const BookingDetails = () => {
                 </div>
               )}
               <Button
+                icon={FileSearch}
                 variant="outline"
                 className="w-full"
                 onClick={() =>
@@ -542,6 +553,7 @@ const BookingDetails = () => {
                 {isLoading && <SmallLoader />}
                 {invoice && (
                   <Button
+                    icon={Receipt}
                     variant="outline"
                     className="w-full"
                     onClick={() =>

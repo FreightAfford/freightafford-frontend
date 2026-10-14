@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { ArrowRight, Check, ShieldCheck } from "lucide-react";
 import { Link } from "react-router";
 import { useKycStatus } from "../../hooks/useKycService";
 import { completedSteps } from "../../pages/app/customer/verification/steps";
@@ -41,7 +41,10 @@ const VerificationCard = () => {
           to={`/app/customer/verification?step=${nextStep ?? "business"}`}
           className="max-small-tablet:w-full shrink-0"
         >
-          <Button className="max-small-tablet:w-full h-11 rounded-xl px-5 font-semibold">
+          <Button
+            icon={status === "not_started" ? ShieldCheck : ArrowRight}
+            className="max-small-tablet:w-full h-11 rounded-xl px-5 font-semibold"
+          >
             {status === "not_started" ? "Start verification" : "Continue"}
           </Button>
         </Link>

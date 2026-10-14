@@ -1,4 +1,4 @@
-import { FileSearch, Receipt, Ship, Users, X } from "lucide-react";
+import { FileSearch, Receipt, RotateCw, Ship, Users, X } from "lucide-react";
 import StatsCard from "../../../components/app/StatsCard";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
@@ -18,7 +18,7 @@ const AdminOverview = () => {
         title="Error loading overview"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }
@@ -82,7 +82,7 @@ const AdminOverview = () => {
               Pending Freight Requests
             </h2>
             <button className="text-brand flex items-center gap-1 text-sm font-medium hover:underline">
-              Manage all <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRight className="h-4 w-4" /> Manage all
             </button>
           </div>
           <Table
@@ -95,10 +95,12 @@ const AdminOverview = () => {
               <TableCell className="font-medium">$2,450</TableCell>
               <TableCell className="font-medium">
                 <div className="flex gap-2">
-                  <button className="bg-brand hover:bg-brand/90 rounded-lg px-3 py-1 text-sm font-bold text-white">
+                  <button className="bg-brand hover:bg-brand/90 inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-bold text-white">
+                    <Check className="h-3.5 w-3.5" />
                     Approve
                   </button>
-                  <button className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                  <button className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                    <HandCoins className="h-3.5 w-3.5" />
                     Counter
                   </button>
                 </div>
@@ -111,10 +113,12 @@ const AdminOverview = () => {
               <TableCell className="font-medium">$1,850</TableCell>
               <TableCell className="font-medium">
                 <div className="flex gap-2">
-                  <button className="bg-brand hover:bg-brand/90 rounded-lg px-3 py-1 text-sm font-bold text-white">
+                  <button className="bg-brand hover:bg-brand/90 inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-bold text-white">
+                    <Check className="h-3.5 w-3.5" />
                     Approve
                   </button>
-                  <button className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                  <button className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                    <HandCoins className="h-3.5 w-3.5" />
                     Counter
                   </button>
                 </div>
@@ -127,10 +131,12 @@ const AdminOverview = () => {
               <TableCell className="font-medium">$1,850</TableCell>
               <TableCell className="font-medium">
                 <div className="flex gap-2">
-                  <button className="bg-brand hover:bg-brand/90 rounded-lg px-3 py-1 text-sm font-bold text-white">
+                  <button className="bg-brand hover:bg-brand/90 inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-bold text-white">
+                    <Check className="h-3.5 w-3.5" />
                     Approve
                   </button>
-                  <button className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                  <button className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                    <HandCoins className="h-3.5 w-3.5" />
                     Counter
                   </button>
                 </div>
@@ -143,10 +149,12 @@ const AdminOverview = () => {
               <TableCell className="font-medium">$1,850</TableCell>
               <TableCell className="font-medium">
                 <div className="flex gap-2">
-                  <button className="bg-brand hover:bg-brand/90 rounded-lg px-3 py-1 text-sm font-bold text-white">
+                  <button className="bg-brand hover:bg-brand/90 inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-bold text-white">
+                    <Check className="h-3.5 w-3.5" />
                     Approve
                   </button>
-                  <button className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                  <button className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                    <HandCoins className="h-3.5 w-3.5" />
                     Counter
                   </button>
                 </div>

@@ -1,3 +1,4 @@
+import { DollarSign, HandCoins, MessageSquareText, X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useConfirm } from "../../hooks/useConfirm";
@@ -8,6 +9,7 @@ import {
 } from "../../validations/freightValidation";
 import Button from "../Button";
 import Input from "../Input";
+import Textarea from "../Textarea";
 
 const CounterOfferForm = ({
   request,
@@ -52,6 +54,7 @@ const CounterOfferForm = ({
         </p>
       </div>
       <Input
+        icon={DollarSign}
         label="Your Counter Price (USD)"
         type="number"
         placeholder="e.g. 2600"
@@ -59,22 +62,18 @@ const CounterOfferForm = ({
         error={errors.counterPrice?.message}
         disabled={isPending}
       />
-      <div className="space-y-1.5">
-        <label className="font-medium text-slate-700">
-          Reason / Message to Customer
-        </label>
-        <textarea
-          className="focus-visible:ring-brand flex min-h-25 w-full rounded-md border border-slate-200 bg-white px-3 py-2 focus-visible:ring-2 focus-visible:outline-none"
-          placeholder="Explain why you are countering this price..."
-          {...register("reason")}
-          disabled={isPending}
-        />
-        {errors.reason && (
-          <p className="font-medium text-red-500">{errors.reason.message}</p>
-        )}
-      </div>
+      <Textarea
+        icon={MessageSquareText}
+        label="Reason / Message to Customer"
+        rows={4}
+        placeholder="Explain why you are countering this price..."
+        {...register("reason")}
+        error={errors.reason?.message}
+        disabled={isPending}
+      />
       <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
         <Button
+          icon={X}
           type="button"
           variant="ghost"
           onClick={onCancel}
@@ -82,7 +81,12 @@ const CounterOfferForm = ({
         >
           Cancel
         </Button>
-        <Button type="submit" isLoading={isPending} disabled={isPending}>
+        <Button
+          icon={HandCoins}
+          type="submit"
+          isLoading={isPending}
+          disabled={isPending}
+        >
           Send Counter Offer
         </Button>
       </div>

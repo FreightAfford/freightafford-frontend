@@ -5,6 +5,7 @@ import {
   Info,
   LayoutDashboard,
   MessageCircle,
+  MessagesSquare,
   PanelLeft,
   PanelRight,
 } from "lucide-react";
@@ -256,8 +257,9 @@ const CSODashboard = () => {
               </p>
               <button
                 onClick={() => setShowSidebar(true)}
-                className="max-mobile:block mt-6 hidden rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20"
+                className="max-mobile:inline-flex mt-6 hidden items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20"
               >
+                <MessagesSquare className="h-4 w-4" />
                 View Conversations
               </button>
             </div>

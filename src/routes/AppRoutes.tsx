@@ -93,19 +93,6 @@ const AppRoutes = createBrowserRouter([
       { path: "/forgot-password", Component: ForgotPasswordPage },
       { path: "/reset-password/:token", Component: ResetPasswordPage },
 
-      // Dev-only page comparing input styles; dropped from production builds.
-      ...(import.meta.env.DEV
-        ? [
-            {
-              path: "/dev/input-styles",
-              lazy: async () => ({
-                Component: (await import("../pages/dev/InputStylesPreview"))
-                  .default,
-              }),
-            },
-          ]
-        : []),
-
       // Customer Routes
       {
         path: "/app/customer",

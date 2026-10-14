@@ -173,7 +173,11 @@ const TicketDetails = () => {
         title="Error loading tickets"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => navigate(-1)}>
+          <Button
+            icon={ArrowLeft}
+            variant="outline"
+            onClick={() => navigate(-1)}
+          >
             Go back
           </Button>
         }
@@ -349,8 +353,7 @@ const TicketDetails = () => {
                 >
                   <Paperclip className="h-5 w-5" />
                 </label>
-                <Button disabled={isSending} isLoading={isSending}>
-                  {!isSending && <Send className="mr-2 h-4.5 w-4.5" />}
+                <Button icon={Send} disabled={isSending} isLoading={isSending}>
                   Post Message
                 </Button>
               </div>

@@ -1,4 +1,11 @@
-import { BadgeCheck, Clock, XCircle, type LucideIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  Clock,
+  LayoutDashboard,
+  MessageSquare,
+  type LucideIcon,
+  XCircle,
+} from "lucide-react";
 import moment from "moment";
 import { Link } from "react-router";
 import Button from "../../../../components/Button";
@@ -81,13 +88,18 @@ const StatusScreen = ({
       )}
       <div className="mt-8 flex flex-wrap gap-3">
         <Link to="/app/customer">
-          <Button size="lg" className="h-12 rounded-xl text-base font-semibold">
+          <Button
+            icon={LayoutDashboard}
+            size="lg"
+            className="h-12 rounded-xl text-base font-semibold"
+          >
             Go to overview
           </Button>
         </Link>
         {application.status === "rejected" && (
           <a href={`mailto:${CONTACT_EMAIL}`}>
             <Button
+              icon={MessageSquare}
               size="lg"
               variant="outline"
               className="h-12 rounded-xl text-base font-semibold"

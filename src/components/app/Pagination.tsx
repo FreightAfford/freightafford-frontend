@@ -33,6 +33,7 @@ const Pagination = ({
     >
       <div className="max-medium-mobile:flex hidden flex-1 justify-between">
         <Button
+          icon={ChevronLeft}
           variant="outline"
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
@@ -41,6 +42,7 @@ const Pagination = ({
           Previous
         </Button>
         <Button
+          icon={ChevronRight}
           variant="outline"
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}

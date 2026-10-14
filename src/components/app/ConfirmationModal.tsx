@@ -1,4 +1,11 @@
-import { AlertCircle, AlertTriangle, HelpCircle } from "lucide-react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  Check,
+  HelpCircle,
+  Trash2,
+  X,
+} from "lucide-react";
 import * as React from "react";
 import Button from "../Button";
 import Modal from "../Modal";
@@ -78,6 +85,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       <div className="mt-6 flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:mt-8 sm:flex-row sm:justify-end">
         <Button
           variant="outline"
+          icon={X}
           onClick={onClose}
           disabled={isLoading}
           className="w-full font-medium text-slate-700 sm:w-auto"
@@ -86,6 +94,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         </Button>
         <Button
           variant="primary"
+          icon={variant === "danger" ? Trash2 : Check}
           onClick={handleConfirm}
           isLoading={isLoading}
           disabled={isLoading}

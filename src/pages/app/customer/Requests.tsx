@@ -1,4 +1,4 @@
-import { Play, Plus, Ship, X } from "lucide-react";
+import { Play, Plus, RotateCw, Ship, X } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
 import { useState } from "react";
@@ -59,7 +59,7 @@ const CustomerRequests = () => {
         title="Error loading requests"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }
@@ -90,18 +90,20 @@ const CustomerRequests = () => {
               className="flex flex-wrap items-center justify-end gap-2"
             >
               <Button
+                icon={Plus}
                 onClick={() => setIsModalOpen(true)}
                 disabled={!canBook}
                 className="flex items-center gap-2"
               >
-                <Plus className="h-4 w-4" /> New Request
+                New Request
               </Button>
               <Button
+                icon={Play}
                 onClick={() => setPlayTutorial(true)}
                 className="flex items-center gap-2"
                 variant="outline"
               >
-                <Play className="h-4 w-4" /> Watch Tutorial
+                Watch Tutorial
               </Button>
               {!canBook && <VerifyToBook className="w-full justify-end" />}
             </motion.div>
@@ -243,19 +245,20 @@ const CustomerRequests = () => {
           action={
             <div className="flex flex-wrap items-center justify-center gap-2">
               <Button
+                icon={Plus}
                 onClick={() => setIsModalOpen(true)}
                 disabled={!canBook}
                 className="flex items-center gap-2"
               >
-                <Plus className="h-4 w-4" />
                 Create Request
               </Button>
               <Button
+                icon={Play}
                 onClick={() => setPlayTutorial(true)}
                 className="flex items-center gap-2"
                 variant="outline"
               >
-                <Play className="h-4 w-4" /> Watch Tutorial
+                Watch Tutorial
               </Button>
               {!canBook && <VerifyToBook className="w-full justify-center" />}
             </div>

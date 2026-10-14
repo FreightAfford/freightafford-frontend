@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MailCheck, Mail } from "lucide-react";
+import { Mail, MailCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Button from "../../components/Button";
@@ -61,7 +61,6 @@ const ForgotPasswordPage = () => {
         className="mt-8 space-y-5"
       >
         <Input
-          variant="icon"
           icon={Mail}
           label="Email"
           type="email"
@@ -72,6 +71,7 @@ const ForgotPasswordPage = () => {
           disabled={isPending}
         />
         <Button
+          icon={Mail}
           type="submit"
           size="lg"
           className={AUTH_SUBMIT}

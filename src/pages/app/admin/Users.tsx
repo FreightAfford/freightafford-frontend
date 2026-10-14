@@ -1,4 +1,4 @@
-import { Ship, X } from "lucide-react";
+import { RotateCw, Ship, X } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
@@ -48,7 +48,7 @@ const AdminUsers = () => {
         title="Error loading users"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }

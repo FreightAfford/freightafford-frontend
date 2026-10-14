@@ -1,7 +1,8 @@
+import { KeyRound, Lock, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useChangePassword } from "../../hooks/useAuthService";
 import Button from "../Button";
-import Input from "../Input";
+import PasswordInput from "../PasswordInput";
 import {
   changePasswordSchema,
   type ChangePasswordFormValues,
@@ -31,29 +32,32 @@ const UpdatePasswordForm = ({ onCancel }: { onCancel: () => void }) => {
     );
   return (
     <form onSubmit={handleSubmit(onChangePassword)} className="space-y-6">
-      <Input
+      <PasswordInput
+        icon={Lock}
         label="Current Password"
-        type="password"
         placeholder="••••••••"
         {...register("currentPassword")}
         error={errors.currentPassword?.message}
       />
-      <Input
+      <PasswordInput
+        icon={Lock}
         label="New Password"
-        type="password"
+        autoComplete="new-password"
         placeholder="••••••••"
         {...register("newPassword")}
         error={errors.newPassword?.message}
       />
-      <Input
+      <PasswordInput
+        icon={Lock}
         label="Confirm Password"
-        type="password"
+        autoComplete="new-password"
         placeholder="••••••••"
         {...register("confirmPassword")}
         error={errors.confirmPassword?.message}
       />
       <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
         <Button
+          icon={X}
           type="button"
           variant="ghost"
           onClick={onCancel}
@@ -61,7 +65,12 @@ const UpdatePasswordForm = ({ onCancel }: { onCancel: () => void }) => {
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isPending} isLoading={isPending}>
+        <Button
+          icon={KeyRound}
+          type="submit"
+          disabled={isPending}
+          isLoading={isPending}
+        >
           Update Password
         </Button>
       </div>

@@ -1,4 +1,4 @@
-import { CircleDot, Clock, Mail, Ship, X } from "lucide-react";
+import { CircleDot, Clock, Mail, RotateCw, Ship, X } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
@@ -57,7 +57,7 @@ const Tickets = () => {
         title="Error loading tickets"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }

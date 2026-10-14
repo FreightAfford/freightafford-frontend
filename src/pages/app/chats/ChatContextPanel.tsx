@@ -1,4 +1,5 @@
 import {
+  CheckCircle2,
   ExternalLink,
   Loader2,
   Mail,
@@ -6,6 +7,7 @@ import {
   Package,
   Shield,
   UserIcon,
+  UserRoundCog,
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +20,13 @@ import {
   useGetAvailableCSOs,
   useReassignSession,
 } from "../../../hooks/useChatService";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "../../../components/ui/dropdown-menu";
 import cn from "../../../utils/cn";
 
 // ─── ChatContextPanel ─────────────────────────────────────────────────────────
@@ -25,7 +34,7 @@ import cn from "../../../utils/cn";
 // Changes from original:
 //   - Accepts session prop and onSessionUpdate callback
 //   - Accept / Close / Reassign buttons wired to real mutations
-//   - Reassign shows a dropdown of available CSOs
+//   - Reassign opens a menu of available CSOs
 //   - All hardcoded values replaced with session data
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -275,7 +284,11 @@ const ChatContextPanel = ({
             disabled={isAccepting}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-60"
           >
-            {isAccepting && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isAccepting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
             Accept Chat
           </button>
         )}
@@ -296,51 +309,58 @@ const ChatContextPanel = ({
             </button>
 
             {/* Reassign */}
-            <div className="relative">
-              <button
-                onClick={() => setShowReassignDropdown((s) => !s)}
-                className="w-full rounded-xl border border-slate-100 bg-slate-50 py-3 text-sm font-bold text-slate-600 transition-all hover:bg-slate-100 active:scale-95"
+            <DropdownMenu
+              open={showReassignDropdown}
+              onOpenChange={setShowReassignDropdown}
+            >
+              <DropdownMenuTrigger asChild>
+                <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-100 bg-slate-50 py-3 text-sm font-bold text-slate-600 transition-all hover:bg-slate-100 active:scale-95 data-[state=open]:bg-slate-100">
+                  <UserRoundCog className="h-4 w-4" />
+                  Reassign Chat
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                align="start"
+                className="max-h-60 w-(--radix-dropdown-menu-trigger-width)"
               >
-                Reassign Chat
-              </button>
-
-              {showReassignDropdown && (
-                <div className="absolute right-0 bottom-full left-0 mb-2 rounded-xl border border-slate-100 bg-white shadow-xl">
-                  {isCSOsLoading ? (
-                    <div className="flex items-center justify-center p-4">
-                      <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
-                    </div>
-                  ) : csos.length === 0 ? (
-                    <p className="p-4 text-center text-sm text-slate-400">
-                      No other CSOs available
-                    </p>
-                  ) : (
-                    <div className="max-h-48 overflow-y-auto p-2">
-                      {csos.map((cso) => (
-                        <button
-                          key={cso._id}
-                          onClick={() => handleReassign(cso._id)}
-                          disabled={isReassigning}
-                          className="flex w-full items-center gap-3 rounded-lg p-3 text-left text-sm transition-all hover:bg-slate-50 disabled:opacity-60"
-                        >
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100">
-                            <UserIcon className="h-4 w-4 text-indigo-600" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="truncate font-bold text-slate-900 capitalize">
-                              {cso.fullname}
-                            </p>
-                            <p className="truncate text-xs text-slate-400">
-                              {cso.email}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+                <DropdownMenuLabel>Reassign to</DropdownMenuLabel>
+                {isCSOsLoading ? (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                  </div>
+                ) : csos.length === 0 ? (
+                  <p className="p-4 text-center text-sm text-slate-400">
+                    No other CSOs available
+                  </p>
+                ) : (
+                  csos.map((cso) => (
+                    <DropdownMenuItem
+                      key={cso._id}
+                      disabled={isReassigning}
+                      onSelect={(event) => {
+                        // Stay open until the reassignment goes through.
+                        event.preventDefault();
+                        handleReassign(cso._id);
+                      }}
+                      className="gap-3"
+                    >
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100">
+                        <UserIcon className="h-4 w-4 text-indigo-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-slate-900 capitalize">
+                          {cso.fullname}
+                        </p>
+                        <p className="truncate text-xs text-slate-400">
+                          {cso.email}
+                        </p>
+                      </div>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </>
         )}
       </div>

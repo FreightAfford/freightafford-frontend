@@ -1,4 +1,4 @@
-import { XCircle } from "lucide-react";
+import { LogOut, XCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
@@ -36,6 +36,7 @@ const Unauthorized = () => {
             </p>
 
             <Button
+              icon={LogOut}
               onClick={() => {
                 logout();
                 navigate("/login");

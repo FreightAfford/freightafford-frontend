@@ -1,5 +1,7 @@
 import {
+  ArrowRight,
   Clock,
+  Mail,
   MessageSquareWarning,
   ShieldCheck,
   XCircle,
@@ -140,7 +142,10 @@ const VerificationBanner = ({ className }: { className?: string }) => {
       {action &&
         (action.to ? (
           <Link to={action.to} className="shrink-0">
-            <Button className="max-small-tablet:w-full h-11 rounded-xl px-5 font-semibold">
+            <Button
+              icon={ArrowRight}
+              className="max-small-tablet:w-full h-11 rounded-xl px-5 font-semibold"
+            >
               {action.label}
             </Button>
           </Link>
@@ -148,6 +153,7 @@ const VerificationBanner = ({ className }: { className?: string }) => {
           <a href={action.href} className="shrink-0">
             <Button
               variant="outline"
+              icon={Mail}
               className="max-small-tablet:w-full h-11 rounded-xl bg-white px-5 font-semibold"
             >
               {action.label}

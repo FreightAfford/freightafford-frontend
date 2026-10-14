@@ -1,4 +1,4 @@
-import { Ship, X } from "lucide-react";
+import { Check, RotateCw, Ship, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useNavigate, useSearchParams } from "react-router";
 import Button from "../../../components/Button";
@@ -56,7 +56,7 @@ const AdminRequests = () => {
         title="Error loading requests"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }
@@ -88,6 +88,7 @@ const AdminRequests = () => {
           </span>
           <div className="flex items-center gap-3">
             <Button
+              icon={Check}
               size="sm"
               onClick={async () => {
                 const ok = await confirm({
@@ -108,8 +109,9 @@ const AdminRequests = () => {
             </Button>
             <button
               onClick={() => navigate(window.location.pathname)}
-              className="text-sm font-medium text-amber-700 hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-medium text-amber-700 hover:underline"
             >
+              <X className="h-4 w-4" />
               Clear filter
             </button>
           </div>

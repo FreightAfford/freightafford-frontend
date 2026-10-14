@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileText, Upload, X } from "lucide-react";
+import { FilePlus2, FileText, ListChecks, Upload, X } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useParams } from "react-router";
 import { useUploadInvoice } from "../../hooks/useInvoiceService";
 import { formatFileSize } from "../../utils/helpers";
@@ -10,7 +10,8 @@ import {
   type UploadInvoiceFormValues,
 } from "../../validations/invoiceValidation";
 import Button from "../Button";
-import Input from "../Input";
+import DateInput from "../DateInput";
+import Textarea from "../Textarea";
 
 const CreateInvoiceForm = ({
   bookingId,
@@ -26,6 +27,7 @@ const CreateInvoiceForm = ({
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     setValue,
@@ -123,34 +125,33 @@ const CreateInvoiceForm = ({
           </div>
         )}
       </div>
-      <Input
-        label="Due Date"
-        type="date"
-        {...register("dueDate")}
-        error={errors.dueDate?.message}
-        disabled={isPending}
-        min={today}
+      <Controller
+        control={control}
+        name="dueDate"
+        render={({ field }) => (
+          <DateInput
+            {...field}
+            label="Due Date"
+            min={today}
+            error={errors.dueDate?.message}
+            disabled={isPending}
+          />
+        )}
       />
 
-      <div className="5 space-y-1">
-        <label className="font-medium text-slate-700">
-          Description / Line Items
-        </label>
-        <textarea
-          {...register("description")}
-          disabled={isPending}
-          className="focus-visible:ring-brand flex min-h-25 w-full rounded-md border border-slate-200 bg-white px-3 py-2 focus-visible:ring-2 focus-visible:outline-none"
-          placeholder="e.g. Freight charges for SHA-LAX shipment..."
-        />
-        {errors.description && (
-          <p className="font-medium text-red-500">
-            {errors.description.message}
-          </p>
-        )}
-      </div>
+      <Textarea
+        icon={ListChecks}
+        label="Description / Line Items"
+        rows={4}
+        {...register("description")}
+        error={errors.description?.message}
+        disabled={isPending}
+        placeholder="e.g. Freight charges for SHA-LAX shipment..."
+      />
 
       <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
         <Button
+          icon={X}
           type="button"
           variant="ghost"
           onClick={onCancel}
@@ -158,7 +159,12 @@ const CreateInvoiceForm = ({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isPending} isLoading={isPending}>
+        <Button
+          icon={FilePlus2}
+          type="submit"
+          disabled={isPending}
+          isLoading={isPending}
+        >
           Create Invoice
         </Button>
       </div>

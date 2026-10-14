@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileText, Upload, X } from "lucide-react";
+import { FileText, Hash, Send, Upload, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSubmitProofPayment } from "../../hooks/useInvoiceService";
@@ -61,6 +61,7 @@ const SubmitPaymentProofForm = ({
       </div>
 
       <Input
+        icon={Hash}
         label="Payment Reference Number"
         placeholder="e.g. TRX-123456789"
         {...register("paymentReference")}
@@ -139,6 +140,7 @@ const SubmitPaymentProofForm = ({
 
       <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
         <Button
+          icon={X}
           type="button"
           variant="ghost"
           disabled={isPending}
@@ -146,7 +148,12 @@ const SubmitPaymentProofForm = ({
         >
           Cancel
         </Button>
-        <Button type="submit" isLoading={isPending} disabled={isPending}>
+        <Button
+          icon={Send}
+          type="submit"
+          isLoading={isPending}
+          disabled={isPending}
+        >
           Submit Payment
         </Button>
       </div>

@@ -1,3 +1,12 @@
+import {
+  Building2,
+  Globe,
+  MapPin,
+  Phone as PhoneIcon,
+  Save as SaveIcon,
+  User,
+  X,
+} from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useUpdateUserProfile } from "../../hooks/useAuthService";
@@ -39,6 +48,7 @@ const EditProfileForm = ({
   return (
     <form onSubmit={handleSubmit(onUpdateProfile)} className="space-y-6">
       <Input
+        icon={User}
         label="Full Name"
         placeholder="Frank Andy"
         {...register("fullname")}
@@ -48,6 +58,7 @@ const EditProfileForm = ({
       />
       <div className="max-medium-mobile:grid-cols-1 grid grid-cols-2 gap-6">
         <Input
+          icon={PhoneIcon}
           label="Phone Number"
           type="phone"
           placeholder="+234 916 581 2629"
@@ -56,6 +67,7 @@ const EditProfileForm = ({
           disabled={isPending}
         />
         <Input
+          icon={Globe}
           label="Country"
           placeholder="Nigeria"
           {...register("country")}
@@ -64,10 +76,11 @@ const EditProfileForm = ({
         />
       </div>
       <div className="space-y-6 border-t border-slate-100 pt-4">
-        <h4 className="font-bold tracking-wider text-slate-900 uppercase">
-          Company Information
+        <h4 className="text-base font-bold text-slate-900">
+          Company information
         </h4>
         <Input
+          icon={Building2}
           label="Company Name"
           placeholder="Logistics Corp"
           {...register("companyName")}
@@ -75,6 +88,7 @@ const EditProfileForm = ({
           disabled={isPending}
         />
         <Input
+          icon={MapPin}
           label="Company Address"
           placeholder="123 Business Ave, Suite 100"
           {...register("companyAddress")}
@@ -84,6 +98,7 @@ const EditProfileForm = ({
       </div>
       <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
         <Button
+          icon={X}
           type="button"
           variant="ghost"
           onClick={onCancel}
@@ -91,7 +106,12 @@ const EditProfileForm = ({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isPending} isLoading={isPending}>
+        <Button
+          icon={SaveIcon}
+          type="submit"
+          disabled={isPending}
+          isLoading={isPending}
+        >
           Save Changes
         </Button>
       </div>

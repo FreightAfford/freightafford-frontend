@@ -1,4 +1,12 @@
-import { Clock, ExternalLink, Eye, FileText, Ship, X } from "lucide-react";
+import {
+  Clock,
+  ExternalLink,
+  Eye,
+  FileText,
+  RotateCw,
+  Ship,
+  X,
+} from "lucide-react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router";
 import { getDocTypeLabel } from "../../../components/app/BillOfLadingManager";
@@ -21,7 +29,7 @@ const AdminDocuments = () => {
         title="Error loading documents"
         description={error.message || "An unexpected error has occured."}
         action={
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
             Try again
           </Button>
         }
@@ -144,10 +152,10 @@ const AdminDocuments = () => {
           description="No booking has been created yet. Customers need to submit their first request to receive shipping quotes."
           action={
             <Button
+              icon={Eye}
               className="flex items-center gap-2"
               onClick={() => navigate("/app/admin/bookings")}
             >
-              <Eye className="h-6 w-6" />
               See Bookings
             </Button>
           }

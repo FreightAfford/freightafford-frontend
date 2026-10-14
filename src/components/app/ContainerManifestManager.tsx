@@ -1,11 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Container, Edit2, Hash, Plus, Save } from "lucide-react";
+import { Container, Edit2, Hash, Plus, Save, X as XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useAddContainer } from "../../hooks/useBookingService";
-import cn from "../../utils/cn";
 import Button from "../Button";
+import Input from "../Input";
 import {
   containerSchema,
   type ContainerFormData,
@@ -100,12 +100,13 @@ const ContainerManifestManager = ({
           booking.containers.length > 0 &&
           !isEditing && (
             <Button
+              icon={Edit2}
               type="button"
               variant="outline"
               size="sm"
               onClick={handleStartEditing}
             >
-              <Edit2 className="mr-2 h-4 w-4" /> Edit Manifest
+              Edit Manifest
             </Button>
           )}
       </div>
@@ -128,17 +129,15 @@ const ContainerManifestManager = ({
                   key={field.id}
                   className="space-y-1"
                 >
-                  <div className="relative flex items-center">
-                    <input
-                      type="text"
+                  <div className="relative">
+                    <Input
+                      icon={Container}
+                      aria-label={`Container ${idx + 1} number`}
                       {...register(`containers.${idx}.number` as const)}
                       disabled={isPending}
                       placeholder="ABCD1234567"
-                      className={cn(
-                        "focus-visible:ring-brand flex h-12 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed",
-                        errors.containers?.[idx]?.number &&
-                          "border-red-500 focus-visible:ring-red-500",
-                      )}
+                      className="uppercase"
+                      error={errors.containers?.[idx]?.number?.message}
                     />
                     {/* {fields.length > 1 && fields.length > 0 && ( */}
                     <button
@@ -151,11 +150,6 @@ const ContainerManifestManager = ({
                     </button>
                     {/* )} */}
                   </div>
-                  {errors.containers?.[idx]?.number && (
-                    <p className="ml-2 text-sm font-bold tracking-tighter text-red-500 uppercase">
-                      {errors.containers?.[idx]?.number?.message}
-                    </p>
-                  )}
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -164,7 +158,7 @@ const ContainerManifestManager = ({
                 layout
                 type="button"
                 onClick={() => append({ number: "" })}
-                className="hover:text-brand hover:border-brand/50 hover:bg-brand/5 group flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 transition-all"
+                className="hover:text-brand hover:border-brand/50 hover:bg-brand/5 group flex h-13 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 transition-all"
               >
                 <Plus className="mb-1 h-5 w-5 transition-transform group-hover:scale-110" />
                 <span className="text-sm font-bold tracking-widest uppercase">
@@ -176,6 +170,7 @@ const ContainerManifestManager = ({
 
           <div className="flex justify-end gap-2 pt-4">
             <Button
+              icon={XIcon}
               type="button"
               variant="outline"
               onClick={() => setIsEditing(false)}
@@ -184,12 +179,12 @@ const ContainerManifestManager = ({
               Cancel
             </Button>
             <Button
+              icon={Save}
               // onClick={handleSaveContainers}
               type="submit"
               disabled={isPending}
               isLoading={isPending}
             >
-              {!isPending && <Save className="mr-2 h-5 w-5" />}
               {booking.containers.length > 0 ? "Update" : "Add"} Container
               {booking.freightRequest.containerQuantity > 1 && "s"}
             </Button>
@@ -252,6 +247,7 @@ const ContainerManifestManager = ({
               </p>
               {userRole === "admin" && !isEditing && (
                 <Button
+                  icon={Plus}
                   type="button"
                   className="mt-2"
                   onClick={handleStartEditing}

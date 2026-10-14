@@ -93,25 +93,9 @@ const AppRoutes = createBrowserRouter([
       { path: "/forgot-password", Component: ForgotPasswordPage },
       { path: "/reset-password/:token", Component: ResetPasswordPage },
 
-      // Dev-only review page for the KYC building blocks; dropped from
-      // production builds.
+      // Dev-only page comparing input styles; dropped from production builds.
       ...(import.meta.env.DEV
         ? [
-            {
-              path: "/dev/kyc-kit",
-              lazy: async () => ({
-                Component: (await import("../pages/dev/KycKitPreview")).default,
-              }),
-            },
-            // The verification wizard without logging in, on the mock service.
-            {
-              path: "/dev/verification",
-              Component: () => (
-                <div className="max-mobile:p-4 min-h-screen bg-slate-50 p-8">
-                  <CustomerVerification />
-                </div>
-              ),
-            },
             {
               path: "/dev/input-styles",
               lazy: async () => ({

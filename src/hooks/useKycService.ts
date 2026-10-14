@@ -14,13 +14,30 @@ import {
 
 const KYC_KEY = ["kyc"];
 
+type KycCache = Awaited<ReturnType<typeof getKycApi>>;
+
+// Saves return the application only; keep the enforcement flag from the load.
+const keepApplication = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  data: KycCache["data"],
+) =>
+  queryClient.setQueryData<KycCache>(KYC_KEY, (old) => ({
+    enforcement: old?.enforcement ?? true,
+    data,
+  }));
+
 export const useKyc = () => {
   const { data, isPending, error } = useQuery({
     queryKey: KYC_KEY,
     queryFn: getKycApi,
   });
 
-  return { application: data?.data, isPending, error };
+  return {
+    application: data?.data,
+    enforcement: data?.enforcement ?? true,
+    isPending,
+    error,
+  };
 };
 
 // Drafts save quietly as the user goes; only failures are announced.
@@ -28,7 +45,7 @@ export const useSaveKycDraft = () => {
   const queryClient = useQueryClient();
   const { mutate: saveDraft, isPending } = useMutation({
     mutationFn: saveKycDraftApi,
-    onSuccess: (response) => queryClient.setQueryData(KYC_KEY, response),
+    onSuccess: (response) => keepApplication(queryClient, response.data),
     onError: (err) => toast.error(err.message),
   });
 
@@ -58,7 +75,7 @@ export const useSubmitKyc = () => {
     mutationFn: submitKycApi,
     onSuccess: (response) => {
       toast.success(response.message);
-      queryClient.setQueryData(KYC_KEY, response);
+      keepApplication(queryClient, response.data);
     },
     onError: (err) => toast.error(err.message),
   });
@@ -68,10 +85,11 @@ export const useSubmitKyc = () => {
 
 /**
  * The customer's verification at a glance, for the dashboard banner, the
- * Overview card and the booking gate. `canBook` is true only once approved.
+ * Overview card and the booking gate. `canBook` is true once approved, or
+ * while the backend isn't enforcing verification (KYC_ENFORCEMENT off).
  */
 export const useKycStatus = () => {
-  const { application, isPending } = useKyc();
+  const { application, enforcement, isPending } = useKyc();
   const done = application ? completedSteps(application) : null;
   const doneCount = done ? Object.values(done).filter(Boolean).length : 0;
 
@@ -79,7 +97,8 @@ export const useKycStatus = () => {
     application,
     isPending,
     status: application?.status,
-    canBook: application?.status === "approved",
+    canBook: application?.status === "approved" || !enforcement,
+    enforcement,
     doneCount,
     totalSteps: done ? Object.keys(done).length : 3,
     nextStep: application ? firstOpenStep(application) : undefined,

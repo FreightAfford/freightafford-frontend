@@ -40,6 +40,7 @@ import ProgressTrack, {
 } from "../../../components/app/details/ProgressTrack";
 import RouteLane from "../../../components/app/details/RouteLane";
 import CargoPanel from "../../../components/app/details/CargoPanel";
+import LockedTracking from "../../../components/app/details/LockedTracking";
 import VoyagePanel from "../../../components/app/details/VoyagePanel";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
@@ -53,6 +54,7 @@ import {
 import type { MaerskTracking } from "../../../services/api/booking";
 import { isDemoTracking } from "../../../services/api/maerskMock";
 import { useConfirm } from "../../../hooks/useConfirm";
+import { useKycStatus } from "../../../hooks/useKycService";
 import { containersLabel, initials, money } from "../../../utils/format";
 import { useGetInvoiceByBooking } from "../../../hooks/useInvoiceService";
 
@@ -160,6 +162,11 @@ const BookingDetails = () => {
   const { confirm, ConfirmDialog } = useConfirm();
   const { booking, isPending, sbError } = useGetSingleBooking(id!);
   const { isPending: isLoading, invoice } = useGetInvoiceByBooking(id!);
+  // Live tracking is for verified businesses; requests and bookings aren't.
+  // Staff always see it. While the customer's status loads, nothing shows.
+  const customerView = user?.role === "customer";
+  const kyc = useKycStatus(customerView);
+  const trackingLocked = customerView && (kyc.isPending || !kyc.canTrack);
   // Same query as the tracking panel (shared cache), used to move the ship.
   const demo = isDemoTracking();
   const hasReference =
@@ -175,7 +182,7 @@ const BookingDetails = () => {
   };
   const { tracking } = useGetBookingMaerskEvents(
     id!,
-    !!booking && showsTracking && (hasReference || demo),
+    !!booking && showsTracking && !trackingLocked && (hasReference || demo),
     demoRoute,
   );
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState<boolean>(false);
@@ -358,7 +365,10 @@ const BookingDetails = () => {
         }
       />
 
-      {showsTracking && (
+      {showsTracking && trackingLocked && !kyc.isPending && (
+        <LockedTracking status={kyc.status} nextStep={kyc.nextStep} />
+      )}
+      {showsTracking && !trackingLocked && (
         <MaerskTrackingTimeline
           bookingId={booking._id}
           isStaff={user?.role === "admin" || user?.role === "cso"}

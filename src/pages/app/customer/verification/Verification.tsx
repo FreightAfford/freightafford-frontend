@@ -71,8 +71,8 @@ const Verification = () => {
           Verify your business
         </h1>
         <p className="mt-1 max-w-2xl text-slate-500">
-          We check every account before its first booking. Your progress is
-          saved as you type.
+          Verifying your business unlocks live tracking on your bookings. Your
+          progress is saved as you type.
         </p>
       </div>
 

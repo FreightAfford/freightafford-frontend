@@ -51,7 +51,7 @@ const VERIFICATION: Record<
 > = {
   not_started: {
     label: "Not verified",
-    body: "Verify your business before your first booking.",
+    body: "Verify to unlock live tracking on your bookings.",
     icon: ShieldAlert,
     tone: "bg-slate-100 text-slate-500",
     action: "Start verification",
@@ -86,7 +86,7 @@ const VERIFICATION: Record<
   },
   approved: {
     label: "Verified business",
-    body: "You can book shipments.",
+    body: "Live tracking is open on your bookings.",
     icon: BadgeCheck,
     tone: "bg-kelp/10 text-kelp",
     action: "View details",

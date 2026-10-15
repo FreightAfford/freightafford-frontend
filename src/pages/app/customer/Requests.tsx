@@ -13,9 +13,7 @@ import Pagination from "../../../components/app/Pagination";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
 import TableControls from "../../../components/app/TableControls";
-import VerifyToBook from "../../../components/app/VerifyToBook";
 import { useGetMyFreightRequests } from "../../../hooks/useFreightService";
-import { useKycStatus } from "../../../hooks/useKycService";
 import { useTableQuery } from "../../../hooks/useTableQuery";
 import { containerSizeLabel } from "../../../utils/format";
 
@@ -24,7 +22,6 @@ const CustomerRequests = () => {
   const [playTutorial, setPlayTutorial] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   // Requests become bookings, so they need a verified business.
-  const { canBook } = useKycStatus();
 
   const {
     page,
@@ -94,7 +91,6 @@ const CustomerRequests = () => {
               <Button
                 icon={Plus}
                 onClick={() => setIsModalOpen(true)}
-                disabled={!canBook}
                 className="flex items-center gap-2"
               >
                 New Request
@@ -107,7 +103,6 @@ const CustomerRequests = () => {
               >
                 Watch Tutorial
               </Button>
-              {!canBook && <VerifyToBook className="w-full justify-end" />}
             </motion.div>
           </>
         ) : null}
@@ -253,7 +248,6 @@ const CustomerRequests = () => {
               <Button
                 icon={Plus}
                 onClick={() => setIsModalOpen(true)}
-                disabled={!canBook}
                 className="flex items-center gap-2"
               >
                 Create Request
@@ -266,7 +260,6 @@ const CustomerRequests = () => {
               >
                 Watch Tutorial
               </Button>
-              {!canBook && <VerifyToBook className="w-full justify-center" />}
             </div>
           }
         />

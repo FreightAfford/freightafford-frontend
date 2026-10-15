@@ -50,8 +50,8 @@ const content = (
       return {
         tone: "brand",
         icon: ShieldCheck,
-        title: "Verify your business to start booking",
-        body: "Have your CAC certificate, NEPC certificate, a director's ID and your company's letter of authority ready.",
+        title: "Verify your business to unlock live tracking",
+        body: "Freight requests and bookings already work. Verify with your CAC and NEPC certificates, a director's ID and your company's letter of authority.",
         action: { label: "Start verification", to: VERIFY_PATH },
       };
     case "draft":
@@ -71,7 +71,7 @@ const content = (
         tone: "ochre",
         icon: Clock,
         title: "We're reviewing your business details",
-        body: "We'll email you when it's done. You can book shipments once your business is verified.",
+        body: "We'll email you when it's done. Live tracking opens once your business is verified.",
       };
     case "changes_requested":
       return {
@@ -89,7 +89,7 @@ const content = (
         tone: "red",
         icon: XCircle,
         title: "We couldn't verify your business",
-        body: "Contact our team to find out what's needed before you can book.",
+        body: "Contact our team to find out what's needed to unlock live tracking.",
         action: { label: "Contact our team", href: `mailto:${CONTACT_EMAIL}` },
       };
     default:

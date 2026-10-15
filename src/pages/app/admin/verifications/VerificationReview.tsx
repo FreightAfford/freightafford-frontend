@@ -133,7 +133,7 @@ const VerificationReview = () => {
   const approve = async () => {
     const ok = await confirm({
       title: "Verify this business?",
-      message: `${application.business.legalName} will be able to book shipments straight away.`,
+      message: `${application.business.legalName} will see live tracking on their bookings straight away.`,
       confirmText: "Verify business",
       cancelText: "Keep reviewing",
     });

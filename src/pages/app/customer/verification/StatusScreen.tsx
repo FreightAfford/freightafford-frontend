@@ -35,7 +35,7 @@ const SCREENS: Record<
     icon: BadgeCheck,
     tone: "bg-kelp/10 text-kelp",
     title: "Your business is verified",
-    body: "You can now book shipments. If any of your documents expire, we'll ask you to upload a new one.",
+    body: "Live tracking is now open on your bookings. If any of your documents expire, we'll ask you to upload a new one.",
   },
   rejected: {
     icon: XCircle,

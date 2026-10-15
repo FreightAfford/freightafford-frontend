@@ -166,8 +166,9 @@ export const useSubmitKyc = () => {
 
 /**
  * The customer's verification at a glance, for the dashboard banner, the
- * Overview card and the booking gate. `canBook` is true once approved, or
- * while the backend isn't enforcing verification (KYC_ENFORCEMENT off).
+ * Overview card and the live tracking lock. Freight requests and bookings
+ * are open to everyone; `canTrack` is true once approved, or while the
+ * backend isn't enforcing verification (KYC_ENFORCEMENT off).
  */
 export const useKycStatus = (enabled = true) => {
   const { application, enforcement, isPending } = useKyc(enabled);
@@ -178,7 +179,7 @@ export const useKycStatus = (enabled = true) => {
     application,
     isPending,
     status: application?.status,
-    canBook: application?.status === "approved" || !enforcement,
+    canTrack: application?.status === "approved" || !enforcement,
     enforcement,
     doneCount,
     totalSteps: done ? Object.keys(done).length : 3,

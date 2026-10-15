@@ -47,8 +47,9 @@ const KycChecklist = () => (
       What you'll need to verify your business
     </h2>
     <p className="mt-3 max-w-md leading-relaxed text-slate-300">
-      Every account is checked before its first booking. Have these ready after
-      you sign up. You can save your progress and finish later.
+      You can request freight straight after signing up. Verifying your business
+      unlocks live tracking; have these ready, and save your progress to finish
+      later.
     </p>
 
     <ul className="mt-8 space-y-px overflow-hidden rounded-xl border border-white/10 bg-white/10">

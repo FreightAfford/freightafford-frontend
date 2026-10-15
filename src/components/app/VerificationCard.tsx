@@ -78,11 +78,11 @@ const VerificationCard = () => {
           >
             {started
               ? "Finish verifying your business"
-              : "Verify your business to start booking"}
+              : "Verify your business to unlock live tracking"}
           </h2>
           <p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-500">
-            We check every account before its first booking. Your progress is
-            saved as you go.
+            Freight requests and bookings already work. Verification opens live
+            tracking on your bookings, and your progress is saved as you go.
           </p>
         </div>
         <Link

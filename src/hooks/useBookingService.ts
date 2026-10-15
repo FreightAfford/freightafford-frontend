@@ -138,12 +138,27 @@ export const useGetBookingMaerskEvents = (
   route: DemoRoute = {},
 ) => {
   const demo = isDemoTracking();
+  const queryClient = useQueryClient();
   const { data, isPending, isFetching, error } = useQuery({
     queryKey: ["maerskEvents", id, demo ? "demo" : "live"],
-    queryFn: () =>
-      demo ? demoTracking(id, route) : getBookingMaerskEventsApi(id),
+    queryFn: async () => {
+      if (demo) return demoTracking(id, route);
+      const tracking = await getBookingMaerskEventsApi(id);
+      // The server saves Maersk's status, dates and vessel on every fetch,
+      // so reload the booking; lists only when the status moved.
+      const cached = queryClient.getQueryData<{ status?: string }>([
+        "booking",
+        id,
+      ]);
+      queryClient.invalidateQueries({ queryKey: ["booking", id] });
+      if (tracking.bookingStatus && cached?.status !== tracking.bookingStatus) {
+        queryClient.invalidateQueries({ queryKey: ["bookings"] });
+        queryClient.invalidateQueries({ queryKey: ["adminBookings"] });
+      }
+      return tracking;
+    },
     enabled: !!id && enabled,
-    // Maersk's public tracking quota is small: no retries or focus refetches
+    // Maersk's tracking quota is unpublished: no retries or focus refetches
     staleTime: 30 * 60 * 1000,
     retry: false,
     refetchOnWindowFocus: false,

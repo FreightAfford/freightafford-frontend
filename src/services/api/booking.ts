@@ -115,6 +115,8 @@ export interface MaerskTracking {
     hasDeparted: boolean;
     hasArrived: boolean;
   };
+  // Booking status after the server applied these events (absent in demo)
+  bookingStatus?: string;
 }
 
 export const getBookingMaerskEventsApi = async (

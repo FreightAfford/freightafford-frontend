@@ -36,7 +36,7 @@ export const scrollToSection = (id: string) => {
   );
 
   current = animate(from, to, {
-    duration: Math.min(1, 0.9 + distance / 4000),
+    duration: Math.min(1.6, 0.9 + distance / 4000),
     ease: [0.65, 0, 0.35, 1],
     onUpdate: (y) => window.scrollTo(0, y),
     onComplete: () =>

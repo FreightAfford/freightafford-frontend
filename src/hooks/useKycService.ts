@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import {
   getKycApi,
@@ -6,7 +7,9 @@ import {
   saveKycDraftApi,
   submitKycApi,
   uploadKycDocumentApi,
+  type KycDraft,
 } from "../services/api/kyc";
+import { apiClient } from "../services/configurations/apiConfig";
 import {
   completedSteps,
   firstOpenStep,
@@ -52,6 +55,82 @@ export const useSaveKycDraft = () => {
   });
 
   return { saveDraft, isPending };
+};
+
+export type AutosaveState = "idle" | "saving" | "saved" | "error";
+
+const AUTOSAVE_DELAY = 1200;
+
+/**
+ * Saves a step's draft to the server while the customer types: a moment
+ * after they stop, and once more as the page closes (refresh, closed tab),
+ * so nothing typed is lost. The server stores drafts half-finished and
+ * encrypts ID numbers; nothing is kept in the browser. Pass `paused` while
+ * a file is still uploading so the old file isn't saved over the new one.
+ */
+export const useKycAutosave = (draft: KycDraft, paused = false) => {
+  const queryClient = useQueryClient();
+  const [state, setState] = useState<AutosaveState>("idle");
+  const body = JSON.stringify(draft);
+  // What the server already has. Starts as the loaded draft: no save on open.
+  const saved = useRef(body);
+  const latest = useRef(body);
+  const busy = useRef(false);
+  const queued = useRef<string | null>(null);
+
+  useEffect(() => {
+    latest.current = body;
+  }, [body]);
+
+  const save = useCallback(
+    async (next: string) => {
+      if (busy.current) {
+        queued.current = next;
+        return;
+      }
+      busy.current = true;
+      setState("saving");
+      try {
+        const response = await saveKycDraftApi(JSON.parse(next));
+        saved.current = next;
+        keepApplication(queryClient, response.data);
+        setState("saved");
+      } catch {
+        setState("error");
+      } finally {
+        busy.current = false;
+        const waiting = queued.current;
+        queued.current = null;
+        if (waiting && waiting !== saved.current) save(waiting);
+      }
+    },
+    [queryClient],
+  );
+
+  useEffect(() => {
+    if (paused || body === saved.current) return;
+    const timer = setTimeout(() => save(body), AUTOSAVE_DELAY);
+    return () => clearTimeout(timer);
+  }, [body, paused, save]);
+
+  // Refreshing or leaving mid-typing: send whatever hasn't been saved yet.
+  // keepalive lets the request finish after the page has gone.
+  useEffect(() => {
+    const flush = () => {
+      if (paused || latest.current === saved.current) return;
+      fetch(`${apiClient.defaults.baseURL}/kyc/me`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        keepalive: true,
+        body: latest.current,
+      }).catch(() => {});
+    };
+    window.addEventListener("pagehide", flush);
+    return () => window.removeEventListener("pagehide", flush);
+  }, [paused]);
+
+  return state;
 };
 
 // The upload field shows its own progress and errors, so no toasts here.

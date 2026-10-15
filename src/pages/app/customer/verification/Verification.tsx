@@ -1,5 +1,5 @@
 import { MessageSquareWarning } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router";
 import SmallLoader from "../../../../components/SmallLoader";
 import Stepper from "../../../../components/Stepper";
@@ -30,6 +30,14 @@ const Verification = () => {
   const { application, isPending } = useKyc();
   const [searchParams, setSearchParams] = useSearchParams();
   const topRef = useRef<HTMLDivElement>(null);
+  const requestedStep = searchParams.get("step");
+
+  // Arriving without ?step= picks the first unfinished step; pin it, so an
+  // autosave that finishes the step doesn't jump them to the next one.
+  useEffect(() => {
+    if (!application || isStep(requestedStep)) return;
+    setSearchParams({ step: firstOpenStep(application) }, { replace: true });
+  }, [application, requestedStep, setSearchParams]);
 
   if (isPending || !application)
     return (
@@ -64,7 +72,7 @@ const Verification = () => {
         </h1>
         <p className="mt-1 max-w-2xl text-slate-500">
           We check every account before its first booking. Your progress is
-          saved each time you move to another step.
+          saved as you type.
         </p>
       </div>
 

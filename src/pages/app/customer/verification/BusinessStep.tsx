@@ -9,13 +9,16 @@ import {
   Receipt,
   Ship,
 } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import DateInput from "../../../../components/DateInput";
 import FileDropzone from "../../../../components/FileDropzone";
 import Input from "../../../../components/Input";
 import Select from "../../../../components/Select";
 import { NIGERIAN_STATES } from "../../../../data/nigeria";
-import { useSaveKycDraft } from "../../../../hooks/useKycService";
+import {
+  useKycAutosave,
+  useSaveKycDraft,
+} from "../../../../hooks/useKycService";
 import {
   CAC_TYPE_LABELS,
   type BusinessDetails,
@@ -52,6 +55,13 @@ const BusinessStep = ({
     resolver: zodResolver(businessStepSchema),
     defaultValues: business,
   });
+
+  // Saved as they type, so a refresh never loses anything.
+  const values = useWatch({ control });
+  const autosave = useKycAutosave(
+    { business: values as BusinessDetails },
+    uploading,
+  );
 
   // Never save while a new file is still uploading: the old one would be kept.
   const onSubmit = (values: BusinessStepValues) =>
@@ -240,7 +250,11 @@ const BusinessStep = ({
         </FieldGrid>
       </FormSection>
 
-      <StepActions isSaving={isPending} waitingForUploads={uploading} />
+      <StepActions
+        isSaving={isPending}
+        waitingForUploads={uploading}
+        autosave={autosave}
+      />
     </form>
   );
 };

@@ -1,6 +1,16 @@
-import { ArrowLeft, ArrowRight, Hourglass, Send, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Hourglass,
+  Loader2,
+  Send,
+  Trash2,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import Button from "../../../../components/Button";
+import type { AutosaveState } from "../../../../hooks/useKycService";
 import cn from "../../../../utils/cn";
 
 // Building blocks shared by the verification steps.
@@ -87,47 +97,86 @@ export const StepActions = ({
   submitLabel = "Save and continue",
   submitDisabled,
   waitingForUploads,
+  autosave = "idle",
 }: {
   onBack?: () => void;
   isSaving?: boolean;
   submitLabel?: string;
   submitDisabled?: boolean;
   waitingForUploads?: boolean;
+  autosave?: AutosaveState;
 }) => (
-  <div
+  <div className="space-y-3 pt-2">
+    <AutosaveStatus state={autosave} />
+    <div
+      className={cn(
+        "max-small-mobile:flex-col-reverse flex items-center gap-3",
+        onBack ? "justify-between" : "justify-end",
+      )}
+    >
+      {onBack && (
+        <Button
+          icon={ArrowLeft}
+          type="button"
+          variant="outline"
+          size="lg"
+          onClick={onBack}
+          disabled={isSaving}
+          className="max-small-mobile:w-full h-12 rounded-xl text-base font-semibold"
+        >
+          Back
+        </Button>
+      )}
+      <Button
+        type="submit"
+        size="lg"
+        icon={
+          waitingForUploads
+            ? Hourglass
+            : submitLabel === "Submit for review"
+              ? Send
+              : ArrowRight
+        }
+        isLoading={isSaving}
+        disabled={isSaving || submitDisabled || waitingForUploads}
+        className="max-small-mobile:w-full h-12 rounded-xl px-8 text-base font-semibold"
+      >
+        {waitingForUploads ? "Waiting for uploads…" : submitLabel}
+      </Button>
+    </div>
+  </div>
+);
+
+// A quiet line saying whether what's on screen is safely stored.
+const AutosaveStatus = ({ state }: { state: AutosaveState }) => (
+  <p
+    aria-live="polite"
     className={cn(
-      "max-small-mobile:flex-col-reverse flex items-center gap-3 pt-2",
-      onBack ? "justify-between" : "justify-end",
+      "flex min-h-5 items-center justify-end gap-1.5 text-sm",
+      state === "error" ? "text-red-600" : "text-slate-500",
     )}
   >
-    {onBack && (
-      <Button
-        icon={ArrowLeft}
-        type="button"
-        variant="outline"
-        size="lg"
-        onClick={onBack}
-        disabled={isSaving}
-        className="max-small-mobile:w-full h-12 rounded-xl text-base font-semibold"
-      >
-        Back
-      </Button>
+    {state === "saving" && (
+      <>
+        <Loader2
+          aria-hidden="true"
+          className="h-4 w-4 animate-spin motion-reduce:animate-none"
+        />
+        Saving…
+      </>
     )}
-    <Button
-      type="submit"
-      size="lg"
-      icon={
-        waitingForUploads
-          ? Hourglass
-          : submitLabel === "Submit for review"
-            ? Send
-            : ArrowRight
-      }
-      isLoading={isSaving}
-      disabled={isSaving || submitDisabled || waitingForUploads}
-      className="max-small-mobile:w-full h-12 rounded-xl px-8 text-base font-semibold"
-    >
-      {waitingForUploads ? "Waiting for uploads…" : submitLabel}
-    </Button>
-  </div>
+    {state === "saved" && (
+      <>
+        <Check aria-hidden="true" className="text-kelp h-4 w-4" />
+        All changes saved
+      </>
+    )}
+    {state === "error" && (
+      <>
+        <AlertCircle aria-hidden="true" className="h-4 w-4" />
+        Couldn't save your changes. Check your connection; we'll try again as
+        you type.
+      </>
+    )}
+  </p>
 );

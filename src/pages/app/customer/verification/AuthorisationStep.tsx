@@ -1,10 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PenLine } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import DateInput from "../../../../components/DateInput";
 import FileDropzone from "../../../../components/FileDropzone";
 import Select from "../../../../components/Select";
-import { useSaveKycDraft } from "../../../../hooks/useKycService";
+import {
+  useKycAutosave,
+  useSaveKycDraft,
+} from "../../../../hooks/useKycService";
 import type { Authorisation, Director } from "../../../../types/kyc";
 import {
   authorisationStepSchema,
@@ -48,6 +51,13 @@ const AuthorisationStep = ({
         : "",
     },
   });
+
+  // Saved as they type, so a refresh never loses anything.
+  const values = useWatch({ control });
+  const autosave = useKycAutosave(
+    { authorisation: values as Authorisation },
+    uploading,
+  );
 
   // Never save while a new file is still uploading: the old one would be kept.
   const onSubmit = (values: AuthorisationStepValues) =>
@@ -118,6 +128,7 @@ const AuthorisationStep = ({
         onBack={goBack}
         isSaving={isPending}
         waitingForUploads={uploading}
+        autosave={autosave}
       />
     </form>
   );

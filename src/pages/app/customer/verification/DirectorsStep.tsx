@@ -5,7 +5,10 @@ import DateInput from "../../../../components/DateInput";
 import FileDropzone from "../../../../components/FileDropzone";
 import Input from "../../../../components/Input";
 import Select from "../../../../components/Select";
-import { useSaveKycDraft } from "../../../../hooks/useKycService";
+import {
+  useKycAutosave,
+  useSaveKycDraft,
+} from "../../../../hooks/useKycService";
 import {
   ID_TYPE_LABELS,
   type Director,
@@ -68,6 +71,13 @@ const DirectorsStep = ({
   });
   const idTypes = useWatch({ control, name: "directors" })?.map(
     (director) => director.idType,
+  );
+
+  // Saved as they type, so a refresh never loses anything.
+  const directorValues = useWatch({ control, name: "directors" });
+  const autosave = useKycAutosave(
+    { directors: directorValues as Director[] },
+    uploading,
   );
 
   // Never save while a new file is still uploading: the old one would be kept.
@@ -202,6 +212,7 @@ const DirectorsStep = ({
         onBack={goBack}
         isSaving={isPending}
         waitingForUploads={uploading}
+        autosave={autosave}
       />
     </form>
   );

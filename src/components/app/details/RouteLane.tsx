@@ -32,22 +32,27 @@ const DASHES_X =
 const DASHES_Y =
   "repeating-linear-gradient(180deg, rgb(255 255 255 / 0.28) 0 6px, transparent 6px 12px)";
 
-// The ship: rocks on the water, with a ripple spreading from it.
+// The ship: rocks on the water, with a ripple spreading from it. Once it has
+// arrived it is moored, so it sits still.
 const ShipMarker = ({
   size,
   style,
   className,
+  docked,
 }: {
   size: "sm" | "md";
   style: CSSProperties;
   className: string;
+  docked: boolean;
 }) => (
   <span className={cn("absolute", className)} style={style}>
     <span className="relative flex">
-      <span
-        aria-hidden="true"
-        className="bg-brand animate-ship-ripple absolute inset-0 rounded-full motion-reduce:hidden"
-      />
+      {!docked && (
+        <span
+          aria-hidden="true"
+          className="bg-brand animate-ship-ripple absolute inset-0 rounded-full motion-reduce:hidden"
+        />
+      )}
       <span
         className={cn(
           "bg-brand relative flex items-center justify-center rounded-full ring-4 ring-[#0a2342]",
@@ -56,7 +61,7 @@ const ShipMarker = ({
       >
         <Ship
           className={cn(
-            "animate-ship-bob motion-reduce:animate-none",
+            !docked && "animate-ship-bob motion-reduce:animate-none",
             size === "md" ? "h-[18px] w-[18px]" : "h-3.5 w-3.5",
           )}
         />
@@ -85,6 +90,8 @@ const RouteLane = ({
   footer?: ReactNode;
 }) => {
   const at = Math.min(1, Math.max(0, progress));
+  // At the destination (arrived or delivered) the ship is moored.
+  const docked = at >= 1;
   // The ship marker stays clear of the port dots at either end.
   const along = (gap: number) =>
     `calc(${gap}px + (100% - ${gap * 2}px) * ${at})`;
@@ -133,6 +140,7 @@ const RouteLane = ({
               />
               <ShipMarker
                 size="sm"
+                docked={docked}
                 className="left-1/2 -translate-x-1/2 -translate-y-1/2"
                 style={{ top: along(18) }}
               />
@@ -163,6 +171,7 @@ const RouteLane = ({
                 />
                 <ShipMarker
                   size="md"
+                  docked={docked}
                   className="top-1/2 -translate-x-1/2 -translate-y-1/2"
                   style={{ left: along(20) }}
                 />

@@ -1,5 +1,5 @@
-import { ArrowDown, ArrowUp } from "lucide-react";
-import type { ReactNode } from "react";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import type { KeyboardEvent, ReactNode } from "react";
 import cn from "../../utils/cn";
 
 interface TableHeader {
@@ -24,40 +24,56 @@ export const Table = ({
   onSort,
 }: TableProps) => {
   return (
-    <div className={cn("overflow-x-auto border border-slate-100", className)}>
+    <div className={cn("overflow-x-auto", className)}>
       <table className="w-full min-w-max border-collapse text-left">
         <thead>
-          <tr className="border-b border-slate-100 bg-slate-50">
+          <tr className="bg-mist/70 border-b border-slate-200">
             {headers.map((header, i) => {
               const h = typeof header === "string" ? { label: header } : header;
-              const isSorted = sortConfig?.key === h.key;
+              const canSort = Boolean(h.sortable && h.key);
+              const isSorted = canSort && sortConfig?.key === h.key;
+              const SortIcon = isSorted
+                ? sortConfig?.direction === "asc"
+                  ? ArrowUp
+                  : ArrowDown
+                : ArrowUpDown;
 
               return (
                 <th
                   key={i}
-                  className={cn(
-                    "px-6 py-4 text-xs font-semibold tracking-wider whitespace-nowrap text-slate-500 uppercase",
-                    h.sortable &&
-                      "cursor-pointer transition-colors hover:bg-slate-100",
-                  )}
-                  onClick={() => h.sortable && h.key && onSort?.(h.key)}
+                  scope="col"
+                  aria-sort={
+                    isSorted
+                      ? sortConfig?.direction === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : undefined
+                  }
+                  className="px-5 py-3 text-[11px] font-semibold tracking-wider whitespace-nowrap text-slate-500 uppercase"
                 >
-                  <div className="flex gap-1">
-                    {h.label}
-                    {h.sortable && h.key && (
-                      <div className="text-slate-300">
-                        {isSorted ? (
-                          sortConfig?.direction === "asc" ? (
-                            <ArrowUp className="text-brand h-3.5 w-3.5" />
-                          ) : (
-                            <ArrowDown className="text-brand h-3.5 w-3.5" />
-                          )
-                        ) : (
-                          <ArrowDown className="h-3.5 w-3.5" />
+                  {canSort ? (
+                    <button
+                      type="button"
+                      onClick={() => onSort?.(h.key!)}
+                      className={cn(
+                        "group/sort focus-visible:ring-brand/40 -mx-1.5 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 uppercase transition-colors outline-none hover:text-slate-900 focus-visible:ring-2",
+                        isSorted && "text-slate-900",
+                      )}
+                    >
+                      {h.label}
+                      <SortIcon
+                        aria-hidden="true"
+                        className={cn(
+                          "h-3.5 w-3.5 transition-opacity",
+                          isSorted
+                            ? "text-brand"
+                            : "text-slate-400 opacity-0 group-hover/sort:opacity-100 group-focus-visible/sort:opacity-100",
                         )}
-                      </div>
-                    )}
-                  </div>
+                      />
+                    </button>
+                  ) : (
+                    h.label
+                  )}
                 </th>
               );
             })}
@@ -68,6 +84,7 @@ export const Table = ({
     </div>
   );
 };
+
 interface TableRowProps {
   children: ReactNode;
   className?: string;
@@ -75,14 +92,21 @@ interface TableRowProps {
 }
 
 export const TableRow = ({ onClick, className, children }: TableRowProps) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTableRowElement>) => {
+    if (e.key === "Enter" && e.target === e.currentTarget) onClick?.();
+  };
+
   return (
     <tr
       className={cn(
-        "group transition-colors hover:bg-slate-50",
-        onClick && "cursor-pointer",
+        "group transition-colors",
+        onClick &&
+          "hover:bg-mist/50 focus-visible:bg-mist/50 cursor-pointer outline-none [&>td:first-child]:shadow-[inset_3px_0_0_transparent] [&>td:first-child]:transition-shadow hover:[&>td:first-child]:shadow-[inset_3px_0_0_var(--color-brand)] focus-visible:[&>td:first-child]:shadow-[inset_3px_0_0_var(--color-brand)]",
         className,
       )}
       onClick={onClick}
+      onKeyDown={onClick ? handleKeyDown : undefined}
+      tabIndex={onClick ? 0 : undefined}
     >
       {children}
     </tr>
@@ -104,7 +128,7 @@ export const TableCell: React.FC<TableCellProps> = ({
     <td
       colSpan={colSpan}
       className={cn(
-        "px-6 py-4 text-sm whitespace-nowrap text-slate-600",
+        "px-5 py-3.5 align-middle text-sm whitespace-nowrap text-slate-600 tabular-nums",
         className,
       )}
     >

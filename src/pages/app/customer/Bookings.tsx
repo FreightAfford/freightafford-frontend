@@ -1,10 +1,16 @@
 import { Plus, RotateCw, Ship, X } from "lucide-react";
-import moment from "moment";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import Pagination from "../../../components/app/Pagination";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
+import {
+  BookingCargoCell,
+  BookingRefCell,
+  CarrierCell,
+  RouteCell,
+  SailingCell,
+} from "../../../components/app/TableCells";
 import TableControls from "../../../components/app/TableControls";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
@@ -78,7 +84,7 @@ const CustomerBookings = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
+        className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
       >
         {totalAll >= 10 && (
           <TableControls
@@ -107,13 +113,12 @@ const CustomerBookings = () => {
 
         <Table
           headers={[
-            "S/N",
-            { label: "Booking #", key: "bookingNumber", sortable: true },
-            { label: "Date Created", key: "createdAt", sortable: true },
-            { label: "Sailing Date", key: "sailingDate", sortable: true },
+            { label: "Booking", key: "bookingNumber", sortable: true },
+            "Route",
+            "Cargo",
+            { label: "Carrier", key: "shippingLine", sortable: true },
+            { label: "Sailing / ETA", key: "sailingDate", sortable: true },
             { label: "Status", key: "status", sortable: true },
-            { label: "Shipping Line", key: "shippingLine", sortable: true },
-            "Commodity",
           ]}
           sortConfig={sortConfig}
           onSort={handleSort}
@@ -121,7 +126,7 @@ const CustomerBookings = () => {
           {!isPending &&
             !isRefetching &&
             hasResults &&
-            bookings?.map((booking: any, index: number) => (
+            bookings?.map((booking: any) => (
               <TableRow
                 key={booking._id}
                 onClick={() =>
@@ -129,20 +134,19 @@ const CustomerBookings = () => {
                 }
               >
                 <TableCell>
-                  {((page - 1) * limit! + index + 1)
-                    .toString()
-                    .padStart(2, "0")}
+                  <BookingRefCell booking={booking} />
                 </TableCell>
-                <TableCell className="text-brand font-medium">
-                  {booking.bookingNumber}
-                </TableCell>
-                <TableCell>{moment(booking.createdAt).format("ll")}</TableCell>
                 <TableCell>
-                  {booking.sailingDate ? (
-                    moment(booking.sailingDate).format("ll")
-                  ) : (
-                    <span className="italic">TBA</span>
-                  )}
+                  <RouteCell {...booking.freightRequest} />
+                </TableCell>
+                <TableCell>
+                  <BookingCargoCell booking={booking} />
+                </TableCell>
+                <TableCell>
+                  <CarrierCell booking={booking} />
+                </TableCell>
+                <TableCell>
+                  <SailingCell booking={booking} />
                 </TableCell>
                 <TableCell>
                   <StatusBadge
@@ -152,12 +156,6 @@ const CustomerBookings = () => {
                         : booking.status
                     }
                   />
-                </TableCell>
-                <TableCell>
-                  {booking.shippingLine || <span className="italic">TBA</span>}
-                </TableCell>
-                <TableCell className="capitalize">
-                  {booking.freightRequest.commodity}
                 </TableCell>
               </TableRow>
             ))}

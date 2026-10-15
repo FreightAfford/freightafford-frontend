@@ -12,10 +12,16 @@ import FreightRequestForm from "../../../components/app/FreightRequestForm";
 import Pagination from "../../../components/app/Pagination";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
+import {
+  DateCell,
+  PriceCell,
+  RouteCell,
+  StackedCell,
+} from "../../../components/app/TableCells";
 import TableControls from "../../../components/app/TableControls";
 import { useGetMyFreightRequests } from "../../../hooks/useFreightService";
 import { useTableQuery } from "../../../hooks/useTableQuery";
-import { containerSizeLabel } from "../../../utils/format";
+import { containersLabel } from "../../../utils/format";
 
 const CustomerRequests = () => {
   const navigate = useNavigate();
@@ -117,7 +123,7 @@ const CustomerRequests = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="overflow-hidden rounded-2xl border border-slate-100 shadow-sm"
+        className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
       >
         {totalAll >= 10 && (
           <TableControls
@@ -156,14 +162,12 @@ const CustomerRequests = () => {
         )}
         <Table
           headers={[
-            "S/N",
-            { label: "Container", key: "containerSize", sortable: true },
-            { label: "Origin", key: "originPort", sortable: true },
-            { label: "Destination", key: "destinationPort", sortable: true },
-            { label: "Price", key: "price", sortable: true },
+            { label: "Submitted", key: "createdAt", sortable: true },
+            { label: "Route", key: "originPort", sortable: true },
+            { label: "Cargo", key: "containerSize", sortable: true },
+            { label: "Ready", key: "cargoReadyDate", sortable: true },
+            { label: "Price", key: "proposedPrice", sortable: true },
             { label: "Status", key: "status", sortable: true },
-            { label: "Commodity", key: "commodity", sortable: true },
-            { label: "Ready Date", key: "cargoReadyDate", sortable: true },
           ]}
           sortConfig={sortConfig}
           onSort={handleSort}
@@ -171,7 +175,7 @@ const CustomerRequests = () => {
           {!isPending &&
             !isRefetching &&
             hasResults &&
-            requests?.map((request: any, index: number) => (
+            requests?.map((request: any) => (
               <TableRow
                 key={request._id}
                 onClick={() =>
@@ -179,38 +183,38 @@ const CustomerRequests = () => {
                 }
               >
                 <TableCell>
-                  {((page - 1) * limit! + index + 1)
-                    .toString()
-                    .padStart(2, "0")}
+                  <DateCell
+                    date={request.createdAt}
+                    secondary={moment(request.createdAt).fromNow()}
+                  />
                 </TableCell>
-                <TableCell className="font-medium whitespace-nowrap">
-                  {containerSizeLabel(request.containerSize)}
+                <TableCell>
+                  <RouteCell {...request} />
                 </TableCell>
-                <TableCell className="max-w-37.5 truncate capitalize">
-                  {request.originPort}
-                  {request.originPortCode && (
-                    <span className="ml-1 font-mono text-xs text-slate-400 uppercase">
-                      {request.originPortCode}
-                    </span>
-                  )}
+                <TableCell>
+                  <StackedCell
+                    primary={containersLabel(
+                      request.containerQuantity,
+                      request.containerSize,
+                    )}
+                    secondary={
+                      <span className="capitalize">{request.commodity}</span>
+                    }
+                    title={request.commodity}
+                  />
                 </TableCell>
-                <TableCell className="max-w-37.5 truncate capitalize">
-                  {request.destinationPort}
-                  {request.destinationPortCode && (
-                    <span className="ml-1 font-mono text-xs text-slate-400 uppercase">
-                      {request.destinationPortCode}
-                    </span>
-                  )}
+                <TableCell>
+                  <DateCell date={request.cargoReadyDate} fallback="—" />
                 </TableCell>
-                <TableCell>${request.proposedPrice.toLocaleString()}</TableCell>
+                <TableCell>
+                  <PriceCell
+                    proposed={request.proposedPrice}
+                    counter={request.adminCounterPrice}
+                    status={request.status}
+                  />
+                </TableCell>
                 <TableCell>
                   <StatusBadge status={request.status} />
-                </TableCell>
-                <TableCell className="max-w-50 truncate capitalize">
-                  <span title={request.commodity}>{request.commodity}</span>
-                </TableCell>
-                <TableCell>
-                  {moment(request.cargoReadyDate).format("LL")}
                 </TableCell>
               </TableRow>
             ))}

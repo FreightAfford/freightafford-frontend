@@ -1,4 +1,5 @@
 import { Check, RotateCw, Ship, X } from "lucide-react";
+import moment from "moment";
 import { motion } from "motion/react";
 import { useNavigate, useSearchParams } from "react-router";
 import Button from "../../../components/Button";
@@ -7,6 +8,12 @@ import SmallLoader from "../../../components/SmallLoader";
 import Pagination from "../../../components/app/Pagination";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
+import {
+  DateCell,
+  PriceCell,
+  RouteCell,
+  StackedCell,
+} from "../../../components/app/TableCells";
 import TableControls from "../../../components/app/TableControls";
 import { useConfirm } from "../../../hooks/useConfirm";
 import {
@@ -14,7 +21,7 @@ import {
   useGetAllFreightRequests,
 } from "../../../hooks/useFreightService";
 import { useTableQuery } from "../../../hooks/useTableQuery";
-import { containerSizeLabel } from "../../../utils/format";
+import { containersLabel } from "../../../utils/format";
 
 const AdminRequests = () => {
   const navigate = useNavigate();
@@ -132,7 +139,7 @@ const AdminRequests = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="overflow-hidden rounded-2xl border border-slate-100 shadow-sm"
+        className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
       >
         {totalAll >= 10 && (
           <TableControls
@@ -171,12 +178,12 @@ const AdminRequests = () => {
         )}
         <Table
           headers={[
-            "S/N",
+            { label: "Submitted", key: "createdAt", sortable: true },
             { label: "Customer", key: "customerName", sortable: true },
-            { label: "Container", key: "containerSize", sortable: true },
-            { label: "Origin", key: "originPort", sortable: true },
-            { label: "Destination", key: "destinationPort", sortable: true },
-            { label: "Price", key: "price", sortable: true },
+            { label: "Route", key: "originPort", sortable: true },
+            { label: "Cargo", key: "containerSize", sortable: true },
+            { label: "Ready", key: "cargoReadyDate", sortable: true },
+            { label: "Price", key: "proposedPrice", sortable: true },
             { label: "Status", key: "status", sortable: true },
           ]}
           sortConfig={sortConfig}
@@ -185,61 +192,72 @@ const AdminRequests = () => {
           {!isPending &&
             !isRefetching &&
             hasResults &&
-            requests?.map((request: any, index: number) => (
-              <TableRow
-                key={request._id}
-                onClick={() => navigate(`/app/admin/requests/${request._id}`)}
-              >
-                <TableCell>
-                  {((page - 1) * limit! + index + 1)
-                    .toString()
-                    .padStart(2, "0")}
-                </TableCell>
-                <TableCell className="text-brand hover:text-brand/80 font-medium capitalize">
-                  <div
-                    className="max-w-37.5 truncate"
-                    title={
-                      request.customer.companyName || request.customer.fullname
-                    }
-                  >
-                    {request.customer.companyName || request.customer.fullname}
-                  </div>
-                </TableCell>
-                <TableCell className="whitespace-nowrap">
-                  {containerSizeLabel(request.containerSize)}
-                </TableCell>
-                <TableCell className="max-w-37.5 truncate capitalize">
-                  {request.originPort}
-                  {request.originPortCode && (
-                    <span className="ml-1 font-mono text-xs text-slate-400 uppercase">
-                      {request.originPortCode}
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell className="max-w-37.5 truncate capitalize">
-                  {request.destinationPort}
-                  {request.destinationPortCode && (
-                    <span className="ml-1 font-mono text-xs text-slate-400 uppercase">
-                      {request.destinationPortCode}
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell>${request.proposedPrice.toLocaleString()}</TableCell>
-                <TableCell>
-                  <div className="flex flex-col items-start gap-1">
-                    <StatusBadge status={request.status} />
-                    {request.notes && (
-                      <span
-                        className="max-w-37.5 truncate text-[10px] text-slate-400"
-                        title={request.notes}
-                      >
-                        Note: {request.notes}
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            requests?.map((request: any) => {
+              const customer =
+                request.customer?.companyName ||
+                request.customer?.fullname ||
+                request.customerName;
+
+              return (
+                <TableRow
+                  key={request._id}
+                  onClick={() => navigate(`/app/admin/requests/${request._id}`)}
+                >
+                  <TableCell>
+                    <DateCell
+                      date={request.createdAt}
+                      secondary={moment(request.createdAt).fromNow()}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <StackedCell
+                      primary={customer}
+                      secondary={request.customerEmail}
+                      primaryClassName="capitalize"
+                      title={`${customer} · ${request.customerEmail}`}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <RouteCell {...request} />
+                  </TableCell>
+                  <TableCell>
+                    <StackedCell
+                      primary={containersLabel(
+                        request.containerQuantity,
+                        request.containerSize,
+                      )}
+                      secondary={
+                        <span className="capitalize">{request.commodity}</span>
+                      }
+                      title={request.commodity}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <DateCell date={request.cargoReadyDate} fallback="—" />
+                  </TableCell>
+                  <TableCell>
+                    <PriceCell
+                      proposed={request.proposedPrice}
+                      counter={request.adminCounterPrice}
+                      status={request.status}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5">
+                      <StatusBadge status={request.status} />
+                      {request.batchId && (
+                        <span
+                          className="bg-mist text-harbour rounded-md px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase"
+                          title={`Part of a batch of ${request.batchSize ?? "several"} requests`}
+                        >
+                          Batch
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
         </Table>
 
         {(isPending || isRefetching) && (

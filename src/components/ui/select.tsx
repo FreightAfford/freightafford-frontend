@@ -38,16 +38,100 @@ const SelectTrigger = ({
   </SelectPrimitive.Trigger>
 );
 
+// Radix Select is always modal: while open (and while it animates closed) it
+// sets `pointer-events: none` on the body, so a click elsewhere only closes
+// it. Find what was under the pointer and act on it straight away, so one
+// click both closes this select and opens the next one or presses the button.
+type PointerDownOutside = Parameters<
+  NonNullable<
+    ComponentProps<typeof SelectPrimitive.Content>["onPointerDownOutside"]
+  >
+>[0];
+
+const elementUnderPointer = (x: number, y: number) => {
+  const { body } = document;
+  const blocked = body.style.pointerEvents;
+  body.style.pointerEvents = "auto";
+  const element = document.elementFromPoint(x, y);
+  body.style.pointerEvents = blocked;
+  return element;
+};
+
+const CLICKABLE =
+  "button, a[href], input, textarea, label, [role=button], [tabindex]";
+
+// The control a click outside landed on. When the select closes it would
+// hand focus back to its own trigger, so it goes here instead.
+// "keep" leaves focus where it is (inside the select that opened next).
+let focusAfterClose: HTMLElement | "keep" | null = null;
+
+const actOnElementUnderPointer = (event: PointerDownOutside) => {
+  const pointer = event.detail.originalEvent;
+  if (pointer.button !== 0) return;
+  const under = elementUnderPointer(pointer.clientX, pointer.clientY);
+  if (!under) return;
+
+  // Another select opens on pointerdown, so replay that once this one closes.
+  const trigger = under.closest("[data-slot=select-trigger]");
+  if (trigger instanceof HTMLElement) {
+    focusAfterClose = "keep";
+    requestAnimationFrame(() =>
+      trigger.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          pointerType: "mouse",
+          pointerId: pointer.pointerId,
+          clientX: pointer.clientX,
+          clientY: pointer.clientY,
+        }),
+      ),
+    );
+    return;
+  }
+
+  // Anything else: the click that follows lands on <html> while the page is
+  // blocked, so hand it to the control instead. A click that reaches the
+  // control on its own is left alone.
+  const control = under.closest(CLICKABLE);
+  if (!(control instanceof HTMLElement)) return;
+  focusAfterClose = control;
+  const onClick = (click: MouseEvent) => {
+    const target = click.target as Node;
+    if (target === document.documentElement || target === document.body) {
+      control.focus();
+      control.click();
+    }
+  };
+  window.addEventListener("click", onClick, { capture: true, once: true });
+  // A press that never becomes a click mustn't hijack a later one.
+  setTimeout(() => window.removeEventListener("click", onClick, true), 1000);
+};
+
 const SelectContent = ({
   className,
   children,
   position = "popper",
+  onPointerDownOutside,
+  onCloseAutoFocus,
   ...props
 }: ComponentProps<typeof SelectPrimitive.Content>) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       data-slot="select-content"
       position={position}
+      onPointerDownOutside={(event) => {
+        onPointerDownOutside?.(event);
+        actOnElementUnderPointer(event);
+      }}
+      onCloseAutoFocus={(event) => {
+        onCloseAutoFocus?.(event);
+        if (!focusAfterClose) return;
+        event.preventDefault();
+        if (focusAfterClose !== "keep") focusAfterClose.focus();
+        focusAfterClose = null;
+      }}
       className={cn(
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2 relative z-[60] max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-xl border border-slate-200 bg-white text-slate-900 shadow-[0_12px_32px_-8px_rgb(15_23_43/0.18)]",
         position === "popper" &&

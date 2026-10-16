@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  ArrowLeftRight,
+  ArrowUpDown,
   Boxes,
   CalendarClock,
   CircleDot,
@@ -170,34 +170,61 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
         title="Route"
         description="Search by city or port name and pick from the list."
       >
-        <div className="max-medium-mobile:grid-cols-1 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-3">
-          <PortSelect
-            label="Origin port"
-            icon={CircleDot}
-            placeholder="e.g. Shanghai"
-            value={origin}
-            onChange={(loc) => setPort("originPortCode", loc)}
-            error={errors.originPortCode?.message}
-            disabled={isPending}
-          />
-          <button
-            type="button"
-            onClick={swapPorts}
-            disabled={isPending || (!origin && !destination)}
-            aria-label="Swap origin and destination"
-            title="Swap origin and destination"
-            className="hover:border-brand hover:text-brand focus-visible:ring-brand max-medium-mobile:mt-0 max-medium-mobile:h-10 max-medium-mobile:justify-self-center mt-[1.6875rem] flex h-13 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+        {/* One card for the whole route: origin over destination, joined by
+            a shipping lane. Each end gets the full width, so long port
+            names show in full and the two ends always line up. */}
+        <div className="space-y-1.5">
+          <div
+            className={cn(
+              "@container rounded-xl border bg-white transition-[border-color,box-shadow] duration-150",
+              errors.originPortCode || errors.destinationPortCode
+                ? "border-red-400"
+                : "focus-within:border-brand border-slate-200 focus-within:shadow-[0_0_0_3px_rgb(30_144_255/0.15)] hover:border-slate-300",
+            )}
           >
-            <ArrowLeftRight className="max-medium-mobile:rotate-90 h-4 w-4" />
-          </button>
-          <PortSelect
-            label="Destination port"
-            icon={MapPin}
-            placeholder="e.g. Lagos"
-            value={destination}
-            onChange={(loc) => setPort("destinationPortCode", loc)}
-            error={errors.destinationPortCode?.message}
-            disabled={isPending}
+            <PortSelect
+              label="Origin port"
+              kicker="From"
+              end="origin"
+              icon={CircleDot}
+              placeholder="Search a city or port, e.g. Shanghai"
+              value={origin}
+              onChange={(loc) => setPort("originPortCode", loc)}
+              error={!!errors.originPortCode}
+              disabled={isPending}
+              className="rounded-t-xl"
+            />
+            <div className="relative ml-16 h-px bg-slate-100">
+              <button
+                type="button"
+                onClick={swapPorts}
+                disabled={isPending || (!origin && !destination)}
+                aria-label="Swap origin and destination"
+                title="Swap origin and destination"
+                className="hover:border-brand hover:text-brand focus-visible:ring-brand absolute top-1/2 right-12 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-slate-300"
+              >
+                <ArrowUpDown className="h-4 w-4" />
+              </button>
+            </div>
+            <PortSelect
+              label="Destination port"
+              kicker="To"
+              end="destination"
+              icon={MapPin}
+              placeholder="Search a city or port, e.g. Lagos"
+              value={destination}
+              onChange={(loc) => setPort("destinationPortCode", loc)}
+              error={!!errors.destinationPortCode}
+              disabled={isPending}
+              className="rounded-b-xl"
+            />
+          </div>
+          <FieldMessage
+            id="route"
+            error={
+              errors.originPortCode?.message ??
+              errors.destinationPortCode?.message
+            }
           />
         </div>
       </FieldGroup>

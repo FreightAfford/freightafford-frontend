@@ -405,7 +405,7 @@ const BookingDetails = () => {
 
       <div className="grid grid-cols-1 gap-6 @4xl:grid-cols-[minmax(0,1fr)_21rem]">
         <aside className="grid content-start gap-6 @2xl:grid-cols-2 @4xl:order-2 @4xl:grid-cols-1">
-          <Panel title={isAdmin ? "Customer" : "Account"} icon={User}>
+          <Panel title={isAdmin ? "Customer" : "Account"} icon={User} index={1}>
             <div className="flex items-center gap-3">
               <span
                 aria-hidden="true"
@@ -448,7 +448,7 @@ const BookingDetails = () => {
           </Panel>
 
           {request && (
-            <Panel title="Price" icon={DollarSign}>
+            <Panel title="Price" icon={DollarSign} index={2}>
               <div className="space-y-3">
                 <Row
                   label="Customer's offer"
@@ -498,7 +498,7 @@ const BookingDetails = () => {
             </Panel>
           )}
 
-          <Panel title="Activity" icon={History}>
+          <Panel title="Activity" icon={History} index={3}>
             <ol className="space-y-4">
               <li className="flex gap-3">
                 <span className="bg-brand/10 text-brand flex h-8 w-8 shrink-0 items-center justify-center rounded-full">

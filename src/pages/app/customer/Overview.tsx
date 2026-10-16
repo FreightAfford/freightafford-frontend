@@ -50,23 +50,27 @@ const CustomerOverview = () => {
       {data && (
         <div className="max-medium-desktop:grid-cols-2 max-medium-mobile:grid-cols-1 mb-8 grid grid-cols-4 gap-6">
           <StatsCard
+            index={0}
             title="Active Requests"
             value={data.totalRequests || 0}
             icon={FileSearch}
             // trend={{ value: "2+ this week", isPositive: true }}
           />
           <StatsCard
+            index={1}
             title="Active Bookings"
             value={data.totalBookings || 0}
             icon={CalendarCheck}
           />
           <StatsCard
+            index={2}
             title="Bill of Ladings"
             value={data.bills || 0}
             icon={FileText}
             trend={{ value: "Action required", isPositive: true }}
           />
           <StatsCard
+            index={3}
             title="Outstanding Invoices"
             value={`$${data.totalInvoiceAmount || 0}`}
             icon={Receipt}

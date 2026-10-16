@@ -10,6 +10,7 @@ import {
   Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { stagger } from "../../../utils/motion";
 import { Link } from "react-router";
 import { useState } from "react";
 
@@ -33,11 +34,7 @@ const CustomerSupport = () => {
     <div className="space-y-12">
       {/* Left Column: Hero & Message */}
       <div className="space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
-        >
+        <motion.div {...stagger(0)} className="space-y-4">
           <div className="bg-brand/10 text-brand inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold tracking-wider uppercase">
             <HelpCircle className="h-5 w-5" />
             Help Center
@@ -54,9 +51,7 @@ const CustomerSupport = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          {...stagger(1)}
           className="max-medium-mobile:px-4 relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-8 shadow-xl shadow-slate-200/50"
         >
           <div className="-tr-y-1/2 tr-x-1/2 bg-brand/5 absolute top-0 right-0 h-32 w-32 rounded-full blur-3xl" />
@@ -122,9 +117,7 @@ const CustomerSupport = () => {
       {/* Right Column: Instructions & Checklist */}
       <div className=":w-100 shrink-0 space-y-6">
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
+          {...stagger(2)}
           className="relative overflow-hidden rounded-3xl bg-slate-900 p-8 text-white shadow-2xl"
         >
           <div className="absolute right-0 bottom-0 opacity-10">
@@ -169,9 +162,7 @@ const CustomerSupport = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
+          {...stagger(3)}
           className="max-small-mobile:grid-cols-1 grid grid-cols-2 gap-4"
         >
           <div className="flex flex-col items-center rounded-3xl border border-slate-100 bg-white p-6 text-center">

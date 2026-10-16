@@ -1,6 +1,7 @@
 import { CircleDot, Clock, Mail, RotateCw, Ship, X } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
+import { stagger } from "../../../utils/motion";
 import { useNavigate } from "react-router";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
@@ -67,10 +68,7 @@ const Tickets = () => {
 
   return (
     <div className="space-y-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+      <motion.div {...stagger(0)}>
         <>
           <h1 className="text-2xl font-bold text-slate-900">
             Support Management
@@ -82,18 +80,21 @@ const Tickets = () => {
       </motion.div>
 
       {/* Stats Summary */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="grid grid-cols-3 gap-6"
-      >
-        <StatsCard title="Total Tickets" value={totalAll || 0} icon={Mail} />
+      <motion.div {...stagger(1)} className="grid grid-cols-3 gap-6">
         <StatsCard
+          index={2}
+          title="Total Tickets"
+          value={totalAll || 0}
+          icon={Mail}
+        />
+        <StatsCard
+          index={3}
           title="Pending Review"
           value={pendingReview || 0}
           icon={Clock}
         />
         <StatsCard
+          index={4}
           title="Open Threads"
           value={openThreads || 0}
           icon={CircleDot}

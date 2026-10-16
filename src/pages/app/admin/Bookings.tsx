@@ -1,5 +1,6 @@
 import { Eye, RotateCw, Ship, X } from "lucide-react";
 import { motion } from "motion/react";
+import { stagger } from "../../../utils/motion";
 import { useNavigate } from "react-router";
 import Pagination from "../../../components/app/Pagination";
 import StatusBadge from "../../../components/app/StatusBadge";
@@ -66,11 +67,7 @@ const AdminBookings = () => {
   return (
     <>
       {hasAnyData || !hasResults ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <motion.div {...stagger(0)} className="mb-8">
           <>
             <h1 className="text-2xl font-bold text-slate-900">
               Bookings Management ({totalAll || 0})
@@ -83,8 +80,7 @@ const AdminBookings = () => {
       ) : null}
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        {...stagger(1)}
         className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
       >
         {totalAll >= 10 && (

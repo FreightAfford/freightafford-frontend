@@ -20,6 +20,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import moment from "moment";
+import { motion } from "motion/react";
 import { useState, type ReactNode } from "react";
 import { Link } from "react-router";
 import Button from "../../../components/Button";
@@ -30,6 +31,7 @@ import { useUser } from "../../../hooks/useAuthService";
 import { useKycStatus } from "../../../hooks/useKycService";
 import type { KycStatus } from "../../../types/kyc";
 import cn from "../../../utils/cn";
+import { stagger } from "../../../utils/motion";
 
 const VERIFY_PATH = "/app/customer/verification";
 
@@ -116,13 +118,17 @@ const Panel = ({
   action,
   children,
   className,
+  index,
 }: {
   title: string;
   action?: ReactNode;
   children: ReactNode;
   className?: string;
+  // Position on the page, so panels arrive one after another.
+  index?: number;
 }) => (
-  <section
+  <motion.section
+    {...stagger(index)}
     className={cn(
       "rounded-2xl border border-slate-200 bg-white p-5 @xl:p-6",
       className,
@@ -133,7 +139,7 @@ const Panel = ({
       {action}
     </div>
     {children}
-  </section>
+  </motion.section>
 );
 
 // One labelled detail. Empty values offer a way to add them.
@@ -279,7 +285,7 @@ const CustomerProfile = () => {
 
       <div className="grid grid-cols-1 items-start gap-6 @3xl:grid-cols-2 @6xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="min-w-0 space-y-6">
-          <Panel title="Contact details">
+          <Panel title="Contact details" index={0}>
             <dl className="divide-y divide-slate-100">
               <Detail
                 icon={User}
@@ -319,7 +325,7 @@ const CustomerProfile = () => {
             </dl>
           </Panel>
 
-          <Panel title="Company">
+          <Panel title="Company" index={1}>
             <dl className="divide-y divide-slate-100">
               <Detail
                 icon={Building2}
@@ -348,7 +354,7 @@ const CustomerProfile = () => {
 
         <div className="min-w-0 space-y-6">
           {verification && (
-            <Panel title="Business verification">
+            <Panel title="Business verification" index={2}>
               <div className="flex items-start gap-3.5">
                 <span
                   className={cn(
@@ -377,7 +383,7 @@ const CustomerProfile = () => {
             </Panel>
           )}
 
-          <Panel title="Security">
+          <Panel title="Security" index={3}>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3.5">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
@@ -408,7 +414,7 @@ const CustomerProfile = () => {
             </div>
           </Panel>
 
-          <Panel title="Agreements">
+          <Panel title="Agreements" index={4}>
             <dl className="divide-y divide-slate-100">
               <Detail
                 icon={FileCheck2}

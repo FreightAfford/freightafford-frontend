@@ -368,7 +368,7 @@ const RequestDetails = () => {
       <div className="grid grid-cols-1 gap-6 @4xl:grid-cols-[minmax(0,1fr)_21rem]">
         {/* Price and customer come first on narrow pages. */}
         <aside className="grid content-start gap-6 @2xl:grid-cols-2 @4xl:order-2 @4xl:grid-cols-1">
-          <Panel title="Price" icon={DollarSign}>
+          <Panel title="Price" icon={DollarSign} index={1}>
             <div className="space-y-3">
               <Row
                 label={isCustomer ? "Your offer" : "Customer's offer"}
@@ -403,7 +403,7 @@ const RequestDetails = () => {
             </div>
           </Panel>
 
-          <Panel title={isAdmin ? "Customer" : "Account"} icon={User}>
+          <Panel title={isAdmin ? "Customer" : "Account"} icon={User} index={2}>
             <div className="flex items-center gap-3">
               <span
                 aria-hidden="true"
@@ -443,7 +443,7 @@ const RequestDetails = () => {
         </aside>
 
         <div className="min-w-0 space-y-6">
-          <Panel title="History" icon={History}>
+          <Panel title="History" icon={History} index={3}>
             <ol className="space-y-5">
               <li className="flex gap-3">
                 <span className="bg-brand/10 text-brand flex h-8 w-8 shrink-0 items-center justify-center rounded-full">

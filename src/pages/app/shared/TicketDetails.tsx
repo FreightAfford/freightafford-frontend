@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import moment from "moment";
 import { AnimatePresence, motion } from "motion/react";
+import { stagger } from "../../../utils/motion";
 import {
   useState,
   type ChangeEvent,
@@ -194,10 +195,7 @@ const TicketDetails = () => {
         Back
       </button>
       {/* Header Section */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-      >
+      <motion.div {...stagger(0)}>
         <div className="mb-1 flex items-center gap-2">
           <div className="text-brand leading-none font-semibold">
             {ticket.ticket_id}

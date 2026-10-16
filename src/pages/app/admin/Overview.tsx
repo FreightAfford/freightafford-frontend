@@ -38,12 +38,14 @@ const AdminOverview = () => {
       {data && (
         <div className="max-medium-desktop:grid-cols-2 max-medium-mobile:grid-cols-1 mb-6 grid grid-cols-4 gap-4">
           <StatsCard
+            index={0}
             title="Total Users"
             value={data.totalUsers || 0}
             icon={Users}
             // trend={{ value: "+12% this month", isPositive: true }}
           />
           <StatsCard
+            index={1}
             title="Active Requests"
             value={data.totalRequests || 0}
             icon={FileSearch}
@@ -57,11 +59,13 @@ const AdminOverview = () => {
             }
           />
           <StatsCard
+            index={2}
             title="Total Bookings"
             value={data.totalBookings || 0}
             icon={Ship}
           />
           <StatsCard
+            index={3}
             title="Total Invoice"
             value={`$${data.totalInvoiceAmount.toLocaleString() || 0}`}
             icon={Receipt}

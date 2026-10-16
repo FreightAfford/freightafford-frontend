@@ -1,6 +1,8 @@
 import { ArrowLeft, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { motion } from "motion/react";
 import cn from "../../../utils/cn";
+import { stagger } from "../../../utils/motion";
 
 // Building blocks shared by the request and booking detail pages. The pages
 // set `@container` on their root, so these size to the page, not the window.
@@ -80,14 +82,18 @@ export const Panel = ({
   action,
   children,
   className,
+  index,
 }: {
   title: string;
   icon?: LucideIcon;
   action?: ReactNode;
   children: ReactNode;
   className?: string;
+  // Position on the page, so panels arrive one after another.
+  index?: number;
 }) => (
-  <section
+  <motion.section
+    {...stagger(index)}
     className={cn(
       "min-w-0 rounded-2xl border border-slate-200 bg-white p-5 @xl:p-6",
       className,
@@ -103,7 +109,7 @@ export const Panel = ({
       {action}
     </div>
     {children}
-  </section>
+  </motion.section>
 );
 
 // A label and value on one line, for money and short lists.

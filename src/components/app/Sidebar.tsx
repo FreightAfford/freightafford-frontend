@@ -14,6 +14,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import { motion } from "motion/react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { useLogout, useUser } from "../../hooks/useAuthService";
 import { useKycStatus } from "../../hooks/useKycService";
@@ -172,27 +173,49 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
                         onClick={close}
                         className={({ isActive }) =>
                           cn(
-                            "flex h-10 items-center gap-3 rounded-lg px-3 text-[0.9375rem] font-medium whitespace-nowrap transition-colors",
+                            "relative flex h-10 items-center gap-3 rounded-lg px-3 text-[0.9375rem] font-medium whitespace-nowrap transition-colors",
                             isActive
-                              ? "bg-brand text-white"
+                              ? "text-white"
                               : "text-slate-300 hover:bg-white/5 hover:text-white",
                           )
                         }
                       >
-                        <item.icon
-                          aria-hidden="true"
-                          className="h-[18px] w-[18px] shrink-0"
-                        />
-                        <span className="min-w-0 truncate">{item.name}</span>
-                        {item.path.endsWith("/verification") &&
-                          verificationPending && (
-                            <span
-                              title="Not verified yet"
-                              className="bg-ochre ml-auto h-2 w-2 shrink-0 rounded-full"
-                            >
-                              <span className="sr-only">Not verified yet</span>
+                        {({ isActive }) => (
+                          <>
+                            {/* One highlight, shared across items, so it
+                                glides to the page you pick. */}
+                            {isActive && (
+                              <motion.span
+                                layoutId="sidebar-active"
+                                aria-hidden="true"
+                                className="bg-brand absolute inset-0 rounded-lg"
+                                transition={{
+                                  type: "spring",
+                                  stiffness: 500,
+                                  damping: 40,
+                                }}
+                              />
+                            )}
+                            <item.icon
+                              aria-hidden="true"
+                              className="relative h-[18px] w-[18px] shrink-0"
+                            />
+                            <span className="relative min-w-0 truncate">
+                              {item.name}
                             </span>
-                          )}
+                            {item.path.endsWith("/verification") &&
+                              verificationPending && (
+                                <span
+                                  title="Not verified yet"
+                                  className="bg-ochre relative ml-auto h-2 w-2 shrink-0 rounded-full"
+                                >
+                                  <span className="sr-only">
+                                    Not verified yet
+                                  </span>
+                                </span>
+                              )}
+                          </>
+                        )}
                       </NavLink>
                     </li>
                   ))}

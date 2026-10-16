@@ -1,6 +1,7 @@
 import { Check, RotateCw, Ship, X } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
+import { stagger } from "../../../utils/motion";
 import { useNavigate, useSearchParams } from "react-router";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
@@ -86,11 +87,7 @@ const AdminRequests = () => {
     <>
       {ConfirmDialog}
       {hasAnyData || hasResults ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <motion.div {...stagger(0)} className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900">
             Freight Requests ({totalAll || 0})
           </h1>
@@ -137,8 +134,7 @@ const AdminRequests = () => {
         </div>
       )}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        {...stagger(1)}
         className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
       >
         {totalAll >= 10 && (

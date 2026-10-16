@@ -1,6 +1,7 @@
 import { Play, Plus, RotateCw, Ship, X } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
+import { stagger } from "../../../utils/motion";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../../../components/Button";
@@ -77,10 +78,7 @@ const CustomerRequests = () => {
         {/* Freight Request Heading */}
         {hasAnyData || !hasResults ? (
           <>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <motion.div {...stagger(0)}>
               <h1 className="text-2xl font-bold text-slate-900">
                 My Freight Requests ({totalAll || 0})
               </h1>
@@ -90,8 +88,7 @@ const CustomerRequests = () => {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
+              {...stagger(1)}
               className="flex flex-wrap items-center justify-end gap-2"
             >
               <Button
@@ -121,8 +118,7 @@ const CustomerRequests = () => {
 
       {/* Freight Request Table */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        {...stagger(2)}
         className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
       >
         {totalAll >= 10 && (

@@ -1,5 +1,7 @@
 import { type LucideIcon } from "lucide-react";
+import { motion } from "motion/react";
 import cn from "../../utils/cn";
+import { stagger } from "../../utils/motion";
 
 interface StatsCardProps {
   title: string;
@@ -8,6 +10,8 @@ interface StatsCardProps {
   description?: string;
   trend?: { value: string; isPositive: boolean };
   className?: string;
+  // Position in its grid, so cards arrive one after another.
+  index?: number;
 }
 
 const StatsCard = ({
@@ -17,11 +21,14 @@ const StatsCard = ({
   description,
   trend,
   className,
+  index,
 }: StatsCardProps) => {
   return (
-    <div
+    <motion.div
+      {...stagger(index)}
+      whileHover={{ y: -1 }}
       className={cn(
-        "rounded-2xl border border-slate-100 bg-white p-4 shadow-sm",
+        "rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md",
         className,
       )}
     >
@@ -49,7 +56,7 @@ const StatsCard = ({
           <p className="mt-1 text-xs text-slate-400">{description}</p>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 export default StatsCard;

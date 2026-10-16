@@ -346,7 +346,6 @@ const BookingDetails = () => {
           bookingId={booking._id}
           isStaff={user?.role === "admin" || user?.role === "cso"}
           hasReference={hasReference}
-          multipleContainers={(booking.containers?.length ?? 0) > 1}
           lastSyncedAt={booking.maerskSync?.lastSyncedAt}
           route={demoRoute}
         />

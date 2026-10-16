@@ -195,8 +195,11 @@ export const demoTracking = (id: string, route: DemoRoute): MaerskTracking => {
       location: step.location,
       vessel: "vessel" in step ? step.vessel : undefined,
       voyage: "voyage" in step ? step.voyage : undefined,
-      container: "MSKU7781230",
-      empty: "empty" in step ? step.empty : undefined,
+      // Like Maersk: only equipment events name the box, and say if it's empty
+      ...(step.type === "EQUIPMENT" && {
+        container: "MSKU7781230",
+        empty: "empty" in step ? step.empty : false,
+      }),
     };
   });
 

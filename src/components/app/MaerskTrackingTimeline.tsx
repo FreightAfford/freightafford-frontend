@@ -1,6 +1,7 @@
 import {
   Check,
   ChevronDown,
+  Container as ContainerIcon,
   FlaskConical,
   MapPin,
   Radar,
@@ -26,7 +27,6 @@ interface MaerskTrackingTimelineProps {
   bookingId: string;
   isStaff: boolean;
   hasReference: boolean;
-  multipleContainers: boolean;
   lastSyncedAt?: string;
   // Only used to build the development demo journey.
   route?: DemoRoute;
@@ -111,6 +111,11 @@ const whereNow = (
           ? `Delivered. The container left ${place(latest)}.`
           : `Container left ${place(latest)}.`;
     case "GTIN":
+      // An empty box coming back after arrival is the end of the journey
+      if (latest.empty)
+        return isActual(finalArrival)
+          ? `Delivered. The empty container was returned to ${place(latest)}.`
+          : `Empty container returned to ${place(latest)}.`;
       return `At ${place(latest)}, waiting to be loaded.`;
     case "LOAD":
       return `Loaded${vessel ? ` on ${vessel}` : ""} at ${place(latest)}.`;
@@ -125,9 +130,22 @@ const whereNow = (
         ? `Unloaded at ${place(latest)}, waiting for collection.`
         : `Unloaded to change vessels at ${place(latest)}.`;
     default:
-      return `${latest.label} at ${place(latest)}.`;
+      // Document events (booking confirmed, B/L issued) have no location
+      return latest.location?.name || latest.location?.code
+        ? `${latest.label} at ${place(latest)}.`
+        : `${latest.label}.`;
   }
 };
+
+// Boxes carrying the cargo, the same rule the server uses to save them: a
+// box only ever seen empty (picked up, then swapped) never held this cargo.
+const cargoContainers = (events: MaerskShipmentEvent[]) => [
+  ...new Set(
+    events
+      .filter((e) => e.type === "EQUIPMENT" && e.container && e.empty === false)
+      .map((e) => e.container!),
+  ),
+];
 
 const vesselKey = (e: MaerskShipmentEvent) =>
   e.vessel ? `${e.vessel.imo ?? e.vessel.name}|${e.voyage ?? ""}` : null;
@@ -138,7 +156,6 @@ const MaerskTrackingTimeline = ({
   bookingId,
   isStaff,
   hasReference,
-  multipleContainers,
   lastSyncedAt,
   route,
 }: MaerskTrackingTimelineProps) => {
@@ -156,12 +173,21 @@ const MaerskTrackingTimeline = ({
 
   const events = tracking?.events ?? [];
   const latest = [...events].reverse().find(isActual);
+  // Where the cargo is comes from movements; a later document event (e.g.
+  // "Bill of lading issued") says nothing about its position.
+  const latestMove = [...events]
+    .reverse()
+    .find((e) => isActual(e) && e.type !== "SHIPMENT");
   const stops = milestones(events);
   const latestStop = [...stops].reverse().find((s) => isActual(s.event));
   const finalArrival = [...events]
     .reverse()
     .find((e) => e.type === "TRANSPORT" && e.code === "ARRI");
   const arrived = isActual(finalArrival);
+  const containers = cargoContainers(events);
+  // Label each event with its box only when there's more than one to tell apart
+  const labelContainers =
+    new Set(events.map((e) => e.container).filter(Boolean)).size > 1;
   const canSync = (isStaff && hasReference) || demo;
 
   return (
@@ -259,7 +285,7 @@ const MaerskTrackingTimeline = ({
             {/* Where it is now, in plain words */}
             <div className="mb-6 rounded-xl bg-slate-50 px-5 py-4">
               <p className="font-display text-lg leading-snug font-bold text-slate-900 @xl:text-xl">
-                {whereNow(latest, finalArrival)}
+                {whereNow(latestMove ?? latest, finalArrival)}
               </p>
               <p className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
                 {!arrived && finalArrival && (
@@ -270,6 +296,22 @@ const MaerskTrackingTimeline = ({
                     />
                     Expected at {place(finalArrival)} around{" "}
                     {portDay(finalArrival.dateTime)}
+                  </span>
+                )}
+                {containers.length > 0 && (
+                  <span className="flex min-w-0 items-start gap-1.5">
+                    <ContainerIcon
+                      aria-hidden="true"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"
+                    />
+                    <span className="min-w-0">
+                      {containers.length === 1
+                        ? "Container"
+                        : `${containers.length} containers`}{" "}
+                      <span className="font-medium text-slate-700 tabular-nums">
+                        {containers.join(", ")}
+                      </span>
+                    </span>
                   </span>
                 )}
                 {latest && (
@@ -450,7 +492,7 @@ const MaerskTrackingTimeline = ({
                                 .filter(Boolean)
                                 .join(" · ")}
                             </p>
-                            {multipleContainers && event.container && (
+                            {labelContainers && event.container && (
                               <span className="mt-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600 tabular-nums">
                                 {event.container}
                               </span>

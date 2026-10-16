@@ -330,38 +330,42 @@ export const BillOfLadingManager = ({
               return (
                 <div
                   key={bl._id}
-                  className="hover:border-brand/20 hover:bg-brand/1 group max-small-mobile:items-end flex items-center justify-between gap-2 rounded-2xl border border-slate-50 p-4 transition-all"
+                  className="hover:border-brand/20 hover:bg-brand/1 group flex items-start gap-3 rounded-2xl border border-slate-100 p-3 transition-all @xl:gap-4 @xl:p-4"
                 >
-                  <div className="max-small-mobile:flex-col max-small-mobile:items-start flex items-center gap-4">
-                    <div className="bg-brand/5 group-hover:bg-brand flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all group-hover:text-white">
-                      <FileText className="text-brand h-6 w-6 group-hover:text-white" />
-                    </div>
-                    <div>
-                      <div className="mb-1 flex items-center gap-2">
-                        <Link
-                          to={bl.documentUrl}
-                          target="_blank"
-                          className="line-clamp-2 text-sm font-bold text-slate-900 capitalize"
-                        >
-                          {getDocTypeLabel(bl.type)}: {bl.fileName}
-                        </Link>
-                        <span
-                          className={`rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${getStatusColor(bl.status)}`}
-                        >
-                          {bl.status.replace("_", " ")}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 text-[10px] tracking-wider text-slate-400 uppercase">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />v{bl.version} •{" "}
-                          {moment(bl.createdAt).format("ll")}
-                        </span>
-                        <span>{formatFileSize(bl.fileSize)}</span>
-                      </div>
+                  <div className="bg-brand/5 group-hover:bg-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all group-hover:text-white @xl:h-12 @xl:w-12">
+                    <FileText className="text-brand h-5 w-5 group-hover:text-white @xl:h-6 @xl:w-6" />
+                  </div>
+
+                  {/* min-w-0 lets long, space-free file names wrap
+                      instead of pushing the actions out of the card */}
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      to={bl.documentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={bl.fileName}
+                      className="hover:text-brand line-clamp-2 text-sm font-bold wrap-anywhere text-slate-900"
+                    >
+                      {getDocTypeLabel(bl.type)}:{" "}
+                      <span className="font-medium text-slate-600">
+                        {bl.fileName}
+                      </span>
+                    </Link>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] tracking-wider text-slate-400 uppercase">
+                      <span
+                        className={`rounded-full border px-2 py-0.5 font-bold ${getStatusColor(bl.status)}`}
+                      >
+                        {bl.status.replace("_", " ")}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />v{bl.version} •{" "}
+                        {moment(bl.createdAt).format("ll")}
+                      </span>
+                      <span>{formatFileSize(bl.fileSize)}</span>
                     </div>
                   </div>
 
-                  <div className="max-small-mobile:opacity-100 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="max-small-mobile:opacity-100 flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
                     <Link
                       target="_blank"
                       rel="noopener noreferrer"

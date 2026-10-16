@@ -32,17 +32,19 @@ const DASHES_X =
 const DASHES_Y =
   "repeating-linear-gradient(180deg, rgb(255 255 255 / 0.28) 0 6px, transparent 6px 12px)";
 
-// The ship: rocks on the water, with a ripple spreading from it. Once it has
-// arrived it is moored, so it sits still.
+// The ship: a ripple spreads from it until it has arrived and is moored, and
+// it rocks on the water only while it is at sea.
 const ShipMarker = ({
   size,
   style,
   className,
+  atSea,
   docked,
 }: {
   size: "sm" | "md";
   style: CSSProperties;
   className: string;
+  atSea: boolean;
   docked: boolean;
 }) => (
   <span className={cn("absolute", className)} style={style}>
@@ -61,7 +63,7 @@ const ShipMarker = ({
       >
         <Ship
           className={cn(
-            !docked && "animate-ship-bob motion-reduce:animate-none",
+            atSea && "animate-ship-bob motion-reduce:animate-none",
             size === "md" ? "h-[18px] w-[18px]" : "h-3.5 w-3.5",
           )}
         />
@@ -140,6 +142,7 @@ const RouteLane = ({
               />
               <ShipMarker
                 size="sm"
+                atSea={moving}
                 docked={docked}
                 className="left-1/2 -translate-x-1/2 -translate-y-1/2"
                 style={{ top: along(18) }}
@@ -171,6 +174,7 @@ const RouteLane = ({
                 />
                 <ShipMarker
                   size="md"
+                  atSea={moving}
                   docked={docked}
                   className="top-1/2 -translate-x-1/2 -translate-y-1/2"
                   style={{ left: along(20) }}

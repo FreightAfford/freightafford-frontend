@@ -38,6 +38,7 @@ import {
 import ProgressTrack, {
   type TrackStep,
 } from "../../../components/app/details/ProgressTrack";
+import LaneStatus from "../../../components/app/details/LaneStatus";
 import RouteLane from "../../../components/app/details/RouteLane";
 import CargoPanel from "../../../components/app/details/CargoPanel";
 import LockedTracking from "../../../components/app/details/LockedTracking";
@@ -51,12 +52,16 @@ import {
   useGetBookingMaerskEvents,
   useGetSingleBooking,
 } from "../../../hooks/useBookingService";
-import type { MaerskTracking } from "../../../services/api/booking";
 import { isDemoTracking } from "../../../services/api/maerskMock";
 import { useConfirm } from "../../../hooks/useConfirm";
 import { useKycStatus } from "../../../hooks/useKycService";
 import { containersLabel, initials, money } from "../../../utils/format";
 import { useGetInvoiceByBooking } from "../../../hooks/useInvoiceService";
+import {
+  trackedProgress,
+  voyageMoving,
+  voyageProgress,
+} from "../../../utils/voyage";
 
 const day = (value?: string) =>
   value ? moment(value).format("D MMM YYYY") : undefined;
@@ -125,34 +130,6 @@ const bookingSteps = (booking: BookingLike): TrackStep[] => {
     },
     { label: "Delivered", state: state(4) },
   ];
-};
-
-// Where the ship sits on the route lane. At sea, it follows the time
-// elapsed between departure and arrival when both dates are known.
-const voyageProgress = (booking: BookingLike) => {
-  if (booking.status === "arrived" || booking.status === "delivered") return 1;
-  if (booking.status !== "in_transit") return 0;
-  const start = moment(booking.sailingDate);
-  const end = moment(booking.eta);
-  if (!booking.sailingDate || !booking.eta || !end.isAfter(start)) return 0.5;
-  const elapsed = moment().diff(start) / end.diff(start);
-  return Math.min(0.9, Math.max(0.1, elapsed));
-};
-
-// From tracking: how far between departure and arrival the latest actual
-// event sits.
-const trackedProgress = (tracking?: MaerskTracking) => {
-  if (!tracking?.summary.departure) return undefined;
-  if (tracking.summary.hasArrived) return 1;
-  if (!tracking.summary.hasDeparted) return 0;
-  const latest = [...tracking.events]
-    .reverse()
-    .find((e) => e.classifier === "ACT");
-  const start = moment(tracking.summary.departure.at);
-  const end = moment(tracking.summary.arrival?.at);
-  if (!latest || !end.isAfter(start)) return 0.5;
-  const share = moment(latest.dateTime).diff(start) / end.diff(start);
-  return Math.min(0.92, Math.max(0.08, share));
 };
 
 const BookingDetails = () => {
@@ -333,11 +310,7 @@ const BookingDetails = () => {
             code: request.destinationPortCode,
           }}
           progress={trackedProgress(tracking) ?? voyageProgress(booking)}
-          moving={
-            tracking
-              ? tracking.summary.hasDeparted && !tracking.summary.hasArrived
-              : booking.status === "in_transit"
-          }
+          moving={voyageMoving(booking, tracking)}
           middle={<LaneStatus tracking={tracking} status={booking.status} />}
         />
       )}
@@ -583,35 +556,4 @@ const BookingDetails = () => {
 };
 
 // One line under the lane: the latest tracking event, or the booking status.
-const LaneStatus = ({
-  tracking,
-  status,
-}: {
-  tracking?: MaerskTracking;
-  status: string;
-}) => {
-  const latest = [...(tracking?.events ?? [])]
-    .reverse()
-    .find((e) => e.classifier === "ACT");
-  if (latest)
-    return (
-      <p>
-        <span className="font-semibold text-white">{latest.label}</span>
-        {latest.location?.name && `, ${latest.location.name}`}
-        <span className="block text-slate-400">
-          {moment.parseZone(latest.dateTime).format("D MMM, HH:mm")} port time
-        </span>
-      </p>
-    );
-  const text: Record<string, string> = {
-    awaiting_confirmation: "Waiting for carrier confirmation",
-    confirmed: "Confirmed, waiting to sail",
-    in_transit: "At sea",
-    arrived: "Arrived at destination port",
-    delivered: "Delivered",
-    cancelled: "Booking cancelled",
-  };
-  return <p className="font-semibold text-white">{text[status] ?? status}</p>;
-};
-
 export default BookingDetails;

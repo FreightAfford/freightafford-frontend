@@ -6,6 +6,8 @@ import {
   RotateCw,
   X,
 } from "lucide-react";
+import LatestShipmentCard from "../../../components/app/LatestShipmentCard";
+import RotatingGreeting from "../../../components/app/RotatingGreeting";
 import StatsCard from "../../../components/app/StatsCard";
 import VerificationCard from "../../../components/app/VerificationCard";
 import Button from "../../../components/Button";
@@ -17,7 +19,8 @@ const CustomerOverview = () => {
   const { data, isPending, error, isRefetching, refetch } =
     useGetCustomerOverview();
 
-  if (isPending || isRefetching) return <SmallLoader />;
+  // Background refetches update in place; only a first load or retry waits.
+  if (isPending || (error && isRefetching)) return <SmallLoader />;
 
   if (error)
     return (
@@ -34,11 +37,9 @@ const CustomerOverview = () => {
     );
 
   return (
-    <>
+    <div className="@container">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">
-          Welcome back, Shipper
-        </h1>
+        <RotatingGreeting shipmentStatus={data?.latestShipment?.status} />
         <p className="mt-1 text-slate-500">
           Here's what's happening with your freight today.
         </p>
@@ -46,11 +47,14 @@ const CustomerOverview = () => {
 
       <VerificationCard />
 
+      {data && <LatestShipmentCard shipment={data.latestShipment ?? null} />}
+
       {/* Stats Grid */}
       {data && (
         <div className="max-medium-desktop:grid-cols-2 max-medium-mobile:grid-cols-1 mb-8 grid grid-cols-4 gap-6">
           <StatsCard
             index={0}
+            to="/app/customer/requests"
             title="Active Requests"
             value={data.totalRequests || 0}
             icon={FileSearch}
@@ -58,12 +62,14 @@ const CustomerOverview = () => {
           />
           <StatsCard
             index={1}
+            to="/app/customer/bookings"
             title="Active Bookings"
             value={data.totalBookings || 0}
             icon={CalendarCheck}
           />
           <StatsCard
             index={2}
+            to="/app/customer/documents"
             title="Bill of Ladings"
             value={data.bills || 0}
             icon={FileText}
@@ -71,6 +77,7 @@ const CustomerOverview = () => {
           />
           <StatsCard
             index={3}
+            to="/app/customer/invoices"
             title="Outstanding Invoices"
             value={`$${data.totalInvoiceAmount || 0}`}
             icon={Receipt}
@@ -161,7 +168,7 @@ const CustomerOverview = () => {
           </Table>
         </motion.div>
       </div> */}
-    </>
+    </div>
   );
 };
 export default CustomerOverview;

@@ -1,6 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, Lock, LogIn, Mail, MailWarning } from "lucide-react";
+import { AxiosError } from "axios";
+import {
+  AlertCircle,
+  Cookie,
+  Lock,
+  LogIn,
+  Mail,
+  MailWarning,
+  RotateCw,
+} from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
@@ -12,6 +21,7 @@ import TextLink from "../../components/auth/TextLink";
 import { useLogin, useResendOtp } from "../../hooks/useAuthService";
 import AuthSplitLayout from "../../layout/AuthSplitLayout";
 import { getKycApi } from "../../services/api/kyc";
+import { apiClient } from "../../services/configurations/apiConfig";
 import { AUTH_HEADING, AUTH_SUBMIT } from "../../utils/authStyles";
 import {
   loginSchema,
@@ -20,7 +30,19 @@ import {
 
 type LoginProblem =
   | { kind: "unverified"; email: string }
+  | { kind: "cookies" }
   | { kind: "error"; message: string };
+
+// Login sets an httpOnly cookie. If the browser refuses it, the next request
+// comes back 401 and the dashboard would bounce the user back here.
+const sessionCookieKept = () =>
+  apiClient
+    .get("/auth/me")
+    .then(() => true)
+    // Only a 401 means the cookie is missing; other failures aren't ours to explain.
+    .catch(
+      (err) => !(err instanceof AxiosError && err.response?.status === 401),
+    );
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -28,7 +50,10 @@ const LoginPage = () => {
   const { login, isPending } = useLogin();
   const queryClient = useQueryClient();
   const { resendOtp, isPending: isResending } = useResendOtp();
-  const [problem, setProblem] = useState<LoginProblem | null>(null);
+  // A browser with every cookie turned off says so up front.
+  const [problem, setProblem] = useState<LoginProblem | null>(() =>
+    navigator.cookieEnabled ? null : { kind: "cookies" },
+  );
 
   // Set by ProtectedRoute when someone was sent here from a dashboard page.
   const from = (location.state as { from?: string } | null)?.from;
@@ -42,9 +67,16 @@ const LoginPage = () => {
   });
 
   const onLogin = (data: LoginFormValues) => {
+    if (!navigator.cookieEnabled) return setProblem({ kind: "cookies" });
     setProblem(null);
     login(data, {
       onSuccess: async (res) => {
+        if (!(await sessionCookieKept())) {
+          // useLogin cached the user; drop it so no dashboard page opens.
+          queryClient.removeQueries({ queryKey: ["user"] });
+          return setProblem({ kind: "cookies" });
+        }
+
         const home = res.role === "admin" ? "/app/admin" : "/app/customer";
         // Only go back to a page this role can open.
         if (from?.startsWith(home)) return navigate(from, { replace: true });
@@ -152,6 +184,53 @@ const LoginPage = () => {
                 isLoading={isResending}
               >
                 Send code
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {problem?.kind === "cookies" && (
+          <div
+            role="alert"
+            className="border-ochre/40 bg-ochre/10 flex gap-3 rounded-xl border p-4"
+          >
+            <Cookie
+              aria-hidden="true"
+              className="mt-0.5 h-5 w-5 shrink-0 text-[#9a6a0c]"
+            />
+            <div className="min-w-0">
+              <p className="font-semibold text-slate-900">
+                Allow cookies to stay logged in
+              </p>
+              <p className="mt-1 text-sm text-slate-600">
+                Your browser is blocking the cookie that keeps you logged in, so
+                your dashboard can't open. This cookie is only used to keep you
+                logged in.
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600">
+                <li>
+                  <span className="font-medium text-slate-900">
+                    Chrome, Edge or Firefox:
+                  </span>{" "}
+                  open Settings, search for “cookies” and allow them for
+                  freightafford.com.
+                </li>
+                <li>
+                  <span className="font-medium text-slate-900">
+                    Safari on iPhone or Mac:
+                  </span>{" "}
+                  turn off “Block All Cookies” in Safari's settings.
+                </li>
+              </ul>
+              <Button
+                icon={RotateCw}
+                type="button"
+                size="sm"
+                className="mt-3"
+                onClick={handleSubmit(onLogin)}
+                isLoading={isPending}
+              >
+                I've allowed cookies, log in
               </Button>
             </div>
           </div>

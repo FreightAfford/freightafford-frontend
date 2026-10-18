@@ -136,30 +136,67 @@ const VerificationReview = () => {
       message: `${application.business.legalName} will see live tracking on their bookings straight away.`,
       confirmText: "Verify business",
       cancelText: "Keep reviewing",
+      variant: "success",
     });
     if (ok) review({ id, decision: "approve" });
   };
 
-  const requestChanges = () =>
-    review(
-      {
-        id,
-        decision: "changes",
-        notes: Object.fromEntries(
-          flagged.map((path) => [path, flags[path].trim()]),
-        ),
-      },
-      { onSuccess: () => setFlags({}) },
-    );
+  const requestChanges = async () => {
+    const ok = await confirm({
+      title: `Send ${flagged.length === 1 ? "this change" : `${flagged.length} changes`} back?`,
+      message:
+        "The business gets an email and sees each note next to its field. The application leaves your queue until they submit again.",
+      details: (
+        <ul className="space-y-2.5">
+          {flagged.map((path) => (
+            <li key={path}>
+              <p className="font-semibold text-slate-900">
+                {fieldLabel(path, application)}
+              </p>
+              <p className="mt-0.5 break-words text-slate-600">
+                {flags[path].trim()}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ),
+      confirmText: "Request changes",
+      cancelText: "Keep reviewing",
+      variant: "warning",
+      icon: MessageSquareWarning,
+    });
+    if (ok)
+      review(
+        {
+          id,
+          decision: "changes",
+          notes: Object.fromEntries(
+            flagged.map((path) => [path, flags[path].trim()]),
+          ),
+        },
+        { onSuccess: () => setFlags({}) },
+      );
+  };
 
   const reject = async () => {
     const ok = await confirm({
       title: "Reject this business?",
       message:
         "They won't be able to book, and they'll see your reason. Use Request changes instead if they can fix the problem.",
-      confirmText: "Reject",
+      details: (
+        <>
+          <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+            Your reason
+          </p>
+          <p className="mt-1 break-words whitespace-pre-line text-slate-800">
+            {reason.trim()}
+          </p>
+        </>
+      ),
+      confirmText: "Reject business",
       cancelText: "Keep reviewing",
       variant: "danger",
+      icon: Ban,
     });
     if (ok)
       review(

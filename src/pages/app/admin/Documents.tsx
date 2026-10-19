@@ -1,17 +1,10 @@
-import {
-  Clock,
-  ExternalLink,
-  Eye,
-  FileText,
-  RotateCw,
-  Ship,
-  X,
-} from "lucide-react";
+import { Clock, ExternalLink, Eye, FileText, Ship } from "lucide-react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router";
 import { getDocTypeLabel } from "../../../components/app/BillOfLadingManager";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
 import { useGetBLs } from "../../../hooks/useBLService";
 import { formatFileSize, getStatusColor } from "../../../utils/helpers";
@@ -24,15 +17,10 @@ const AdminDocuments = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading documents"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
+      <ErrorState
+        resource="documents"
+        error={error}
+        onRetry={() => refetch()}
       />
     );
 

@@ -1,10 +1,11 @@
-import { Eye, FileText, RotateCw, Ship, X } from "lucide-react";
+import { Eye, FileText, Ship } from "lucide-react";
 import moment from "moment";
 import { useNavigate } from "react-router";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
 import { useGetAllInvoices } from "../../../hooks/useInvoiceService";
 
@@ -17,16 +18,7 @@ const AdminInvoices = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading invoices"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
-      />
+      <ErrorState resource="invoices" error={error} onRetry={() => refetch()} />
     );
 
   return (

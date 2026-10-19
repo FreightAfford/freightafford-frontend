@@ -1,10 +1,10 @@
-import { CircleDot, Clock, Mail, RotateCw, Ship, X } from "lucide-react";
+import { CircleDot, Clock, Mail, Ship } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
 import { stagger } from "../../../utils/motion";
 import { useNavigate } from "react-router";
-import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
 import Pagination from "../../../components/app/Pagination";
 import StatsCard from "../../../components/app/StatsCard";
@@ -54,16 +54,7 @@ const Tickets = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading tickets"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
-      />
+      <ErrorState resource="tickets" error={error} onRetry={() => refetch()} />
     );
 
   return (

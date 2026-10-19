@@ -26,7 +26,7 @@ import {
 import { Link, useNavigate, useParams } from "react-router";
 import StatusBadge from "../../../components/app/StatusBadge";
 import Button from "../../../components/Button";
-import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
 import {
   useGetSingleTicket,
@@ -168,22 +168,7 @@ const TicketDetails = () => {
   if (isPending) return <SmallLoader />;
 
   if (error)
-    return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading tickets"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button
-            icon={ArrowLeft}
-            variant="outline"
-            onClick={() => navigate(-1)}
-          >
-            Go back
-          </Button>
-        }
-      />
-    );
+    return <ErrorState resource="this ticket" error={error} showBack />;
 
   return (
     <div className="space-y-8">

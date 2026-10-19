@@ -16,7 +16,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import StatusBadge from "../../../components/app/StatusBadge";
 import SubmitPaymentProofForm from "../../../components/app/SubmitPaymentProofForm";
 import Button from "../../../components/Button";
-import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import Modal from "../../../components/Modal";
 import SmallLoader from "../../../components/SmallLoader";
 import { useUser } from "../../../hooks/useAuthService";
@@ -39,22 +39,7 @@ const InvoiceDetails = () => {
   if (isPending) return <SmallLoader />;
 
   if (error)
-    return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading invoice"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button
-            icon={ArrowLeft}
-            variant="outline"
-            onClick={() => navigate(-1)}
-          >
-            Go back
-          </Button>
-        }
-      />
-    );
+    return <ErrorState resource="this invoice" error={error} showBack />;
 
   return (
     <>

@@ -1,10 +1,11 @@
-import { Check, RotateCw, Ship, X } from "lucide-react";
+import { Check, Ship, X } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
 import { stagger } from "../../../utils/motion";
 import { useNavigate, useSearchParams } from "react-router";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
 import Pagination from "../../../components/app/Pagination";
 import StatusBadge from "../../../components/app/StatusBadge";
@@ -71,16 +72,7 @@ const AdminRequests = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading requests"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
-      />
+      <ErrorState resource="requests" error={error} onRetry={() => refetch()} />
     );
 
   return (

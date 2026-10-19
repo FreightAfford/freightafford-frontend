@@ -1,6 +1,5 @@
 import {
   Anchor,
-  ArrowLeft,
   CalendarDays,
   ChartNoAxesGantt,
   Container,
@@ -15,7 +14,6 @@ import {
   RefreshCw,
   Ship,
   User,
-  X,
 } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
@@ -44,7 +42,7 @@ import CargoPanel from "../../../components/app/details/CargoPanel";
 import LockedTracking from "../../../components/app/details/LockedTracking";
 import VoyagePanel from "../../../components/app/details/VoyagePanel";
 import Button from "../../../components/Button";
-import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import Modal from "../../../components/Modal";
 import SmallLoader from "../../../components/SmallLoader";
 import { useUser } from "../../../hooks/useAuthService";
@@ -171,22 +169,7 @@ const BookingDetails = () => {
   if (isPending) return <SmallLoader />;
 
   if (sbError)
-    return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading booking"
-        description={sbError.message || "An unexpected error has occured."}
-        action={
-          <Button
-            icon={ArrowLeft}
-            variant="outline"
-            onClick={() => navigate(-1)}
-          >
-            Go back
-          </Button>
-        }
-      />
-    );
+    return <ErrorState resource="this booking" error={sbError} showBack />;
 
   const isAdmin = user?.role === "admin";
   const isCustomer = user?.role === "customer";

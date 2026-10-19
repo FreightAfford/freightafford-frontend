@@ -1,4 +1,4 @@
-import { RotateCw, Ship, X } from "lucide-react";
+import { Ship } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
 import { stagger } from "../../../utils/motion";
@@ -7,8 +7,8 @@ import Pagination from "../../../components/app/Pagination";
 import StatusBadge from "../../../components/app/StatusBadge";
 import { Table, TableCell, TableRow } from "../../../components/app/Table";
 import TableControls from "../../../components/app/TableControls";
-import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
 import { useGetAllUsers } from "../../../hooks/useAuthService";
 import { useTableQuery } from "../../../hooks/useTableQuery";
@@ -45,16 +45,7 @@ const AdminUsers = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading users"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
-      />
+      <ErrorState resource="users" error={error} onRetry={() => refetch()} />
     );
 
   return (

@@ -1,4 +1,4 @@
-import { Play, Plus, RotateCw, Ship, X } from "lucide-react";
+import { Play, Plus, Ship } from "lucide-react";
 import moment from "moment";
 import { motion } from "motion/react";
 import { stagger } from "../../../utils/motion";
@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import Modal from "../../../components/Modal";
 import PlayTutorial from "../../../components/PlayTutorial";
 import SmallLoader from "../../../components/SmallLoader";
@@ -60,15 +61,10 @@ const CustomerRequests = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading requests"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
+      <ErrorState
+        resource="your requests"
+        error={error}
+        onRetry={() => refetch()}
       />
     );
 

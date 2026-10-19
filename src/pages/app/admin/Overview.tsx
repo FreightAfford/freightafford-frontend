@@ -1,7 +1,6 @@
-import { FileSearch, Receipt, RotateCw, Ship, Users, X } from "lucide-react";
+import { FileSearch, Receipt, Ship, Users } from "lucide-react";
 import StatsCard from "../../../components/app/StatsCard";
-import Button from "../../../components/Button";
-import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
 import { useGetAdminOverview } from "../../../hooks/usePipelineService";
 
@@ -13,15 +12,10 @@ const AdminOverview = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading overview"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
+      <ErrorState
+        resource="the overview"
+        error={error}
+        onRetry={() => refetch()}
       />
     );
 

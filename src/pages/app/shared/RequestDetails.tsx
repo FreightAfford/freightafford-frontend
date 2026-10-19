@@ -1,5 +1,4 @@
 import {
-  ArrowLeft,
   Ban,
   CalendarClock,
   CalendarDays,
@@ -23,7 +22,7 @@ import moment from "moment";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import Button from "../../../components/Button";
-import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import Modal from "../../../components/Modal";
 import SmallLoader from "../../../components/SmallLoader";
 import CounterOfferForm from "../../../components/app/CounterOfferForm";
@@ -130,22 +129,7 @@ const RequestDetails = () => {
   if (isPending) return <SmallLoader />;
 
   if (error)
-    return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading requests"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button
-            icon={ArrowLeft}
-            variant="outline"
-            onClick={() => navigate(-1)}
-          >
-            Go back
-          </Button>
-        }
-      />
-    );
+    return <ErrorState resource="this request" error={error} showBack />;
 
   const isAdmin = user.role === "admin";
   const isCustomer = user.role === "customer";

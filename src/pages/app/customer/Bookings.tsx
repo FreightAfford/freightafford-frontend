@@ -1,4 +1,4 @@
-import { Plus, RotateCw, Ship, X } from "lucide-react";
+import { Plus, Ship } from "lucide-react";
 import { motion } from "motion/react";
 import { stagger } from "../../../utils/motion";
 import { useNavigate } from "react-router";
@@ -15,6 +15,7 @@ import {
 import TableControls from "../../../components/app/TableControls";
 import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
 import { useGetMyBookings } from "../../../hooks/useBookingService";
 import { useTableQuery } from "../../../hooks/useTableQuery";
@@ -51,15 +52,10 @@ const CustomerBookings = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading bookings"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
+      <ErrorState
+        resource="your bookings"
+        error={error}
+        onRetry={() => refetch()}
       />
     );
 

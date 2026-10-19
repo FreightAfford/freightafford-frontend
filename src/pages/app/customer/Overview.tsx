@@ -1,17 +1,9 @@
-import {
-  CalendarCheck,
-  FileSearch,
-  FileText,
-  Receipt,
-  RotateCw,
-  X,
-} from "lucide-react";
+import { CalendarCheck, FileSearch, FileText, Receipt } from "lucide-react";
 import LatestShipmentCard from "../../../components/app/LatestShipmentCard";
 import RotatingGreeting from "../../../components/app/RotatingGreeting";
 import StatsCard from "../../../components/app/StatsCard";
 import VerificationCard from "../../../components/app/VerificationCard";
-import Button from "../../../components/Button";
-import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
 import { useGetCustomerOverview } from "../../../hooks/usePipelineService";
 
@@ -24,15 +16,10 @@ const CustomerOverview = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading overview"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
+      <ErrorState
+        resource="your overview"
+        error={error}
+        onRetry={() => refetch()}
       />
     );
 

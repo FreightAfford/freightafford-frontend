@@ -14,7 +14,6 @@ import {
   MapPin,
   Package,
   Phone as PhoneIcon,
-  RotateCw,
   Save,
   Shield,
   User,
@@ -26,7 +25,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import Button from "../../../components/Button";
-import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
 import Input from "../../../components/Input";
 import Select from "../../../components/Select";
 import Textarea from "../../../components/Textarea";
@@ -100,15 +99,10 @@ const UserDetails = () => {
 
   if (error)
     return (
-      <EmptyState
-        icon={<X className="h-10 w-10 text-red-500" />}
-        title="Error loading user"
-        description={error.message || "An unexpected error has occured."}
-        action={
-          <Button icon={RotateCw} variant="outline" onClick={() => refetch()}>
-            Try again
-          </Button>
-        }
+      <ErrorState
+        resource="this user"
+        error={error}
+        onRetry={() => refetch()}
       />
     );
 

@@ -1,5 +1,6 @@
 import { Loader2, Ship, X } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useGetActiveVessels } from "../../hooks/useScheduleService";
 import { useSearchVessels } from "../../hooks/useVesselService";
 import type { Vessel } from "../../services/api/vessel";
 import cn from "../../utils/cn";
@@ -15,7 +16,32 @@ interface VesselSelectProps {
   error?: string;
   disabled?: boolean;
   className?: string;
+  // Suggest from Maersk's own fleet (the active vessels list) instead of
+  // searching every carrier's vessels
+  maerskFleet?: boolean;
 }
+
+const MAX_SUGGESTIONS = 15;
+
+// Fleet vessels matching what's typed: names starting with it first, then
+// any word starting with it, then an IMO number starting with it
+const matchFleet = (fleet: Vessel[], query: string) => {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+  const score = (v: Vessel) => {
+    const name = v.name.toLowerCase();
+    if (name.startsWith(q)) return 0;
+    if (name.split(/[\s.-]+/).some((word) => word.startsWith(q))) return 1;
+    if (v.imo?.startsWith(q)) return 2;
+    return 3;
+  };
+  return fleet
+    .map((v) => ({ v, s: score(v) }))
+    .filter(({ s }) => s < 3)
+    .sort((a, b) => a.s - b.s)
+    .slice(0, MAX_SUGGESTIONS)
+    .map(({ v }) => v);
+};
 
 const vesselDetails = (vessel: Vessel) =>
   [
@@ -26,9 +52,10 @@ const vesselDetails = (vessel: Vessel) =>
     .filter(Boolean)
     .join(" · ");
 
-// Typeahead backed by the Maersk Vessels API. Suggestions only: free text is
-// still accepted, since not every vessel is in Maersk's reference data. Picking
-// a suggestion also reports the vessel's IMO; typing clears it.
+// Typeahead backed by Maersk: its own fleet (the active vessels list, filtered
+// here) or the Vessels API for any carrier. Suggestions only: free text is
+// still accepted, since not every vessel is listed. Picking a suggestion also
+// reports the vessel's IMO; typing clears it.
 const VesselSelect = ({
   label,
   placeholder,
@@ -38,6 +65,7 @@ const VesselSelect = ({
   error,
   disabled,
   className,
+  maerskFleet = false,
 }: VesselSelectProps) => {
   const inputId = useId();
   const listId = useId();
@@ -48,11 +76,21 @@ const VesselSelect = ({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
 
-  const {
-    vessels,
-    isFetching,
-    error: searchError,
-  } = useSearchVessels(typing ? debounced : "");
+  const search = useSearchVessels(typing && !maerskFleet ? debounced : "");
+  const fleetList = useGetActiveVessels(maerskFleet);
+  const fleet = useMemo<Vessel[]>(
+    () =>
+      fleetList.vessels.map((v) => ({
+        name: v.name.toUpperCase(),
+        imo: v.imo,
+        flag: v.flag,
+        callSign: v.callSign,
+      })),
+    [fleetList.vessels],
+  );
+  const vessels = maerskFleet ? matchFleet(fleet, value) : search.vessels;
+  const isFetching = maerskFleet ? fleetList.isPending : search.isFetching;
+  const searchError = maerskFleet ? fleetList.error : search.error;
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(value), 300);
@@ -88,7 +126,9 @@ const VesselSelect = ({
   };
 
   const showDropdown = open && typing && value.trim().length >= 2;
-  const isSearching = isFetching || value.trim() !== debounced.trim();
+  // The fleet is filtered here, so only the API search waits on typing
+  const isSearching =
+    isFetching || (!maerskFleet && value.trim() !== debounced.trim());
   const canPick = showDropdown && !isSearching && vessels.length > 0;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

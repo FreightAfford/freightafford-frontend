@@ -81,7 +81,46 @@ export interface RouteSearchResult {
   fetchedAt: string;
 }
 
+export interface ActiveVessel {
+  imo: string;
+  name: string;
+  // ISO country code of the flag, e.g. "DK"
+  flag?: string;
+  callSign?: string;
+  // Maersk's own vessel code
+  code: string;
+}
+
+// One port on a vessel's rotation
+export interface VesselCall {
+  id: string;
+  port: { code: string; name: string; country: string };
+  terminal?: string;
+  service: { name: string; code: string };
+  voyageIn: string;
+  voyageOut?: string;
+  arrival: ScheduleTime;
+  departure: ScheduleTime;
+  cutOffs: { code: string; at: string }[];
+}
+
+export interface VesselScheduleResult {
+  vessel: {
+    name: string;
+    imo: string;
+    flag?: string;
+    callSign?: string;
+    builtYear?: number;
+  };
+  services: { name: string; code: string }[];
+  // In rotation order
+  calls: VesselCall[];
+  fetchedAt: string;
+}
+
 export const SCHEDULE_DAYS = [3, 7, 10, 14];
+// A vessel schedule shows this many weeks from the chosen date
+export const VESSEL_SCHEDULE_WEEKS = 12;
 // Maersk's own default (the container types are in data/containers.ts)
 export const DEFAULT_CONTAINER = "45G1";
 
@@ -90,9 +129,6 @@ export type RouteDateMode = "departing" | "arriving";
 
 // Every search covers four weeks from (or up to) the chosen date
 export const ROUTE_WINDOW_DAYS = 28;
-
-// The port the page opens on
-export const DEFAULT_PORT = "NGAPP";
 
 const rethrow = (error: unknown): never => {
   if (error instanceof AxiosError) throw error.response?.data;
@@ -136,6 +172,31 @@ export const getPortScheduleApi = async (
   try {
     const response = await apiClient.get("/schedules/ports", {
       params: { port, from, days },
+    });
+    return response.data.data;
+  } catch (error) {
+    return rethrow(error);
+  }
+};
+
+// Every vessel Maersk runs; changes rarely
+export const getActiveVesselsApi = async (): Promise<ActiveVessel[]> => {
+  try {
+    const response = await apiClient.get("/schedules/active-vessels");
+    return response.data.data;
+  } catch (error) {
+    return rethrow(error);
+  }
+};
+
+// One vessel's port calls for 12 weeks from the date
+export const getVesselScheduleApi = async (
+  imo: string,
+  from: string,
+): Promise<VesselScheduleResult> => {
+  try {
+    const response = await apiClient.get("/schedules/vessels", {
+      params: { imo, from },
     });
     return response.data.data;
   } catch (error) {

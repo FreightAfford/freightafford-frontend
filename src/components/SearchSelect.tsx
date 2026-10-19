@@ -18,6 +18,8 @@ interface SearchSelectProps {
   icon?: LucideIcon;
   disabled?: boolean;
   className?: string;
+  // Long lists show this many matches; typing narrows them
+  maxResults?: number;
 }
 
 // Options whose label starts with the query first, then any word starting
@@ -29,7 +31,8 @@ const rank = (options: SearchOption[], query: string) => {
     const label = o.label.toLowerCase();
     if (label.startsWith(q)) return 0;
     if (label.split(/[\s,()-]+/).some((word) => word.startsWith(q))) return 1;
-    if (label.includes(q) || o.hint?.toLowerCase() === q) return 2;
+    // The hint (a code, an IMO number) matches from its start
+    if (label.includes(q) || o.hint?.toLowerCase().startsWith(q)) return 2;
     return 3;
   };
   return options
@@ -52,6 +55,7 @@ const SearchSelect = ({
   icon,
   disabled,
   className,
+  maxResults,
 }: SearchSelectProps) => {
   const inputId = useId();
   const listId = useId();
@@ -63,7 +67,8 @@ const SearchSelect = ({
   const [active, setActive] = useState(0);
 
   const selected = options.find((o) => o.value === value);
-  const results = useMemo(() => rank(options, query), [options, query]);
+  const matches = useMemo(() => rank(options, query), [options, query]);
+  const results = maxResults ? matches.slice(0, maxResults) : matches;
 
   const close = () => {
     setOpen(false);
@@ -75,7 +80,7 @@ const SearchSelect = ({
     setOpen(true);
     // Start on the current choice so arrows move from there
     const index = options.findIndex((o) => o.value === value);
-    setActive(Math.max(index, 0));
+    setActive(index >= 0 && (!maxResults || index < maxResults) ? index : 0);
   };
 
   useEffect(() => {
@@ -223,6 +228,12 @@ const SearchSelect = ({
                   )}
                 </li>
               ))
+            )}
+            {results.length < matches.length && (
+              <li className="px-3 py-2.5 text-xs text-slate-500">
+                Showing {results.length} of {matches.length.toLocaleString()}{" "}
+                {noun}. Type to narrow the list.
+              </li>
             )}
           </ul>
         )}

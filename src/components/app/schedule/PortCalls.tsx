@@ -7,7 +7,7 @@ import {
   useGetPortSchedule,
 } from "../../../hooks/useScheduleService";
 import { useUrlState } from "../../../hooks/useUrlState";
-import { DEFAULT_PORT, SCHEDULE_DAYS } from "../../../services/api/schedule";
+import { SCHEDULE_DAYS } from "../../../services/api/schedule";
 import { stagger } from "../../../utils/motion";
 import {
   byArrival,
@@ -51,11 +51,9 @@ const PortCalls = () => {
     [ports],
   );
 
-  // A country with no port yet (just switched) waits for one to be picked.
+  // Nothing loads until the customer picks a port
   const countryParam = params.get("country")?.toUpperCase() ?? "";
-  const portCode = (
-    params.get("port") || (countryParam ? "" : DEFAULT_PORT)
-  ).toUpperCase();
+  const portCode = (params.get("port") ?? "").toUpperCase();
   const from = params.get("from") || today;
   const days = SCHEDULE_DAYS.includes(Number(params.get("days")))
     ? Number(params.get("days"))
@@ -170,11 +168,15 @@ const PortCalls = () => {
         >
           <EmptyState
             icon={<Anchor className="text-brand h-10 w-10" />}
-            title={`Choose a port in ${countryName}`}
+            title={
+              countryCode ? `Choose a port in ${countryName}` : "Choose a port"
+            }
             description={
-              countryPorts.length
-                ? `Maersk calls at ${countryPorts.length} ${countryPorts.length === 1 ? "port" : "ports"} there. Pick one to see its vessels and cargo deadlines.`
-                : "Pick a port to see its vessels and cargo deadlines."
+              !countryCode
+                ? "Pick a country, then a port, to see the vessels calling there and their cargo deadlines."
+                : countryPorts.length
+                  ? `Maersk calls at ${countryPorts.length} ${countryPorts.length === 1 ? "port" : "ports"} there. Pick one to see its vessels and cargo deadlines.`
+                  : "Pick a port to see its vessels and cargo deadlines."
             }
           />
         </motion.section>

@@ -1,8 +1,9 @@
-import { Anchor, Route, type LucideIcon } from "lucide-react";
+import { Anchor, Route, Ship, type LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
 import LockedSchedules from "../../../components/app/schedule/LockedSchedules";
 import PointToPoint from "../../../components/app/schedule/PointToPoint";
 import PortCalls from "../../../components/app/schedule/PortCalls";
+import VesselSchedule from "../../../components/app/schedule/VesselSchedule";
 import SmallLoader from "../../../components/SmallLoader";
 import { useUser } from "../../../hooks/useAuthService";
 import { useKycStatus } from "../../../hooks/useKycService";
@@ -10,7 +11,7 @@ import { useUrlState } from "../../../hooks/useUrlState";
 import cn from "../../../utils/cn";
 import { stagger } from "../../../utils/motion";
 
-type View = "ports" | "routes";
+type View = "ports" | "routes" | "vessel";
 
 const VIEWS: { id: View; label: string; icon: LucideIcon; blurb: string }[] = [
   {
@@ -27,6 +28,13 @@ const VIEWS: { id: View; label: string; icon: LucideIcon; blurb: string }[] = [
     blurb:
       "Every sailing between two ports, with transit time, stops and cargo deadlines.",
   },
+  {
+    id: "vessel",
+    label: "Vessel schedule",
+    icon: Ship,
+    blurb:
+      "Every port one vessel calls at, where it is now and the cargo deadlines ahead.",
+  },
 ];
 
 // Sailing schedules: one category, with a tab for each way to search. Staff
@@ -34,8 +42,8 @@ const VIEWS: { id: View; label: string; icon: LucideIcon; blurb: string }[] = [
 // the same).
 const Schedules = () => {
   const { params, update } = useUrlState();
-  const view: View = params.get("view") === "routes" ? "routes" : "ports";
-  const current = VIEWS.find((v) => v.id === view)!;
+  const current = VIEWS.find((v) => v.id === params.get("view")) ?? VIEWS[0];
+  const view = current.id;
 
   const { user, isPending: userPending } = useUser();
   const isCustomer = user?.role === "customer";
@@ -57,8 +65,8 @@ const Schedules = () => {
       <motion.div {...stagger(0)} className="mb-5">
         <h1 className="text-2xl font-bold text-slate-900">Sailing schedules</h1>
         <p className="mt-1 max-w-xl text-slate-500">
-          Find Maersk sailings by port or by route. All times are local to each
-          port.
+          Find Maersk sailings by port, by route or by vessel. All times are
+          local to each port.
         </p>
       </motion.div>
 
@@ -66,7 +74,8 @@ const Schedules = () => {
         <div
           role="tablist"
           aria-label="Schedule type"
-          className="inline-flex max-w-full flex-wrap gap-1 rounded-xl bg-slate-100 p-1"
+          // Three equal tabs on small screens, so none wraps on its own
+          className="small-tablet:inline-flex small-tablet:w-auto grid w-full grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1"
         >
           {VIEWS.map((v) => (
             <button
@@ -78,7 +87,7 @@ const Schedules = () => {
               aria-controls="schedule-panel"
               onClick={() => update({ view: v.id === "ports" ? "" : v.id })}
               className={cn(
-                "focus-visible:ring-brand/40 flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors outline-none focus-visible:ring-2",
+                "focus-visible:ring-brand/40 small-tablet:flex-row small-tablet:gap-2 small-tablet:px-3.5 small-tablet:text-sm flex min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1.5 py-2 text-center text-xs leading-tight font-semibold transition-colors outline-none focus-visible:ring-2",
                 v.id === view
                   ? "bg-white text-slate-900 shadow-sm"
                   : "text-slate-500 hover:text-slate-800",
@@ -99,7 +108,13 @@ const Schedules = () => {
       </motion.div>
 
       <div id="schedule-panel" role="tabpanel" aria-labelledby={`tab-${view}`}>
-        {view === "routes" ? <PointToPoint /> : <PortCalls />}
+        {view === "routes" ? (
+          <PointToPoint />
+        ) : view === "vessel" ? (
+          <VesselSchedule />
+        ) : (
+          <PortCalls />
+        )}
       </div>
     </>
   );

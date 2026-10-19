@@ -52,6 +52,7 @@ const UpdateShippingForm = ({
   const { isPending, updateBookingShipping } = useUpdateBookingShipping();
 
   const vesselImo = watch("vesselImo");
+  const shippingLine = watch("shippingLine");
   const onUpdateBookingShipping = (data: UpdateBookingShippingFormValues) =>
     updateBookingShipping(
       { id: bookingId, data },
@@ -92,6 +93,8 @@ const UpdateShippingForm = ({
               }}
               error={errors.vessel?.message}
               disabled={isPending}
+              // Maersk unless another line is picked: we ship with Maersk
+              maerskFleet={!shippingLine || shippingLine === "Maersk"}
             />
           )}
         />

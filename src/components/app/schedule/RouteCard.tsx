@@ -1,5 +1,5 @@
-import { ChevronDown, Clock, Lock, Ship } from "lucide-react";
-import moment, { type Moment } from "moment";
+import { ChevronDown } from "lucide-react";
+import type { Moment } from "moment";
 import { useId, useState } from "react";
 import type { RouteOption, RouteStop } from "../../../services/api/schedule";
 import cn from "../../../utils/cn";
@@ -11,13 +11,8 @@ import {
   transhipmentPorts,
   transitLabel,
 } from "../../../utils/routes";
-import {
-  deadlineState,
-  portDate,
-  portHour,
-  type CallStatus,
-} from "../../../utils/schedule";
-import { DeadlineTiles, StatusBadge } from "./CargoDeadlines";
+import { portDate } from "../../../utils/schedule";
+import { DeadlineTiles, NextStep, StatusBadge } from "./CargoDeadlines";
 import RouteDetails from "./RouteDetails";
 import RouteLine from "./RouteLine";
 
@@ -38,60 +33,6 @@ const End = ({ label, stop }: { label: string; stop: RouteStop }) => (
     </p>
   </div>
 );
-
-// One line under the summary saying what the customer has to do next
-const NextStep = ({
-  status,
-  next,
-  now,
-}: {
-  status: CallStatus;
-  next?: { label: string; at: string };
-  now: Moment;
-}) => {
-  if (next) {
-    const soon = deadlineState(next.at, now) === "soon";
-    return (
-      <p
-        className={cn(
-          "flex items-start gap-2 text-sm",
-          soon ? "text-[#9a6a0c]" : "text-slate-700",
-        )}
-      >
-        <Clock
-          aria-hidden="true"
-          className={cn(
-            "mt-0.5 h-4 w-4 shrink-0",
-            soon ? "text-[#9a6a0c]" : "text-brand",
-          )}
-        />
-        <span>
-          Next deadline:{" "}
-          <span className="font-semibold">
-            {next.label}, {portDate(next.at)} {portHour(next.at)}
-          </span>{" "}
-          (closes {moment(next.at).from(now)})
-        </span>
-      </p>
-    );
-  }
-  const text: Partial<Record<CallStatus, string>> = {
-    // Closed when any deadline every cargo must meet has passed
-    closed: "Too late to book: a cargo deadline for this sailing has passed.",
-    departed: "This sailing has already departed.",
-    unknown: "Maersk hasn't published the deadlines for this sailing yet.",
-  };
-  return (
-    <p className="flex items-start gap-2 text-sm text-slate-600">
-      {status === "departed" ? (
-        <Ship aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-      ) : (
-        <Lock aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-      )}
-      {text[status]}
-    </p>
-  );
-};
 
 interface RouteCardProps {
   route: RouteOption;
@@ -118,53 +59,57 @@ const RouteCard = ({ route, now }: RouteCardProps) => {
       <article
         aria-label={`Departs ${portDate(route.departs.at)}, arrives ${portDate(route.arrives.at)}`}
       >
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] @4xl:items-start @4xl:gap-x-6">
-          <End label="Departure" stop={route.departs} />
-          <End label="Arrival" stop={route.arrives} />
-          <div className="min-w-0">
-            <p className={LABEL}>Vessel/Voyage</p>
-            <p className="text-harbour font-semibold wrap-break-word uppercase">
-              {first?.vessel?.name ?? "To be named"}
-            </p>
-            <p className="text-sm text-slate-600 tabular-nums">
-              {first?.voyage}
-              {otherVessels > 0 &&
-                ` + ${otherVessels} more ${otherVessels === 1 ? "vessel" : "vessels"}`}
-            </p>
+        {/* The summary is sized by the card's own width; the route below
+            keeps the page's */}
+        <div className="@container">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 @xl:grid-cols-[minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.3fr)_minmax(0,1.3fr)] @xl:gap-x-5 @3xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.2fr)_auto] @3xl:items-start @3xl:gap-x-6">
+            <End label="Departure" stop={route.departs} />
+            <End label="Arrival" stop={route.arrives} />
+            <div className="min-w-0">
+              <p className={LABEL}>Vessel/Voyage</p>
+              <p className="text-harbour font-semibold wrap-break-word uppercase">
+                {first?.vessel?.name ?? "To be named"}
+              </p>
+              <p className="text-sm text-slate-600 tabular-nums">
+                {first?.voyage}
+                {otherVessels > 0 &&
+                  ` + ${otherVessels} more ${otherVessels === 1 ? "vessel" : "vessels"}`}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className={LABEL}>Transit time</p>
+              <p className="font-semibold text-slate-900">
+                {transitLabel(route)}
+              </p>
+              <p className="text-sm text-slate-600">
+                {transhipmentLabel(route)}
+                {via.length > 0 && ` via ${listJoin(via)}`}
+              </p>
+            </div>
+            <div className="col-span-2 @xl:col-span-4 @3xl:col-span-1">
+              <StatusBadge status={status} />
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className={LABEL}>Transit time</p>
-            <p className="font-semibold text-slate-900">
-              {transitLabel(route)}
-            </p>
-            <p className="text-sm text-slate-600">
-              {transhipmentLabel(route)}
-              {via.length > 0 && ` via ${listJoin(via)}`}
-            </p>
-          </div>
-          <div className="col-span-2 @4xl:col-span-1">
-            <StatusBadge status={status} />
-          </div>
-        </div>
 
-        <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-3 @2xl:flex-row @2xl:items-center @2xl:justify-between">
-          <NextStep status={status} next={next} now={now} />
-          <button
-            type="button"
-            onClick={() => setOpen((value) => !value)}
-            aria-expanded={open}
-            aria-controls={detailsId}
-            className="text-brand focus-visible:ring-brand/40 inline-flex shrink-0 items-center gap-1.5 self-start rounded-md text-sm font-semibold outline-none hover:underline focus-visible:ring-2 @2xl:self-auto"
-          >
-            <ChevronDown
-              aria-hidden="true"
-              className={cn(
-                "h-4 w-4 transition-transform motion-reduce:transition-none",
-                open && "rotate-180",
-              )}
-            />
-            {open ? "Hide route and deadlines" : "Show route and deadlines"}
-          </button>
+          <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-3 @xl:flex-row @xl:items-center @xl:justify-between">
+            <NextStep status={status} next={next} now={now} />
+            <button
+              type="button"
+              onClick={() => setOpen((value) => !value)}
+              aria-expanded={open}
+              aria-controls={detailsId}
+              className="text-brand focus-visible:ring-brand/40 inline-flex shrink-0 items-center gap-1.5 self-start rounded-md text-sm font-semibold outline-none hover:underline focus-visible:ring-2 @xl:self-auto"
+            >
+              <ChevronDown
+                aria-hidden="true"
+                className={cn(
+                  "h-4 w-4 transition-transform motion-reduce:transition-none",
+                  open && "rotate-180",
+                )}
+              />
+              {open ? "Hide route and deadlines" : "Show route and deadlines"}
+            </button>
+          </div>
         </div>
 
         {open && (

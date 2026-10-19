@@ -1,54 +1,9 @@
 import type { Moment } from "moment";
-import type { PortCall, ScheduleTime } from "../../../services/api/schedule";
+import type { PortCall } from "../../../services/api/schedule";
 import cn from "../../../utils/cn";
-import {
-  bestTime,
-  callStatus,
-  portDate,
-  portHour,
-  shiftDays,
-  voyageLabel,
-} from "../../../utils/schedule";
+import { callStatus, voyageLabel } from "../../../utils/schedule";
+import CallTime from "./CallTime";
 import { DeadlineTiles, StatusBadge } from "./CargoDeadlines";
-
-const Time = ({ time, label }: { time: ScheduleTime; label: string }) => {
-  const at = bestTime(time);
-  const shift = shiftDays(time);
-  return (
-    <div>
-      <p className="text-xs text-slate-500">{label}</p>
-      {at ? (
-        <>
-          <time dateTime={at} className="block tabular-nums">
-            <span className="block font-semibold whitespace-nowrap text-slate-900">
-              {portDate(at)}
-            </span>
-            <span className="block text-sm text-slate-500">{portHour(at)}</span>
-          </time>
-          {shift !== 0 && (
-            <p
-              className={cn(
-                "mt-1 text-xs font-semibold",
-                shift > 0 ? "text-[#9a6a0c]" : "text-kelp",
-              )}
-              title={
-                time.planned
-                  ? `Planned for ${portDate(time.planned)}, ${portHour(time.planned)}`
-                  : undefined
-              }
-            >
-              {shift > 0
-                ? `Delayed ${shift} ${shift === 1 ? "day" : "days"}`
-                : `${-shift} ${shift === -1 ? "day" : "days"} early`}
-            </p>
-          )}
-        </>
-      ) : (
-        <p className="text-slate-400">N/A</p>
-      )}
-    </div>
-  );
-};
 
 interface PortCallRowProps {
   call: PortCall;
@@ -65,9 +20,10 @@ const PortCallRow = ({ call, terminal, now }: PortCallRowProps) => {
   return (
     // Each call is its own card, so one ends clearly before the next
     <li className="rounded-xl border border-slate-200 bg-white px-4 py-5 shadow-[0_1px_2px_rgb(15_23_43/0.05)] @xl:px-5">
-      <article aria-label={name}>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3 @3xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] @3xl:gap-x-6">
-          <div className="col-span-2 min-w-0 @3xl:col-span-1">
+      {/* Sized by the card's own width */}
+      <article aria-label={name} className="@container">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3 @xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] @xl:gap-x-6">
+          <div className="col-span-2 min-w-0 @md:col-span-1">
             <p className="text-xs text-slate-500">Vessel/Voyage</p>
             <h3
               className={cn(
@@ -86,14 +42,14 @@ const PortCallRow = ({ call, terminal, now }: PortCallRowProps) => {
               <StatusBadge status={status} />
             </div>
           </div>
-          <div className="col-span-2 min-w-0 @3xl:col-span-1">
+          <div className="col-span-2 min-w-0 @md:col-span-1">
             <p className="text-xs text-slate-500">Terminal</p>
             <p className="font-semibold wrap-break-word text-slate-900">
               {terminal}
             </p>
           </div>
-          <Time time={call.arrival} label="Arrival" />
-          <Time time={call.departure} label="Departure" />
+          <CallTime time={call.arrival} label="Arrival" />
+          <CallTime time={call.departure} label="Departure" />
         </div>
 
         <DeadlineTiles cutOffs={call.cutOffs} next={next} now={now} />

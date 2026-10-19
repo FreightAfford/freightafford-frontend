@@ -1,9 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getActivePortsApi,
+  getActiveVesselsApi,
+  getVesselScheduleApi,
   getPortScheduleApi,
   getRoutesApi,
   type ActivePort,
+  type ActiveVessel,
+  type VesselScheduleResult,
   type PortScheduleResult,
   type RouteDateMode,
   type RouteSearchResult,
@@ -69,6 +73,41 @@ export const useGetPortSchedule = (
       queryKey: ["portSchedule", code, from, days],
       queryFn: () => getPortScheduleApi(code, from, days),
       enabled: !!code && !!from,
+      // Maersk allows 50 schedule calls an hour: no retries or focus refetches
+      staleTime: 6 * 60 * 60 * 1000,
+      retry: false,
+      refetchOnWindowFocus: false,
+    });
+
+  return {
+    schedule: data,
+    isPending,
+    isFetching,
+    error: error as ApiError,
+    refetch,
+  };
+};
+
+// Every vessel Maersk runs; changes rarely
+export const useGetActiveVessels = (enabled = true) => {
+  const { data, isPending, error, refetch } = useQuery<ActiveVessel[]>({
+    queryKey: ["activeVessels"],
+    queryFn: getActiveVesselsApi,
+    enabled,
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
+  return { vessels: data ?? [], isPending, error: error as ApiError, refetch };
+};
+
+export const useGetVesselSchedule = (imo: string, from: string) => {
+  const { data, isPending, isFetching, error, refetch } =
+    useQuery<VesselScheduleResult>({
+      queryKey: ["vesselSchedule", imo, from],
+      queryFn: () => getVesselScheduleApi(imo, from),
+      enabled: !!imo && !!from,
       // Maersk allows 50 schedule calls an hour: no retries or focus refetches
       staleTime: 6 * 60 * 60 * 1000,
       retry: false,

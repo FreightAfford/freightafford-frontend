@@ -221,3 +221,57 @@ export const DeadlineTiles = ({ cutOffs, next, now }: DeadlineTilesProps) => {
     </>
   );
 };
+
+// One line under the summary saying what the customer has to do next
+export const NextStep = ({
+  status,
+  next,
+  now,
+}: {
+  status: CallStatus;
+  next?: { label: string; at: string };
+  now: Moment;
+}) => {
+  if (next) {
+    const soon = deadlineState(next.at, now) === "soon";
+    return (
+      <p
+        className={cn(
+          "flex items-start gap-2 text-sm",
+          soon ? "text-[#9a6a0c]" : "text-slate-700",
+        )}
+      >
+        <Clock
+          aria-hidden="true"
+          className={cn(
+            "mt-0.5 h-4 w-4 shrink-0",
+            soon ? "text-[#9a6a0c]" : "text-brand",
+          )}
+        />
+        <span>
+          Next deadline:{" "}
+          <span className="font-semibold">
+            {next.label}, {portDate(next.at)} {portHour(next.at)}
+          </span>{" "}
+          (closes {moment(next.at).from(now)})
+        </span>
+      </p>
+    );
+  }
+  const text: Partial<Record<CallStatus, string>> = {
+    // Closed when any deadline every cargo must meet has passed
+    closed: "Too late to book: a cargo deadline for this sailing has passed.",
+    departed: "This sailing has already departed.",
+    unknown: "Maersk hasn't published the deadlines for this sailing yet.",
+  };
+  return (
+    <p className="flex items-start gap-2 text-sm text-slate-600">
+      {status === "departed" ? (
+        <Ship aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+      ) : (
+        <Lock aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+      )}
+      {text[status]}
+    </p>
+  );
+};

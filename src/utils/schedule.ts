@@ -33,7 +33,7 @@ export const DEADLINES: { code: string; label: string; short?: string }[] = [
   },
 ];
 
-export const deadline = (call: PortCall, code: string) =>
+export const deadline = (call: Pick<PortCall, "cutOffs">, code: string) =>
   call.cutOffs.find((c) => c.code === code)?.at;
 
 // "639S | 642N", or the one voyage when import and export match.
@@ -83,7 +83,7 @@ const APPLIES_TO_ALL_CARGO = (code: string) => code !== "DGC";
 // so one that has passed closes the sailing; otherwise the earliest one
 // still open decides.
 export const callStatus = (
-  call: PortCall,
+  call: Pick<PortCall, "cutOffs" | "departure">,
   now: Moment,
 ): {
   status: CallStatus;
@@ -102,7 +102,10 @@ export const callStatus = (
     (d) =>
       APPLIES_TO_ALL_CARGO(d.code) && deadlineState(d.at, now) === "closed",
   );
-  const next = published.find((d) => deadlineState(d.at, now) !== "closed");
+  // The earliest open deadline every cargo has to meet; dangerous goods only
+  // when nothing else is left
+  const open = published.filter((d) => deadlineState(d.at, now) !== "closed");
+  const next = open.find((d) => APPLIES_TO_ALL_CARGO(d.code)) ?? open[0];
   if (missed || !next) return { status: "closed" };
   return {
     status: deadlineState(next.at, now) === "soon" ? "soon" : "accepting",

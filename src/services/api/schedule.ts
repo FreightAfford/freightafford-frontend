@@ -39,7 +39,57 @@ export interface ActivePort {
   country: string;
 }
 
+// A port on a route; `at` keeps the port's own UTC offset
+export interface RouteStop {
+  code: string;
+  name: string;
+  terminal?: string;
+  at: string;
+}
+
+export interface RouteLeg {
+  // VESSEL, BARGE, RAIL, TRUCK, …
+  mode: string;
+  vessel: {
+    name: string;
+    imo?: string;
+    // ISO country code of the flag, e.g. "LR"
+    flag?: string;
+    callSign?: string;
+    builtYear?: number;
+  } | null;
+  service?: string;
+  voyage?: string;
+  from: RouteStop;
+  to: RouteStop;
+}
+
+export interface RouteOption {
+  // Maersk's routingReference, which booking will need later
+  id: string;
+  departs: RouteStop;
+  arrives: RouteStop;
+  transitDays: number;
+  legs: RouteLeg[];
+  cutOffs: { code: string; at: string }[];
+}
+
+export interface RouteSearchResult {
+  origin: string;
+  destination: string;
+  routes: RouteOption[];
+  fetchedAt: string;
+}
+
 export const SCHEDULE_DAYS = [3, 7, 10, 14];
+// Maersk's own default (the container types are in data/containers.ts)
+export const DEFAULT_CONTAINER = "45G1";
+
+// Search by departure date, or by the date the cargo must arrive by
+export type RouteDateMode = "departing" | "arriving";
+
+// Every search covers four weeks from (or up to) the chosen date
+export const ROUTE_WINDOW_DAYS = 28;
 
 // The port the page opens on
 export const DEFAULT_PORT = "NGAPP";
@@ -53,6 +103,25 @@ const rethrow = (error: unknown): never => {
 export const getActivePortsApi = async (): Promise<ActivePort[]> => {
   try {
     const response = await apiClient.get("/schedules/active-ports");
+    return response.data.data;
+  } catch (error) {
+    return rethrow(error);
+  }
+};
+
+// Maersk routes for four weeks from (departing) or up to (arriving by) the
+// date, for one container type
+export const getRoutesApi = async (
+  origin: string,
+  destination: string,
+  mode: RouteDateMode,
+  date: string,
+  container: string,
+): Promise<RouteSearchResult> => {
+  try {
+    const response = await apiClient.get("/schedules/routes", {
+      params: { origin, destination, by: mode, date, container },
+    });
     return response.data.data;
   } catch (error) {
     return rethrow(error);

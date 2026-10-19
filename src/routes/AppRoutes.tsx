@@ -7,7 +7,6 @@ import AdminInvoices from "../pages/app/admin/Invoices";
 import AdminLogs from "../pages/app/admin/Logs";
 import AdminOverview from "../pages/app/admin/Overview";
 import AdminRequests from "../pages/app/admin/Requests";
-import AdminSchedules from "../pages/app/admin/Schedules";
 import Tickets from "../pages/app/admin/Tickets";
 import AdminUsers from "../pages/app/admin/Users";
 import AdminVerificationReview from "../pages/app/admin/verifications/VerificationReview";
@@ -24,6 +23,7 @@ import CustomerVerification from "../pages/app/customer/verification/Verificatio
 import BookingDetails from "../pages/app/shared/BookingDetails";
 import InvoiceDetails from "../pages/app/shared/InvoiceDetails";
 import RequestDetails from "../pages/app/shared/RequestDetails";
+import Schedules from "../pages/app/shared/Schedules";
 import TicketDetails from "../pages/app/shared/TicketDetails";
 import UserDetails from "../pages/app/shared/UserDetails";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
@@ -108,6 +108,7 @@ const AppRoutes = createBrowserRouter([
           { path: "requests/:id", Component: RequestDetails },
           { path: "bookings", Component: CustomerBookings },
           { path: "bookings/:id", Component: BookingDetails },
+          { path: "schedule", Component: Schedules },
           { path: "documents", Component: CustomerDocuments },
           { path: "invoices", Component: CustomerInvoices },
           { path: "invoices/:id", Component: InvoiceDetails },
@@ -132,7 +133,7 @@ const AppRoutes = createBrowserRouter([
           { path: "requests/:id", Component: RequestDetails },
           { path: "bookings", Component: AdminBookings },
           { path: "bookings/:id", Component: BookingDetails },
-          { path: "schedule", Component: AdminSchedules },
+          { path: "schedule", Component: Schedules },
           { path: "tickets", Component: Tickets },
           { path: "tickets/:id", Component: TicketDetails },
           { path: "documents", Component: AdminDocuments },

@@ -1,7 +1,11 @@
 import { Anchor, Route, type LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
+import LockedSchedules from "../../../components/app/schedule/LockedSchedules";
 import PointToPoint from "../../../components/app/schedule/PointToPoint";
 import PortCalls from "../../../components/app/schedule/PortCalls";
+import SmallLoader from "../../../components/SmallLoader";
+import { useUser } from "../../../hooks/useAuthService";
+import { useKycStatus } from "../../../hooks/useKycService";
 import { useUrlState } from "../../../hooks/useUrlState";
 import cn from "../../../utils/cn";
 import { stagger } from "../../../utils/motion";
@@ -25,11 +29,28 @@ const VIEWS: { id: View; label: string; icon: LucideIcon; blurb: string }[] = [
   },
 ];
 
-// Sailing schedules: one category, with a tab for each way to search.
-const AdminSchedules = () => {
+// Sailing schedules: one category, with a tab for each way to search. Staff
+// always see it; customers once their business is verified (the API checks
+// the same).
+const Schedules = () => {
   const { params, update } = useUrlState();
   const view: View = params.get("view") === "routes" ? "routes" : "ports";
   const current = VIEWS.find((v) => v.id === view)!;
+
+  const { user, isPending: userPending } = useUser();
+  const isCustomer = user?.role === "customer";
+  const { status, isPending: kycPending } = useKycStatus(isCustomer);
+
+  // Wait to know who's looking, so a customer never sees the search first
+  if (userPending || (isCustomer && kycPending))
+    return (
+      <div className="flex items-center justify-center gap-2 p-10 text-slate-500">
+        <SmallLoader /> Loading…
+      </div>
+    );
+
+  // Unverified customers see what verification unlocks, with no search
+  if (isCustomer && status !== "approved") return <LockedSchedules />;
 
   return (
     <>
@@ -83,4 +104,4 @@ const AdminSchedules = () => {
     </>
   );
 };
-export default AdminSchedules;
+export default Schedules;

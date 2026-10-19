@@ -12,13 +12,15 @@ const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const { user } = useUser();
   const { pathname } = useLocation();
-  // Overview has its own verification card, and the verification page is
-  // where the banner would send them anyway.
+  // Overview and Sailing schedules have their own verification message, and
+  // the verification page is where the banner would send them anyway.
   const showBanner =
     user?.role === "customer" &&
-    !["/app/customer", "/app/customer/verification"].includes(
-      pathname.replace(/\/$/, ""),
-    );
+    ![
+      "/app/customer",
+      "/app/customer/verification",
+      "/app/customer/schedule",
+    ].includes(pathname.replace(/\/$/, ""));
 
   return (
     <MotionConfig

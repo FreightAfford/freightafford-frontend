@@ -44,6 +44,11 @@ const CUSTOMER_NAV: NavGroup[] = [
         path: "/app/customer/requests",
       },
       { name: "Bookings", icon: CalendarCheck, path: "/app/customer/bookings" },
+      {
+        name: "Schedules",
+        icon: CalendarClock,
+        path: "/app/customer/schedule",
+      },
       { name: "Documents", icon: FileText, path: "/app/customer/documents" },
       { name: "Invoices", icon: Receipt, path: "/app/customer/invoices" },
     ],

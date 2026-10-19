@@ -1,5 +1,6 @@
 import {
   CalendarCheck,
+  CalendarClock,
   FileSearch,
   FileText,
   FileUp,
@@ -80,6 +81,7 @@ const ADMIN_NAV: NavGroup[] = [
         path: "/app/admin/requests",
       },
       { name: "Bookings", icon: CalendarCheck, path: "/app/admin/bookings" },
+      { name: "Schedules", icon: CalendarClock, path: "/app/admin/schedule" },
       { name: "Documents", icon: FileUp, path: "/app/admin/documents" },
       { name: "Invoices", icon: Receipt, path: "/app/admin/invoices" },
     ],

@@ -17,6 +17,7 @@ import CustomerDocuments from "../pages/app/customer/Documents";
 import CustomerInvoices from "../pages/app/customer/Invoices";
 import CustomerOverview from "../pages/app/customer/Overview";
 import CustomerProfile from "../pages/app/customer/Profile";
+import CustomerRates from "../pages/app/customer/Rates";
 import CustomerRequests from "../pages/app/customer/Requests";
 import CustomerSupport from "../pages/app/customer/Support";
 import CustomerVerification from "../pages/app/customer/verification/Verification";
@@ -109,6 +110,7 @@ const AppRoutes = createBrowserRouter([
           { path: "bookings", Component: CustomerBookings },
           { path: "bookings/:id", Component: BookingDetails },
           { path: "schedule", Component: Schedules },
+          { path: "rates", Component: CustomerRates },
           { path: "documents", Component: CustomerDocuments },
           { path: "invoices", Component: CustomerInvoices },
           { path: "invoices/:id", Component: InvoiceDetails },

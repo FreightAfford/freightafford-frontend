@@ -12,15 +12,17 @@ import {
   Weight,
   X,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useEffect, useState, type ReactNode } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useConfirm } from "../../hooks/useConfirm";
+import { useSearchCommodities } from "../../hooks/useCommodityService";
 import { useCreateFreightRequest } from "../../hooks/useFreightService";
 import type { Commodity } from "../../services/api/commodity";
 import {
   formatPortLabel,
   type PortLocation,
 } from "../../services/api/location";
+import type { Rate } from "../../services/api/rate";
 import cn from "../../utils/cn";
 import {
   freightRequestSchema,
@@ -34,6 +36,7 @@ import Input from "../Input";
 import Textarea from "../Textarea";
 import CommoditySelect from "./CommoditySelect";
 import PortPair from "./PortPair";
+import RateQuoteSummary from "./rates/RateQuoteSummary";
 
 const CONTAINER_SIZES = [
   { value: "20ft Std", size: "20ft", kind: "Standard" },
@@ -69,6 +72,8 @@ export interface FreightRequestInitial {
   destination?: PortLocation | null;
   containerSize?: FreightRequestFormValues["containerSize"];
   containerQuantity?: number;
+  // The contract rate the request starts from, shown at the top.
+  rate?: Rate;
 }
 
 const FreightRequestForm = ({
@@ -93,6 +98,9 @@ const FreightRequestForm = ({
     initial?.destination ?? null,
   );
   const [commodity, setCommodity] = useState<Commodity | null>(null);
+  // Once they pick or clear a commodity, the rate's suggestion stops applying.
+  const [commodityTouched, setCommodityTouched] = useState(false);
+  const rate = initial?.rate;
 
   // Tracks which button triggered the current submit, so onSuccess knows whether to close or clone
   const [submitIntent, setSubmitIntent] = useState<"done" | "clone">("done");
@@ -131,7 +139,26 @@ const FreightRequestForm = ({
     setValue(field, loc?.code ?? "", { shouldValidate: isSubmitted });
   };
 
+  // A rate names its commodity the way Maersk's quote does. When the
+  // commodity search has an entry with exactly that name, start with it.
+  const { commodities: rateMatches } = useSearchCommodities(
+    rate && !commodityTouched ? rate.commodity : "",
+  );
+  const suggested =
+    rate && !commodityTouched
+      ? (rateMatches.find(
+          (c) => c.name.toLowerCase() === rate.commodity.toLowerCase(),
+        ) ?? null)
+      : null;
+  const shownCommodity = commodity ?? suggested;
+  useEffect(() => {
+    if (suggested) setValue("commodityCode", suggested.code);
+  }, [suggested, setValue]);
+
+  const containerQuantity = useWatch({ control, name: "containerQuantity" });
+
   const pickCommodity = (next: Commodity | null) => {
+    setCommodityTouched(true);
     setCommodity(next);
     setValue("commodityCode", next?.code ?? "", {
       shouldValidate: isSubmitted,
@@ -181,6 +208,22 @@ const FreightRequestForm = ({
       className="space-y-6"
       noValidate
     >
+      {rate && (
+        <FieldGroup
+          title="Contract rate"
+          description="The rate this request starts from, updated for the number of containers you enter below."
+        >
+          <RateQuoteSummary
+            rate={rate}
+            containers={
+              Number.isInteger(containerQuantity) && containerQuantity > 0
+                ? containerQuantity
+                : 1
+            }
+          />
+        </FieldGroup>
+      )}
+
       <FieldGroup
         title="Route"
         description="Search by city or port name and pick from the list."
@@ -245,11 +288,21 @@ const FreightRequestForm = ({
         <CommoditySelect
           label="Commodity"
           placeholder="Search, e.g. furniture or fish"
-          value={commodity}
+          value={shownCommodity}
           onChange={pickCommodity}
           error={errors.commodityCode?.message}
           disabled={isPending}
         />
+        {rate && !shownCommodity && (
+          <p className="-mt-3 text-sm text-slate-500">
+            This rate is for{" "}
+            <span className="font-medium text-slate-700">
+              {rate.commodity.toLowerCase()}
+            </span>
+            . Choose the matching commodity.
+          </p>
+        )}
+
         <div className="max-medium-mobile:grid-cols-1 grid grid-cols-3 gap-4">
           <Input
             icon={Boxes}
@@ -297,7 +350,11 @@ const FreightRequestForm = ({
 
       <FieldGroup
         title="Your offer"
-        description="Name your price. We will accept it or send you a counter-offer."
+        description={
+          rate
+            ? "Propose a price in USD for the whole shipment, using the contract rate above as your guide. We will accept it or send you a counter-offer."
+            : "Name your price. We will accept it or send you a counter-offer."
+        }
       >
         <div className="max-medium-mobile:grid-cols-1 grid grid-cols-2 gap-5">
           <Input

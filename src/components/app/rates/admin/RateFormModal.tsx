@@ -11,7 +11,11 @@ import {
 } from "react-hook-form";
 import { RATE_CONTAINER_SIZES } from "../../../../data/rates";
 import { useGetRates, useSaveRate } from "../../../../hooks/useRateService";
-import type { Rate, RateCharge } from "../../../../services/api/rate";
+import type {
+  Rate,
+  RateCharge,
+  RateRequest,
+} from "../../../../services/api/rate";
 import {
   formatTotals,
   formatValidity,
@@ -44,7 +48,12 @@ import { FormSection } from "./rateFormParts";
 // Where the form starts: a blank rate (maybe with a lane filled in), an
 // existing rate to change, or a copy of one to save as new.
 export type RateFormSource =
-  | { kind: "add"; initial?: Partial<RateFormValues> }
+  | {
+      kind: "add";
+      initial?: Partial<RateFormValues>;
+      // The customer request this rate answers, if any.
+      request?: RateRequest;
+    }
   | { kind: "edit"; rate: Rate }
   | { kind: "duplicate"; rate: Rate };
 
@@ -234,6 +243,28 @@ const RateForm = ({
               it as a new rate. The original stays as it is.
             </p>
           )}
+          {source.kind === "add" &&
+            source.request &&
+            savedSizes.length === 0 && (
+              <p className="text-sm text-slate-500">
+                For{" "}
+                <span className="font-medium text-slate-700">
+                  {source.request.customer.company ||
+                    source.request.customer.name}
+                </span>
+                's request
+                {source.request.containerSize
+                  ? ""
+                  : " (any size: pick the size to price first)"}
+                . Saving the rate resolves the request, and the customer can see
+                it straight away.
+                {source.request.note && (
+                  <span className="mt-1 block text-slate-600 italic">
+                    “{source.request.note}”
+                  </span>
+                )}
+              </p>
+            )}
         </div>
 
         <FormSection

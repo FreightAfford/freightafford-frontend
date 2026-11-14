@@ -5,9 +5,12 @@ import { useSearchParams } from "react-router";
 import RateFormModal, {
   type RateFormSource,
 } from "../../../components/app/rates/admin/RateFormModal";
+import RateRequestsTable from "../../../components/app/rates/admin/RateRequestsTable";
 import RatesTable from "../../../components/app/rates/admin/RatesTable";
 import SampleDataBanner from "../../../components/app/rates/SampleDataBanner";
 import Button from "../../../components/Button";
+import { useGetRateRequests } from "../../../hooks/useRateService";
+import type { RateRequest } from "../../../services/api/rate";
 import cn from "../../../utils/cn";
 import { stagger } from "../../../utils/motion";
 
@@ -31,6 +34,25 @@ const AdminRates = () => {
     open: boolean;
     key: number;
   }>({ source: { kind: "add" }, open: false, key: 0 });
+
+  // Open requests, for the count on the tab. Saving a rate refreshes it.
+  const { open: openRequests } = useGetRateRequests({
+    status: "open",
+    limit: 1,
+  });
+
+  // A rate for what the customer asked: their lane, commodity and size.
+  const addRateFor = (request: RateRequest) =>
+    openForm({
+      kind: "add",
+      request,
+      initial: {
+        origin: request.origin,
+        destination: request.destination,
+        commodity: request.commodity,
+        containerSize: request.containerSize,
+      },
+    });
 
   const openForm = (source: RateFormSource) =>
     setForm((f) => ({ source, open: true, key: f.key + 1 }));
@@ -101,6 +123,14 @@ const AdminRates = () => {
                 )}
               />
               {t.label}
+              {t.id === "requests" && openRequests > 0 && (
+                <span
+                  className="bg-brand min-w-5 rounded-full px-1.5 text-center text-xs leading-5 font-bold text-white tabular-nums"
+                  aria-label={`${openRequests} open`}
+                >
+                  {openRequests}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -118,10 +148,7 @@ const AdminRates = () => {
             onDuplicate={(rate) => openForm({ kind: "duplicate", rate })}
           />
         ) : (
-          // Step 5 of the contract rates checklist fills this tab.
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
-            Rate requests from customers will be listed here.
-          </div>
+          <RateRequestsTable onAddRate={addRateFor} />
         )}
       </motion.div>
 

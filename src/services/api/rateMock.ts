@@ -599,18 +599,37 @@ const sameLane = (
   destination: string,
 ) => a.origin.code === origin && a.destination.code === destination;
 
-// Saving a rate answers the open requests for its lane: those for its size
-// and those for any size.
+// The request asks for this rate's commodity: by Maersk code when the rate
+// has one, otherwise by name.
+const sameCommodity = (request: RateRequest, rate: Rate) =>
+  rate.commodityCode
+    ? request.commodity.code === rate.commodityCode
+    : request.commodity.name.trim().toLowerCase() ===
+      rate.commodity.trim().toLowerCase();
+
+// Saving a rate answers the open requests for its lane and commodity: those
+// for its size and those for any size. Returns how many it answered.
 const resolveMatching = (rate: Rate) => {
   const now = new Date().toISOString();
-  requests = requests.map((r) =>
-    r.status === "open" &&
-    sameLane(r, rate.origin.code, rate.destination.code) &&
-    (!r.containerSize || r.containerSize === rate.containerSize)
-      ? { ...r, status: "resolved", resolvedAt: now }
-      : r,
-  );
+  let resolved = 0;
+  requests = requests.map((r) => {
+    const matches =
+      r.status === "open" &&
+      sameLane(r, rate.origin.code, rate.destination.code) &&
+      sameCommodity(r, rate) &&
+      (!r.containerSize || r.containerSize === rate.containerSize);
+    if (!matches) return r;
+    resolved += 1;
+    return { ...r, status: "resolved", resolvedAt: now };
+  });
+  return resolved;
 };
+
+// "Rate added. 2 rate requests resolved."
+const savedMessage = (verb: string, resolved: number) =>
+  resolved
+    ? `Rate ${verb}. ${resolved} rate ${resolved === 1 ? "request" : "requests"} resolved.`
+    : `Rate ${verb}`;
 
 // ---- Sorting, filtering and paging, as the backend will -------------------
 
@@ -883,8 +902,8 @@ export const createRate = async (input: RateInput) => {
     updatedBy: "You",
   };
   rates = [rate, ...rates];
-  resolveMatching(rate);
-  return copy({ message: "Rate added", data: rate });
+  const resolved = resolveMatching(rate);
+  return copy({ message: savedMessage("added", resolved), data: rate });
 };
 
 export const updateRate = async (id: string, input: RateInput) => {
@@ -899,8 +918,8 @@ export const updateRate = async (id: string, input: RateInput) => {
     updatedBy: "You",
   };
   rates[index] = rate;
-  resolveMatching(rate);
-  return copy({ message: "Rate updated", data: rate });
+  const resolved = resolveMatching(rate);
+  return copy({ message: savedMessage("updated", resolved), data: rate });
 };
 
 // Ends the rate yesterday, so customers stop seeing it at once.

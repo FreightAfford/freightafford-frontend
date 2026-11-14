@@ -1,13 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  ArrowUpDown,
   Boxes,
   CalendarClock,
-  CircleDot,
   Container,
   CopyPlus,
   DollarSign,
-  MapPin,
   Minus,
   NotebookPen,
   Plus,
@@ -36,7 +33,7 @@ import { FIELD_LABEL } from "../fieldStyles";
 import Input from "../Input";
 import Textarea from "../Textarea";
 import CommoditySelect from "./CommoditySelect";
-import PortSelect from "./PortSelect";
+import PortPair from "./PortPair";
 
 const CONTAINER_SIZES = [
   { value: "20ft Std", size: "20ft", kind: "Standard" },
@@ -66,7 +63,21 @@ const FieldGroup = ({
   </section>
 );
 
-const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
+// Filled in from elsewhere, e.g. a contract rate the customer picked.
+export interface FreightRequestInitial {
+  origin?: PortLocation | null;
+  destination?: PortLocation | null;
+  containerSize?: FreightRequestFormValues["containerSize"];
+  containerQuantity?: number;
+}
+
+const FreightRequestForm = ({
+  onCancel,
+  initial,
+}: {
+  onCancel: () => void;
+  initial?: FreightRequestInitial;
+}) => {
   const today = new Date().toISOString().split("T")[0];
   const defaultDate = new Date();
   defaultDate.setDate(defaultDate.getDate() + 3);
@@ -75,8 +86,12 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
   const { createRequest, isPending } = useCreateFreightRequest();
   const { confirm, ConfirmDialog } = useConfirm();
   const [copies, setCopies] = useState<number>(1);
-  const [origin, setOrigin] = useState<PortLocation | null>(null);
-  const [destination, setDestination] = useState<PortLocation | null>(null);
+  const [origin, setOrigin] = useState<PortLocation | null>(
+    initial?.origin ?? null,
+  );
+  const [destination, setDestination] = useState<PortLocation | null>(
+    initial?.destination ?? null,
+  );
   const [commodity, setCommodity] = useState<Commodity | null>(null);
 
   // Tracks which button triggered the current submit, so onSuccess knows whether to close or clone
@@ -98,7 +113,13 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
     formState: { errors, isSubmitted },
   } = useForm<FreightRequestFormValues>({
     resolver: zodResolver(freightRequestSchema),
-    defaultValues: emptyValues,
+    defaultValues: {
+      ...emptyValues,
+      originPortCode: initial?.origin?.code ?? "",
+      destinationPortCode: initial?.destination?.code ?? "",
+      containerSize: initial?.containerSize,
+      containerQuantity: initial?.containerQuantity,
+    },
   });
 
   const setPort = (
@@ -115,12 +136,6 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
     setValue("commodityCode", next?.code ?? "", {
       shouldValidate: isSubmitted,
     });
-  };
-
-  const swapPorts = () => {
-    const [nextOrigin, nextDestination] = [destination, origin];
-    setPort("originPortCode", nextOrigin);
-    setPort("destinationPortCode", nextDestination);
   };
 
   const onCreateRequest = async (data: FreightRequestFormValues) => {
@@ -170,63 +185,19 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
         title="Route"
         description="Search by city or port name and pick from the list."
       >
-        {/* One card for the whole route: origin over destination, joined by
-            a shipping lane. Each end gets the full width, so long port
-            names show in full and the two ends always line up. */}
-        <div className="space-y-1.5">
-          <div
-            className={cn(
-              "@container rounded-xl border bg-white transition-[border-color,box-shadow] duration-150",
-              errors.originPortCode || errors.destinationPortCode
-                ? "border-red-400"
-                : "focus-within:border-brand border-slate-200 focus-within:shadow-[0_0_0_3px_rgb(30_144_255/0.15)] hover:border-slate-300",
-            )}
-          >
-            <PortSelect
-              label="Origin port"
-              kicker="From"
-              end="origin"
-              icon={CircleDot}
-              placeholder="Search a city or port, e.g. Shanghai"
-              value={origin}
-              onChange={(loc) => setPort("originPortCode", loc)}
-              error={!!errors.originPortCode}
-              disabled={isPending}
-              className="rounded-t-xl"
-            />
-            <div className="relative ml-16 h-px bg-slate-100">
-              <button
-                type="button"
-                onClick={swapPorts}
-                disabled={isPending || (!origin && !destination)}
-                aria-label="Swap origin and destination"
-                title="Swap origin and destination"
-                className="hover:border-brand hover:text-brand focus-visible:ring-brand absolute top-1/2 right-12 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-slate-300"
-              >
-                <ArrowUpDown className="h-4 w-4" />
-              </button>
-            </div>
-            <PortSelect
-              label="Destination port"
-              kicker="To"
-              end="destination"
-              icon={MapPin}
-              placeholder="Search a city or port, e.g. Lagos"
-              value={destination}
-              onChange={(loc) => setPort("destinationPortCode", loc)}
-              error={!!errors.destinationPortCode}
-              disabled={isPending}
-              className="rounded-b-xl"
-            />
-          </div>
-          <FieldMessage
-            id="route"
-            error={
-              errors.originPortCode?.message ??
-              errors.destinationPortCode?.message
-            }
-          />
-        </div>
+        <PortPair
+          origin={origin}
+          destination={destination}
+          onOriginChange={(loc) => setPort("originPortCode", loc)}
+          onDestinationChange={(loc) => setPort("destinationPortCode", loc)}
+          originError={!!errors.originPortCode}
+          destinationError={!!errors.destinationPortCode}
+          error={
+            errors.originPortCode?.message ??
+            errors.destinationPortCode?.message
+          }
+          disabled={isPending}
+        />
       </FieldGroup>
 
       <FieldGroup
@@ -279,7 +250,6 @@ const FreightRequestForm = ({ onCancel }: { onCancel: () => void }) => {
           error={errors.commodityCode?.message}
           disabled={isPending}
         />
-
         <div className="max-medium-mobile:grid-cols-1 grid grid-cols-3 gap-4">
           <Input
             icon={Boxes}

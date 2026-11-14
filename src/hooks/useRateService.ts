@@ -9,18 +9,15 @@ import {
   commitRateImportApi,
   createRateApi,
   deleteRateApi,
-  downloadRateTemplateApi,
   expireRateApi,
   getRateApi,
   getRateLanesApi,
   getRateRequestsApi,
   getRatesApi,
-  previewRateImportApi,
   requestRateApi,
   resolveRateRequestApi,
   searchRatesApi,
   updateRateApi,
-  type ImportPreviewRate,
   type ListParams,
   type RateInput,
   type RateRequestInput,
@@ -210,54 +207,18 @@ export const useResolveRateRequest = () => {
 };
 
 // ---- Admin: bulk import --------------------------------------------------
-
-export const useDownloadRateTemplate = () => {
-  const { mutate: downloadTemplate, isPending } = useMutation({
-    mutationFn: downloadRateTemplateApi,
-    onSuccess: ({ blob, fileName }) => {
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      link.click();
-      URL.revokeObjectURL(url);
-    },
-    onError: toastError,
-  });
-
-  return { downloadTemplate, isPending };
-};
-
-// Reading a file changes nothing, so its errors show in the modal, not a toast.
-export const usePreviewRateImport = () => {
-  const {
-    mutate: previewImport,
-    data: preview,
-    error,
-    isPending,
-    reset,
-  } = useMutation({
-    mutationFn: (file: File) => previewRateImportApi(file),
-  });
-
-  return {
-    previewImport,
-    preview,
-    error: error as ApiError,
-    isPending,
-    reset,
-  };
-};
+// Reading the file, matching and checking happen in the import window
+// (components/app/rates/admin/import); saving goes through here.
 
 export const useCommitRateImport = () => {
   const invalidate = useInvalidateRates();
   const { mutate: commitImport, isPending } = useMutation({
-    mutationFn: (rates: ImportPreviewRate[]) => commitRateImportApi(rates),
+    mutationFn: commitRateImportApi,
     onSuccess: (res) => {
       toast.success(res.message);
       invalidate();
     },
-    onError: toastError,
+    // The window shows what went wrong and keeps the review open.
   });
 
   return { commitImport, isPending };

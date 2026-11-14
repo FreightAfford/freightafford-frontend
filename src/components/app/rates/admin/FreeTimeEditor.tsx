@@ -5,12 +5,12 @@ import {
   useFormContext,
   type FieldErrors,
 } from "react-hook-form";
-import { RATE_CURRENCIES } from "../../../../data/rates";
 import type {
   FreeTimeFormValues,
   RateFormValues,
 } from "../../../../validations/rateValidation";
 import { RowError, RowField, RowInput, RowSelect } from "./rateFormParts";
+import { currencyOptions } from "../../../../utils/rates";
 
 // Maersk's usual wording, so a new entry needs only its days and charges.
 const NEW_ENTRY: FreeTimeFormValues = {
@@ -129,7 +129,7 @@ const Tiers = ({ entry, disabled }: { entry: number; disabled?: boolean }) => {
                       label="Currency"
                       value={f.value}
                       onChange={f.onChange}
-                      options={RATE_CURRENCIES}
+                      options={currencyOptions(f.value)}
                       disabled={disabled}
                     />
                   )}

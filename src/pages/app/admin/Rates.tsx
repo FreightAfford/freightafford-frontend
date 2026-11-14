@@ -1,7 +1,8 @@
-import { Inbox, Plus, Tags, type LucideIcon } from "lucide-react";
+import { FileUp, Inbox, Plus, Tags, type LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { useSearchParams } from "react-router";
+import RateImportModal from "../../../components/app/rates/admin/import/RateImportModal";
 import RateFormModal, {
   type RateFormSource,
 } from "../../../components/app/rates/admin/RateFormModal";
@@ -58,6 +59,9 @@ const AdminRates = () => {
     setForm((f) => ({ source, open: true, key: f.key + 1 }));
   const closeForm = () => setForm((f) => ({ ...f, open: false }));
 
+  // A fresh import each time it opens.
+  const [importer, setImporter] = useState({ open: false, key: 0 });
+
   const switchTab = (next: Tab) => {
     if (next === tab) return;
     const merged = new URLSearchParams(params);
@@ -80,13 +84,23 @@ const AdminRates = () => {
             request a quote at a rate.
           </p>
         </div>
-        <Button
-          icon={Plus}
-          onClick={() => openForm({ kind: "add" })}
-          className="rounded-xl"
-        >
-          Add rate
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            icon={FileUp}
+            onClick={() => setImporter((i) => ({ open: true, key: i.key + 1 }))}
+            className="rounded-xl bg-white"
+          >
+            Import
+          </Button>
+          <Button
+            icon={Plus}
+            onClick={() => openForm({ kind: "add" })}
+            className="rounded-xl"
+          >
+            Add rate
+          </Button>
+        </div>
       </motion.div>
 
       <motion.div {...stagger(1)}>
@@ -152,6 +166,11 @@ const AdminRates = () => {
         )}
       </motion.div>
 
+      <RateImportModal
+        key={`import-${importer.key}`}
+        isOpen={importer.open}
+        onClose={() => setImporter((i) => ({ ...i, open: false }))}
+      />
       <RateFormModal
         key={form.key}
         isOpen={form.open}

@@ -11,7 +11,6 @@ import {
   CHARGE_PRESETS,
   CHARGE_STAGES,
   PAY_TERMS,
-  RATE_CURRENCIES,
   type ChargeStage,
 } from "../../../../data/rates";
 import cn from "../../../../utils/cn";
@@ -28,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "../../../ui/dropdown-menu";
 import { RowError, RowField, RowInput, RowSelect } from "./rateFormParts";
+import { currencyOptions } from "../../../../utils/rates";
 
 // Short labels, so the payment column stays narrow; "Either" is
 // Maersk's "Prepaid or collect".
@@ -230,7 +230,7 @@ const ChargesEditor = ({ disabled }: { disabled?: boolean }) => {
                                 label="Currency"
                                 value={f.value}
                                 onChange={f.onChange}
-                                options={RATE_CURRENCIES}
+                                options={currencyOptions(f.value)}
                                 invalid={!!rowErrors?.currency}
                                 disabled={disabled}
                               />

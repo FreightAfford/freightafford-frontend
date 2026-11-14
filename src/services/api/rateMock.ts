@@ -1,24 +1,26 @@
 import moment from "moment";
 import {
-  CHARGE_STAGES,
-  RATE_CONTAINER_SIZES,
   chargePreset,
-  type ChargeBasis,
   type ChargeStage,
   type PayTerm,
   type RateContainerSize,
 } from "../../data/rates";
+import { isValidOn, overlaps, rateStatus, sizeOrder } from "../../utils/rates";
+import { searchCommoditiesApi } from "./commodity";
+import { searchLocationsApi } from "./location";
 import {
-  isValidOn,
-  parseTransit,
-  rateStatus,
-  sizeOrder,
-} from "../../utils/rates";
+  commodityRefKey,
+  type FreeTime,
+  type ImportCheck,
+  type ImportCommodityRef,
+  type ImportMappings,
+  type ImportMatch,
+  type ImportMatchResult,
+  type ImportPortRef,
+  type ImportResult,
+  type RateCommodity,
+} from "./rate";
 import type {
-  FreeTime,
-  ImportPreview,
-  ImportPreviewRate,
-  ImportProblem,
   ListParams,
   Paged,
   Rate,
@@ -991,329 +993,190 @@ export const resolveRequest = async (id: string) => {
 };
 
 // ---- Admin: bulk import ----------------------------------------------------------
+// The browser has already read the file. The backend will do the matching
+// with its own cached Maersk lookups; here it goes through the same port
+// and commodity searches the forms use, a few at a time.
 
-const COLUMNS = [
-  "Origin",
-  "Destination",
-  "Container size",
-  "Commodity",
-  "Valid from",
-  "Valid to",
-  "Transit time",
-  "Charge code",
-  "Charge name",
-  "Amount",
-  "Currency",
-  "Basis",
-  "Stage",
-  "Remarks",
-] as const;
+const norm = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
 
-export const template = async () => {
-  await wait(100);
-  const from = startOfMonth(1);
-  const to = endOfMonth(1);
-  const rows = [
-    COLUMNS.join(","),
-    `NGAPP,BEANR,40ft HC,Iron ore and other metal ores,${from},${to},52d 6h,BAS,,1415,USD,,,"Subject to equipment availability"`,
-    `NGAPP,BEANR,40ft HC,Iron ore and other metal ores,${from},${to},52d 6h,EBS,,180,EUR,,,`,
-    `NGAPP,BEANR,40ft HC,Iron ore and other metal ores,${from},${to},52d 6h,PSS,,0,USD,,,`,
-    `NGAPP,BEANR,40ft HC,Iron ore and other metal ores,${from},${to},52d 6h,EXP,,26500,NGN,,,`,
-    `NGAPP,BEANR,40ft HC,Iron ore and other metal ores,${from},${to},52d 6h,ODF,,4500,NGN,Per document,,`,
-    `NGAPP,BEANR,40ft HC,Iron ore and other metal ores,${from},${to},52d 6h,DHC,,290,EUR,,,`,
-    `NGAPP,BEANR,40ft HC,Iron ore and other metal ores,${from},${to},52d 6h,XYZ,Terminal congestion,50,EUR,Per container,Destination,`,
-  ];
-  return {
-    blob: new Blob([rows.join("\r\n") + "\r\n"], { type: "text/csv" }),
-    fileName: "freightafford-rates-template.csv",
-  };
+// What admin chose for names that matched nothing, and what matched before.
+const mappings: ImportMappings = { ports: {}, commodities: {} };
+const portCache = new Map<string, ImportMatch<RatePort>>();
+const commodityCache = new Map<string, ImportMatch<RateCommodity>>();
+
+const inBatches = async <T>(
+  items: T[],
+  size: number,
+  run: (item: T) => Promise<void>,
+) => {
+  for (let i = 0; i < items.length; i += size)
+    await Promise.all(items.slice(i, i + size).map(run));
 };
 
-// A small CSV reader: commas, quoted fields with "" escapes, CRLF or LF.
-const parseCsv = (text: string): string[][] => {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let quoted = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (quoted) {
-      if (ch === '"' && text[i + 1] === '"') {
-        field += '"';
-        i++;
-      } else if (ch === '"') quoted = false;
-      else field += ch;
-    } else if (ch === '"') quoted = true;
-    else if (ch === ",") {
-      row.push(field);
-      field = "";
-    } else if (ch === "\n" || ch === "\r") {
-      if (ch === "\r" && text[i + 1] === "\n") i++;
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
-    } else field += ch;
-  }
-  if (field || row.length) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows;
-};
+const matchPort = async (
+  ref: ImportPortRef,
+): Promise<ImportMatch<RatePort>> => {
+  const remembered = mappings.ports[norm(ref.raw)];
+  if (remembered) return { match: remembered, suggestions: [] };
+  if (ref.code) return { match: PORTS[ref.code] ?? null, suggestions: [] };
+  if (!ref.city) return { match: null, suggestions: [] };
 
-const normalise = (value: string) =>
-  value.trim().toLowerCase().replace(/\s+/g, " ");
-
-const SIZE_ALIASES: Record<string, RateContainerSize> = Object.fromEntries(
-  RATE_CONTAINER_SIZES.flatMap((s) => [
-    [normalise(s.value), s.value],
-    [normalise(`${s.size} ${s.kind}`), s.value],
-  ]),
-);
-
-const BASIS_ALIASES: Record<string, ChargeBasis> = {
-  container: "container",
-  "per container": "container",
-  ctr: "container",
-  per_container: "container",
-  document: "document",
-  "per document": "document",
-  per_document: "document",
-  bl: "document",
-  "b/l": "document",
-  "per b/l": "document",
-};
-
-const STAGE_ALIASES: Record<string, ChargeStage> = Object.fromEntries(
-  CHARGE_STAGES.flatMap((s) => [
-    [s.value, s.value],
-    [normalise(s.label), s.value],
-  ]),
-);
-
-const isDate = (value: string) => moment(value, ISO, true).isValid();
-
-export const previewImport = async (file: File): Promise<ImportPreview> => {
-  await wait(500);
-  if (!/\.csv$/i.test(file.name))
-    fail(
-      "For now, upload the CSV template. Excel (.xlsx) files will be read once the rates backend is connected.",
-    );
-
-  const table = parseCsv(await file.text()).filter((r) =>
-    r.some((cell) => cell.trim()),
+  const cached = portCache.get(norm(ref.raw));
+  if (cached) return cached;
+  // The search takes letters only, like the backend's.
+  const query = ref.city
+    .replace(/[^\p{L}\s'-]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const { data } = await searchLocationsApi(query);
+  const exact = data.filter(
+    (l) =>
+      norm(l.city) === norm(ref.city!) &&
+      (!ref.country || norm(l.country) === norm(ref.country)),
   );
-  if (!table.length) fail("This file is empty");
-
-  const header = table[0].map(normalise);
-  const col = Object.fromEntries(
-    COLUMNS.map((name) => [name, header.indexOf(normalise(name))]),
-  ) as Record<(typeof COLUMNS)[number], number>;
-  const missing = (
-    [
-      "Origin",
-      "Destination",
-      "Container size",
-      "Valid from",
-      "Valid to",
-      "Charge code",
-      "Amount",
-      "Currency",
-    ] as const
-  ).filter((name) => col[name] < 0);
-  if (missing.length)
-    fail(
-      `The file is missing these columns: ${missing.join(", ")}. Start from the template.`,
-    );
-
-  const problems: ImportProblem[] = [];
-  const groups = new Map<
-    string,
-    { rate: RateInput; rows: number[]; bad: boolean }
-  >();
-
-  table.slice(1).forEach((cells, i) => {
-    const rowNumber = i + 2;
-    const get = (name: (typeof COLUMNS)[number]) =>
-      col[name] >= 0 ? (cells[col[name]] ?? "").trim() : "";
-    const rowProblems: string[] = [];
-
-    const origin = get("Origin").toUpperCase();
-    const destination = get("Destination").toUpperCase();
-    if (!/^[A-Z]{2}[A-Z2-9]{3}$/.test(origin))
-      rowProblems.push(
-        `origin "${get("Origin")}" isn't a port code like NGAPP`,
-      );
-    if (!/^[A-Z]{2}[A-Z2-9]{3}$/.test(destination))
-      rowProblems.push(
-        `destination "${get("Destination")}" isn't a port code like BEANR`,
-      );
-    if (origin && origin === destination)
-      rowProblems.push("origin and destination are the same port");
-
-    const size = SIZE_ALIASES[normalise(get("Container size"))];
-    if (!size)
-      rowProblems.push(
-        `container size "${get("Container size")}" should be 20ft Std, 40ft Std, 40ft HC or 45ft HC`,
-      );
-
-    const validFrom = get("Valid from");
-    const validTo = get("Valid to");
-    if (!isDate(validFrom))
-      rowProblems.push(
-        `valid from "${validFrom}" should be a date like 2026-12-01`,
-      );
-    if (!isDate(validTo))
-      rowProblems.push(
-        `valid to "${validTo}" should be a date like 2026-12-31`,
-      );
-    if (isDate(validFrom) && isDate(validTo) && validTo < validFrom)
-      rowProblems.push("valid to is before valid from");
-
-    // "64d 14h" as Maersk writes it, or a plain number of days
-    const transitRaw = get("Transit time");
-    const transitHours = !transitRaw
-      ? undefined
-      : /^d+$/.test(transitRaw)
-        ? Number(transitRaw) * 24
-        : (parseTransit(transitRaw) ?? NaN);
-    if (transitRaw && !(transitHours! > 0))
-      rowProblems.push(
-        `transit time "${transitRaw}" should look like 64d 14h, or a number of days`,
-      );
-
-    const code = get("Charge code").toUpperCase();
-    const preset = chargePreset(code);
-    const name = get("Charge name") || preset?.name || "";
-    if (!code) rowProblems.push("charge code is empty");
-    else if (!name)
-      rowProblems.push(
-        `charge "${code}" isn't a standard code, so it needs a charge name`,
-      );
-
-    const amount = Number(get("Amount").replace(/,/g, ""));
-    if (!get("Amount") || !Number.isFinite(amount) || amount < 0)
-      rowProblems.push(
-        `amount "${get("Amount")}" should be a number, 0 or more`,
-      );
-
-    const currency = get("Currency").toUpperCase();
-    if (!/^[A-Z]{3}$/.test(currency))
-      rowProblems.push(
-        `currency "${get("Currency")}" should be a 3-letter code like USD`,
-      );
-
-    const basisRaw = get("Basis");
-    const basis = basisRaw
-      ? BASIS_ALIASES[normalise(basisRaw)]
-      : (preset?.basis ?? "container");
-    if (!basis)
-      rowProblems.push(
-        `basis "${basisRaw}" should be Per container or Per document`,
-      );
-
-    const stageRaw = get("Stage");
-    const stage = stageRaw
-      ? STAGE_ALIASES[normalise(stageRaw)]
-      : (preset?.stage ?? "freight");
-    if (!stage)
-      rowProblems.push(
-        `stage "${stageRaw}" should be Freight, Origin or Destination`,
-      );
-
-    const commodity = get("Commodity") || "General cargo";
-    const key = [origin, destination, size, commodity, validFrom, validTo].join(
-      "|",
-    );
-    const group = groups.get(key) ?? {
-      rate: {
-        origin: port(origin),
-        destination: port(destination),
-        containerSize: size,
-        commodity,
-        validFrom,
-        validTo,
-        charges: [],
-      },
-      rows: [],
-      bad: false,
-    };
-    group.rows.push(rowNumber);
-
-    if (rowProblems.length) {
-      problems.push({
-        row: rowNumber,
-        message: `Row ${rowNumber}: ${rowProblems.join("; ")}.`,
-      });
-      group.bad = true;
-    } else {
-      group.rate.charges.push({
-        code,
-        name,
-        amount,
-        currency,
-        basis,
-        stage,
-        payTerm: DEFAULT_PAY[stage],
-        structure: FIXED.includes(code) ? "fixed" : "floating",
-      });
-      if (transitHours && !group.rate.transitHours)
-        group.rate.transitHours = transitHours;
-      const remarks = get("Remarks");
-      if (remarks && !group.rate.remarks) group.rate.remarks = remarks;
-    }
-    groups.set(key, group);
+  const pick = exact.find((l) => l.maerskServed) ?? exact[0];
+  const toPort = (l: (typeof data)[number]): RatePort => ({
+    code: l.code,
+    city: l.city,
+    country: l.country,
   });
-
-  // A rate with any bad row is left out whole: half a rate would mislead.
-  const previews: ImportPreviewRate[] = [];
-  for (const group of groups.values()) {
-    if (group.bad) continue;
-    const r = group.rate;
-    const duplicateCode = r.charges.find(
-      (c, i) => r.charges.findIndex((d) => d.code === c.code) !== i,
-    );
-    if (duplicateCode) {
-      problems.push({
-        row: group.rows[0],
-        message: `Rows ${group.rows.join(", ")}: ${duplicateCode.code} appears twice in the same rate.`,
-      });
-      continue;
-    }
-    const replaces =
-      rates.find(
-        (x) =>
-          sameLane(x, r.origin.code, r.destination.code) &&
-          x.containerSize === r.containerSize &&
-          x.commodity === r.commodity &&
-          x.validFrom === r.validFrom,
-      )?._id ?? null;
-    previews.push({ rate: r, rows: group.rows, replaces });
-  }
-
-  return copy({
-    fileName: file.name,
-    rowCount: table.length - 1,
-    rates: previews,
-    problems: problems.sort((a, b) => a.row - b.row),
-  });
+  const result = {
+    match: pick ? toPort(pick) : null,
+    suggestions: data.slice(0, 6).map(toPort),
+  };
+  portCache.set(norm(ref.raw), result);
+  return result;
 };
 
-export const commitImport = async (items: ImportPreviewRate[]) => {
+const matchCommodity = async (
+  ref: ImportCommodityRef,
+): Promise<ImportMatch<RateCommodity>> => {
+  const key = commodityRefKey(ref);
+  const remembered = mappings.commodities[key];
+  if (remembered) return { match: remembered, suggestions: [] };
+  // Maersk's quote codes aren't in the commodity search: admin picks once.
+  if (ref.kind === "maersk") return { match: null, suggestions: [] };
+
+  const cached = commodityCache.get(key);
+  if (cached) return cached;
+  const { data } = await searchCommoditiesApi(ref.text.trim());
+  const pick = data.find(
+    (c) => norm(c.name) === norm(ref.text) || c.code === ref.text.trim(),
+  );
+  const toCommodity = (c: (typeof data)[number]): RateCommodity => ({
+    code: c.code,
+    name: c.name,
+  });
+  const result = {
+    match: pick ? toCommodity(pick) : null,
+    suggestions: data.slice(0, 6).map(toCommodity),
+  };
+  commodityCache.set(key, result);
+  return result;
+};
+
+export const matchImport = async (body: {
+  ports: ImportPortRef[];
+  commodities: ImportCommodityRef[];
+}): Promise<ImportMatchResult> => {
+  await wait(200);
+  const result: ImportMatchResult = { ports: {}, commodities: {} };
+  // A failed lookup (search down, too many searches) leaves the name to be
+  // picked by hand rather than failing the whole import.
+  const none = { match: null, suggestions: [] };
+  await inBatches(body.ports, 3, async (ref) => {
+    result.ports[ref.raw] = await matchPort(ref).catch(() => none);
+  });
+  await inBatches(body.commodities, 3, async (ref) => {
+    result.commodities[commodityRefKey(ref)] = await matchCommodity(ref).catch(
+      () => none,
+    );
+  });
+  return copy(result);
+};
+
+// The same commodity: by Maersk code when both have one, else by name.
+const sameCommodityRate = (a: RateInput, b: RateInput) =>
+  a.commodityCode && b.commodityCode
+    ? a.commodityCode === b.commodityCode
+    : norm(a.commodity) === norm(b.commodity);
+
+const sameRateSlot = (a: RateInput, b: RateInput) =>
+  sameLane(a, b.origin.code, b.destination.code) &&
+  a.containerSize === b.containerSize &&
+  sameCommodityRate(a, b);
+
+// What the rate form and the backend's create would refuse.
+const inputProblems = (input: RateInput) => {
+  const problems: string[] = [];
+  if (input.origin.code === input.destination.code)
+    problems.push("origin and destination are the same port");
+  if (input.validTo < input.validFrom)
+    problems.push("it ends before it starts");
+  if (!input.charges.length) problems.push("it has no charges");
+  if (
+    input.charges.some(
+      (c) => !(c.amount >= 0) || !/^[A-Z]{3}$/.test(c.currency),
+    )
+  )
+    problems.push("a charge has a bad amount or currency");
+  if (!input.commodity.trim()) problems.push("it has no commodity");
+  return problems;
+};
+
+export const checkImport = async (
+  inputs: RateInput[],
+): Promise<ImportCheck[]> => {
+  await wait(300);
+  return copy(
+    inputs.map((input) => {
+      const same = rates.filter((r) => sameRateSlot(r, input));
+      const replaced =
+        same.find((r) => r.validFrom === input.validFrom) ?? null;
+      return {
+        replaces: replaced?._id ?? null,
+        overlaps: same
+          .filter((r) => r !== replaced && overlaps(r, input))
+          .map((r) => ({
+            _id: r._id,
+            validFrom: r.validFrom,
+            validTo: r.validTo,
+          })),
+        problems: inputProblems(input),
+      };
+    }),
+  );
+};
+
+export const commitImport = async (body: {
+  rates: { rate: RateInput; replaces: string | null }[];
+  mappings: ImportMappings;
+}): Promise<ImportResult> => {
   await wait(600);
+  // All or nothing, as the backend's transaction will be.
+  const bad = body.rates.findIndex((item) => inputProblems(item.rate).length);
+  if (bad >= 0)
+    fail(
+      `Rate ${bad + 1} can't be saved: ${inputProblems(body.rates[bad].rate).join("; ")}`,
+    );
+
+  Object.assign(mappings.ports, body.mappings.ports);
+  Object.assign(mappings.commodities, body.mappings.commodities);
+
   let created = 0;
   let replaced = 0;
-  for (const item of items) {
-    const rate: Rate = {
-      ...copy(item.rate),
-      _id: item.replaces ?? newId(),
-      updatedAt: new Date().toISOString(),
-      updatedBy: "You (import)",
-    };
+  let resolvedRequests = 0;
+  const now = new Date().toISOString();
+  for (const item of body.rates) {
     const index = item.replaces
       ? rates.findIndex((r) => r._id === item.replaces)
       : -1;
+    const rate: Rate = {
+      ...copy(item.rate),
+      _id: index >= 0 ? rates[index]._id : newId(),
+      updatedAt: now,
+      updatedBy: "You (import)",
+    };
     if (index >= 0) {
       rates[index] = rate;
       replaced++;
@@ -1321,15 +1184,18 @@ export const commitImport = async (items: ImportPreviewRate[]) => {
       rates = [rate, ...rates];
       created++;
     }
-    resolveMatching(rate);
+    resolvedRequests += resolveMatching(rate);
   }
   const parts = [
     created && `${created} added`,
     replaced && `${replaced} replaced`,
+    resolvedRequests &&
+      `${resolvedRequests} rate ${resolvedRequests === 1 ? "request" : "requests"} resolved`,
   ].filter(Boolean);
   return {
-    message: `Import done: ${parts.join(", ") || "nothing to import"}`,
+    message: `Import done: ${parts.join(", ") || "nothing to import"}.`,
     created,
     replaced,
+    resolvedRequests,
   };
 };

@@ -4,7 +4,6 @@ import {
   CHARGE_STAGES,
   PAY_TERMS,
   RATE_CONTAINER_VALUES,
-  RATE_CURRENCIES,
 } from "../data/rates";
 import type { Rate, RateInput, RatePort } from "../services/api/rate";
 import { formatTransit, parseTransit } from "../utils/rates";
@@ -21,7 +20,9 @@ const port = (message: string) =>
     .nullable()
     .refine((p): p is RatePort => p !== null, message);
 
-const currency = z.enum(RATE_CURRENCIES, "Choose a currency");
+const currency = z
+  .string("Choose a currency")
+  .regex(/^[A-Z]{3}$/, "Choose a currency");
 
 const amount = z
   .number("Add an amount")

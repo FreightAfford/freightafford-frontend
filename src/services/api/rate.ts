@@ -155,24 +155,57 @@ export interface Paged<T> {
 
 export type ListParams = Record<string, string | number | undefined>;
 
-// Bulk import: the file is read and checked first, then confirmed.
-export interface ImportProblem {
-  row: number; // spreadsheet row, header is row 1
+// Bulk import. The browser reads the file (see utils/rateImport); the
+// backend matches its ports and commodities, checks the rates against the
+// ones already saved, then saves them in one go.
+
+// A port or commodity as the file names it, to be matched.
+export interface ImportPortRef {
+  raw: string;
+  code?: string;
+  city?: string;
+  country?: string;
+}
+export type ImportCommodityRef =
+  | { kind: "maersk"; code: string } // e.g. MINE_IRO_ORE_OTH_MET
+  | { kind: "text"; text: string }; // a commodity name from our template
+
+// What a name matched, or the closest options when it matched nothing.
+export interface ImportMatch<T> {
+  match: T | null;
+  suggestions: T[];
+}
+
+export interface ImportMatchResult {
+  ports: Record<string, ImportMatch<RatePort>>; // by raw text
+  commodities: Record<string, ImportMatch<RateCommodity>>; // by commodityRefKey
+}
+
+// Admin's choices for names that didn't match, remembered for next time.
+export interface ImportMappings {
+  ports: Record<string, RatePort>;
+  commodities: Record<string, RateCommodity>;
+}
+
+// How one rate sits against the saved ones.
+export interface ImportCheck {
+  replaces: string | null; // same lane, size, commodity and start date
+  overlaps: { _id: string; validFrom: string; validTo: string }[];
+  problems: string[]; // what the rate form would refuse
+}
+
+export interface ImportResult {
   message: string;
+  created: number;
+  replaced: number;
+  resolvedRequests: number;
 }
 
-export interface ImportPreviewRate {
-  rate: RateInput;
-  rows: number[]; // the charge rows that make up this rate
-  replaces: string | null; // _id of the rate it overwrites
-}
-
-export interface ImportPreview {
-  fileName: string;
-  rowCount: number;
-  rates: ImportPreviewRate[];
-  problems: ImportProblem[];
-}
+// The key a commodity reference is matched and remembered under.
+export const commodityRefKey = (ref: ImportCommodityRef) =>
+  ref.kind === "maersk"
+    ? `maersk:${ref.code.trim().toUpperCase()}`
+    : `text:${ref.text.trim().toLowerCase().replace(/s+/g, " ")}`;
 
 // Services rethrow the response body, like the rest of the app.
 const rethrow = (error: unknown): never => {
@@ -316,42 +349,38 @@ export const resolveRateRequestApi = async (
 
 // ---- Admin: bulk import --------------------------------------------------
 
-// The backend serves an .xlsx template; the mock gives a CSV one.
-export const downloadRateTemplateApi = async (): Promise<{
-  blob: Blob;
-  fileName: string;
-}> => {
-  if (RATES_MOCK) return mock.template();
+export const matchRateImportApi = async (body: {
+  ports: ImportPortRef[];
+  commodities: ImportCommodityRef[];
+}): Promise<ImportMatchResult> => {
+  if (RATES_MOCK) return mock.matchImport(body);
   try {
-    const res = await apiClient.get("/rates/import/template", {
-      responseType: "blob",
-    });
-    return { blob: res.data, fileName: "freightafford-rates-template.xlsx" };
-  } catch (error) {
-    return rethrow(error);
-  }
-};
-
-export const previewRateImportApi = async (
-  file: File,
-): Promise<ImportPreview> => {
-  if (RATES_MOCK) return mock.previewImport(file);
-  try {
-    const body = new FormData();
-    body.append("file", file);
-    const res = await apiClient.post("/rates/import/preview", body);
+    const res = await apiClient.post("/rates/import/match", body);
     return res.data.data;
   } catch (error) {
     return rethrow(error);
   }
 };
 
-export const commitRateImportApi = async (
-  rates: ImportPreviewRate[],
-): Promise<{ message: string; created: number; replaced: number }> => {
-  if (RATES_MOCK) return mock.commitImport(rates);
+export const checkRateImportApi = async (
+  rates: RateInput[],
+): Promise<ImportCheck[]> => {
+  if (RATES_MOCK) return mock.checkImport(rates);
   try {
-    const res = await apiClient.post("/rates/import", { rates });
+    const res = await apiClient.post("/rates/import/check", { rates });
+    return res.data.data;
+  } catch (error) {
+    return rethrow(error);
+  }
+};
+
+export const commitRateImportApi = async (body: {
+  rates: { rate: RateInput; replaces: string | null }[];
+  mappings: ImportMappings;
+}): Promise<ImportResult> => {
+  if (RATES_MOCK) return mock.commitImport(body);
+  try {
+    const res = await apiClient.post("/rates/import", body);
     return res.data;
   } catch (error) {
     return rethrow(error);

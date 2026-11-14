@@ -2,6 +2,7 @@ import moment from "moment";
 import {
   CHARGE_STAGES,
   EXPIRING_SOON_DAYS,
+  RATE_CURRENCIES,
   RATE_CONTAINER_SIZES,
   type ChargeStage,
 } from "../data/rates";
@@ -156,3 +157,10 @@ export const formatValidity = (validFrom: string, validTo: string) => {
 // "Shanghai, China"
 export const portLabel = (port: { city: string; country: string }) =>
   `${port.city}, ${port.country}`;
+
+// Our currencies, plus a charge's own when an imported rate uses another,
+// so editing it never blanks the currency.
+export const currencyOptions = (current?: string): string[] =>
+  current && !(RATE_CURRENCIES as readonly string[]).includes(current)
+    ? [...RATE_CURRENCIES, current]
+    : [...RATE_CURRENCIES];

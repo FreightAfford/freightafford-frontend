@@ -11,6 +11,7 @@ import {
   deleteRateApi,
   downloadRateTemplateApi,
   expireRateApi,
+  getRateApi,
   getRateLanesApi,
   getRateRequestsApi,
   getRatesApi,
@@ -29,7 +30,13 @@ import {
 type ApiError = { message?: string; statusCode?: number } | null;
 
 // Every rate change can show up in all three places.
-const RATE_KEYS = [["rates"], ["rateSearch"], ["rateLanes"], ["rateRequests"]];
+const RATE_KEYS = [
+  ["rates"],
+  ["rate"],
+  ["rateSearch"],
+  ["rateLanes"],
+  ["rateRequests"],
+];
 
 const useInvalidateRates = () => {
   const queryClient = useQueryClient();
@@ -94,12 +101,22 @@ export const useRequestRate = () => {
 
 // ---- Admin: rates --------------------------------------------------------
 
-export const useGetRates = (params: ListParams) => {
+export const useGetRate = (id: string) => {
+  const { data, isPending, error, refetch } = useQuery({
+    queryKey: ["rate", id],
+    queryFn: () => getRateApi(id),
+  });
+
+  return { rate: data, isPending, error: error as ApiError, refetch };
+};
+
+export const useGetRates = (params: ListParams, enabled = true) => {
   const { data, isPending, isFetching, isPlaceholderData, error, refetch } =
     useQuery({
       queryKey: ["rates", params],
       queryFn: () => getRatesApi(params),
       placeholderData: keepPreviousData,
+      enabled,
     });
 
   return {

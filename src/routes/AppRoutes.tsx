@@ -6,6 +6,8 @@ import AdminDocuments from "../pages/app/admin/Documents";
 import AdminInvoices from "../pages/app/admin/Invoices";
 import AdminLogs from "../pages/app/admin/Logs";
 import AdminOverview from "../pages/app/admin/Overview";
+import AdminRateDetails from "../pages/app/admin/RateDetails";
+import AdminRates from "../pages/app/admin/Rates";
 import AdminRequests from "../pages/app/admin/Requests";
 import Tickets from "../pages/app/admin/Tickets";
 import AdminUsers from "../pages/app/admin/Users";
@@ -136,6 +138,8 @@ const AppRoutes = createBrowserRouter([
           { path: "bookings", Component: AdminBookings },
           { path: "bookings/:id", Component: BookingDetails },
           { path: "schedule", Component: Schedules },
+          { path: "rates", Component: AdminRates },
+          { path: "rates/:id", Component: AdminRateDetails },
           { path: "tickets", Component: Tickets },
           { path: "tickets/:id", Component: TicketDetails },
           { path: "documents", Component: AdminDocuments },

@@ -65,6 +65,7 @@ export interface Rate {
   validFrom: string; // YYYY-MM-DD, inclusive (Maersk's Effective Date)
   validTo: string; // YYYY-MM-DD, inclusive (Maersk's Expiry Date)
   commodity: string; // as Maersk names it, e.g. "Iron ore and other metal ores"
+  commodityCode?: string; // Maersk commodity code, when picked from its search
   serviceMode?: string; // e.g. "CY/CY"
   transitHours?: number; // Maersk gives "64d 14h"
   remarks?: string;
@@ -217,6 +218,16 @@ export const requestRateApi = async (
 };
 
 // ---- Admin: rates --------------------------------------------------------
+
+export const getRateApi = async (id: string): Promise<Rate> => {
+  if (RATES_MOCK) return mock.getRate(id);
+  try {
+    const res = await apiClient.get(`/rates/${id}`);
+    return res.data.data;
+  } catch (error) {
+    return rethrow(error);
+  }
+};
 
 export const getRatesApi = async (params: ListParams): Promise<Paged<Rate>> => {
   if (RATES_MOCK) return mock.listRates(params);

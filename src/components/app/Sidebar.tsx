@@ -89,6 +89,7 @@ const ADMIN_NAV: NavGroup[] = [
       },
       { name: "Bookings", icon: CalendarCheck, path: "/app/admin/bookings" },
       { name: "Schedules", icon: CalendarClock, path: "/app/admin/schedule" },
+      { name: "Rates", icon: Tags, path: "/app/admin/rates" },
       { name: "Documents", icon: FileUp, path: "/app/admin/documents" },
       { name: "Invoices", icon: Receipt, path: "/app/admin/invoices" },
     ],

@@ -832,6 +832,13 @@ export const requestRate = async (input: RateRequestInput) => {
 
 // ---- Admin: rates ------------------------------------------------------------
 
+export const getRate = async (id: string): Promise<Rate> => {
+  await wait();
+  const rate = rates.find((r) => r._id === id);
+  if (!rate) return fail("This rate no longer exists", 404);
+  return copy(rate);
+};
+
 export const listRates = async (params: ListParams): Promise<Paged<Rate>> => {
   await wait();
   const search = String(params.search ?? "");

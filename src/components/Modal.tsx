@@ -8,7 +8,7 @@ interface ModalProps {
   children: ReactNode;
   isOpen: boolean;
   onClose: () => void;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
 }
 
 const Modal = ({
@@ -31,6 +31,7 @@ const Modal = ({
     md: "max-w-lg",
     lg: "max-w-2xl",
     xl: "max-w-4xl",
+    "2xl": "max-w-6xl",
   };
 
   return (

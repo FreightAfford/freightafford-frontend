@@ -65,29 +65,38 @@ const CLICKABLE =
 // "keep" leaves focus where it is (inside the select that opened next).
 let focusAfterClose: HTMLElement | "keep" | null = null;
 
+// The presses replayed below. The select that is still closing sees each
+// one as another press outside it; acting on that would replay it a second
+// time, and the second press would close the select that just opened.
+const replayed = new WeakSet<Event>();
+
 const actOnElementUnderPointer = (event: PointerDownOutside) => {
   const pointer = event.detail.originalEvent;
-  if (pointer.button !== 0) return;
+  if (pointer.button !== 0 || replayed.has(pointer)) return;
   const under = elementUnderPointer(pointer.clientX, pointer.clientY);
   if (!under) return;
 
-  // Another select opens on pointerdown, so replay that once this one closes.
   const trigger = under.closest("[data-slot=select-trigger]");
+  // The open select's own trigger: the click is meant to close it, which
+  // Radix is already doing. Replaying it would open the select again.
+  if (trigger?.getAttribute("data-state") === "open") return;
+
+  // Another select opens on pointerdown, so replay that once this one closes.
   if (trigger instanceof HTMLElement) {
     focusAfterClose = "keep";
-    requestAnimationFrame(() =>
-      trigger.dispatchEvent(
-        new PointerEvent("pointerdown", {
-          bubbles: true,
-          cancelable: true,
-          button: 0,
-          pointerType: "mouse",
-          pointerId: pointer.pointerId,
-          clientX: pointer.clientX,
-          clientY: pointer.clientY,
-        }),
-      ),
-    );
+    requestAnimationFrame(() => {
+      const press = new PointerEvent("pointerdown", {
+        bubbles: true,
+        cancelable: true,
+        button: 0,
+        pointerType: "mouse",
+        pointerId: pointer.pointerId,
+        clientX: pointer.clientX,
+        clientY: pointer.clientY,
+      });
+      replayed.add(press);
+      trigger.dispatchEvent(press);
+    });
     return;
   }
 

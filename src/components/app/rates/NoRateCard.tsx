@@ -8,6 +8,7 @@ import {
 import moment from "moment";
 import { useState, type ReactNode } from "react";
 import type { RateContainerSize } from "../../../data/rates";
+import { useSearchCommodities } from "../../../hooks/useCommodityService";
 import { useRequestRate } from "../../../hooks/useRateService";
 import type { Commodity } from "../../../services/api/commodity";
 import type { RatePort, RateRequest } from "../../../services/api/rate";
@@ -33,6 +34,8 @@ interface NoRateCardProps {
   compact?: boolean;
   // The compact prompt's wording, when the default (missing sizes) doesn't fit.
   prompt?: ReactNode;
+  // The commodity of the rate on screen, when asking for another size of it.
+  forCommodity?: { name: string; code?: string };
 }
 
 // When a lane (or a size on it) has no contract rate: say so, and let the
@@ -45,6 +48,7 @@ const NoRateCard = ({
   request,
   compact,
   prompt,
+  forCommodity,
 }: NoRateCardProps) => {
   const { requestRate, isPending } = useRequestRate();
   const [expanded, setExpanded] = useState(!compact);
@@ -53,8 +57,34 @@ const NoRateCard = ({
     size ?? (sizes.length === 1 ? sizes[0] : ANY),
   );
   const [note, setNote] = useState("");
-  // Contract rates are agreed per commodity, so a request needs one.
-  const [commodity, setCommodity] = useState<Commodity | null>(null);
+  // Contract rates are agreed per commodity, so a request needs one. Asking
+  // for another size of a rate starts from that rate's commodity: its Maersk
+  // code when it has one, else an exact name match from the search.
+  const [picked, setPicked] = useState<Commodity | null>(
+    forCommodity?.code
+      ? {
+          code: forCommodity.code,
+          name: forCommodity.name,
+          hsCodes: [],
+          cargoTypes: [],
+        }
+      : null,
+  );
+  const [touched, setTouched] = useState(!!forCommodity?.code);
+  const { commodities: matches } = useSearchCommodities(
+    forCommodity && !touched ? forCommodity.name : "",
+  );
+  const suggested =
+    forCommodity && !touched
+      ? (matches.find(
+          (c) => c.name.toLowerCase() === forCommodity.name.toLowerCase(),
+        ) ?? null)
+      : null;
+  const commodity = picked ?? suggested;
+  const setCommodity = (next: Commodity | null) => {
+    setTouched(true);
+    setPicked(next);
+  };
   const [tried, setTried] = useState(false);
   const lane = `${portLabel(origin)} to ${portLabel(destination)}`;
 
@@ -123,6 +153,15 @@ const NoRateCard = ({
           onChange={setChosen}
           disabled={isPending}
         />
+        {forCommodity && !commodity && (
+          <p className="-mt-2 text-sm text-slate-500 @2xl:col-start-1">
+            This rate is for{" "}
+            <span className="font-medium text-slate-700">
+              {forCommodity.name.toLowerCase()}
+            </span>
+            . Choose the matching commodity.
+          </p>
+        )}
       </div>
       <Textarea
         label="Note for our team"

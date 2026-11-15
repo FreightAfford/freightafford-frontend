@@ -72,7 +72,8 @@ const AdminRates = () => {
   };
 
   return (
-    <>
+    // Room at the bottom so the chat button never covers the last action.
+    <div className="pb-20">
       <motion.div
         {...stagger(0)}
         className="mb-5 flex flex-wrap items-end justify-between gap-4"
@@ -177,7 +178,7 @@ const AdminRates = () => {
         source={form.source}
         onClose={closeForm}
       />
-    </>
+    </div>
   );
 };
 

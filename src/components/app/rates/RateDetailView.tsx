@@ -263,6 +263,7 @@ const RateDetailView = ({
           destination={group.destination}
           sizes={missingSizes}
           request={request}
+          forCommodity={{ name: group.commodity, code: rate.commodityCode }}
           prompt={
             <>
               <span className="font-semibold text-slate-900">

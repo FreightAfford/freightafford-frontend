@@ -112,7 +112,7 @@ const AdminRateDetails = () => {
   const expired = rateStatus(rate) === "expired";
 
   return (
-    <div className="@container space-y-5">
+    <div className="@container space-y-5 pb-20">
       <motion.div {...stagger(0)}>
         {backLink}
         <div className="mt-2 flex flex-wrap items-start justify-between gap-4">

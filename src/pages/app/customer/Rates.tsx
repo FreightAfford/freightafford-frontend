@@ -354,7 +354,8 @@ const RateFinder = () => {
     : "";
 
   return (
-    <>
+    // Room at the bottom so the chat button never covers the last action.
+    <div className="pb-20">
       <motion.div {...stagger(0)} className="mb-5">
         <h1 className="text-2xl font-bold text-slate-900">Contract rates</h1>
         <p className="mt-1 max-w-2xl text-slate-500">
@@ -616,7 +617,7 @@ const RateFinder = () => {
           </>
         )}
       </Modal>
-    </>
+    </div>
   );
 };
 

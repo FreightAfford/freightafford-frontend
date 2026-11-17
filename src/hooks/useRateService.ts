@@ -63,6 +63,7 @@ export const useSearchRates = (params: RateSearchParams) => {
     groups: data?.groups ?? [],
     total: data?.total ?? 0,
     totalAll: data?.totalAll ?? 0,
+    months: data?.months ?? [],
     request: data?.request ?? null,
     isPending,
     isFetching,
@@ -72,14 +73,20 @@ export const useSearchRates = (params: RateSearchParams) => {
   };
 };
 
-export const useGetRateLanes = (enabled = true) => {
+export const useGetRateLanes = (enabled = true, month?: string) => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["rateLanes"],
-    queryFn: getRateLanesApi,
+    queryKey: ["rateLanes", month ?? ""],
+    queryFn: () => getRateLanesApi(month),
     enabled,
+    placeholderData: keepPreviousData,
   });
 
-  return { lanes: data ?? [], isPending, error: error as ApiError };
+  return {
+    lanes: data?.lanes ?? [],
+    months: data?.months ?? [],
+    isPending,
+    error: error as ApiError,
+  };
 };
 
 export const useRequestRate = () => {

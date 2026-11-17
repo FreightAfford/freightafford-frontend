@@ -10,7 +10,7 @@ import {
   Timer,
   type LucideIcon,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   RATE_CONTAINER_VALUES,
   type RateContainerSize,
@@ -19,8 +19,10 @@ import type { Rate, RateGroup, RateRequest } from "../../../services/api/rate";
 import cn from "../../../utils/cn";
 import {
   formatTransit,
+  formatAmount,
   formatValidity,
   rateSizeLabel,
+  shortPeriod,
 } from "../../../utils/rates";
 import Button from "../../Button";
 import NoRateCard from "./NoRateCard";
@@ -121,7 +123,9 @@ interface RateDetailViewProps {
 }
 
 // One commodity on one lane: a tab per container size, what the rate
-// covers, its charges for the containers chosen, and free time.
+// covers, its charges for the containers chosen, and free time. When a size
+// has two rates in the month (1–14 Dec, then 15–31 Dec), a choice inside its
+// tab switches between them.
 const RateDetailView = ({
   group,
   request,
@@ -132,8 +136,14 @@ const RateDetailView = ({
   onBack,
   onRequestQuote,
 }: RateDetailViewProps) => {
-  const rate =
-    group.rates.find((r) => r.containerSize === size) ?? group.rates[0];
+  const sizes = RATE_CONTAINER_VALUES.filter((s) =>
+    group.rates.some((r) => r.containerSize === s),
+  );
+  const shownSize = size && sizes.includes(size) ? size : sizes[0];
+  // The size's rates in the month, by start date
+  const periods = group.rates.filter((r) => r.containerSize === shownSize);
+  const [periodId, setPeriodId] = useState<string | null>(null);
+  const rate = periods.find((r) => r._id === periodId) ?? periods[0];
   const missingSizes = RATE_CONTAINER_VALUES.filter(
     (s) => !group.rates.some((r) => r.containerSize === s),
   );
@@ -164,17 +174,20 @@ const RateDetailView = ({
           aria-label="Container size"
           className="flex w-full flex-wrap gap-1 rounded-xl bg-slate-100 p-1 @xl:w-auto"
         >
-          {group.rates.map((r) => {
-            const on = r._id === rate._id;
+          {sizes.map((s) => {
+            const on = s === shownSize;
             return (
               <button
-                key={r._id}
+                key={s}
                 type="button"
                 role="tab"
-                id={`size-tab-${r._id}`}
+                id={`size-tab-${s}`}
                 aria-selected={on}
                 aria-controls="rate-panel"
-                onClick={() => onSizeChange(r.containerSize)}
+                onClick={() => {
+                  setPeriodId(null);
+                  onSizeChange(s);
+                }}
                 className={cn(
                   "focus-visible:ring-brand/40 h-9 flex-1 rounded-lg px-3.5 text-sm font-semibold whitespace-nowrap transition-colors outline-none focus-visible:ring-2 @xl:flex-none",
                   on
@@ -182,7 +195,7 @@ const RateDetailView = ({
                     : "text-slate-500 hover:text-slate-800",
                 )}
               >
-                {rateSizeLabel(r.containerSize)}
+                {rateSizeLabel(s)}
               </button>
             );
           })}
@@ -192,9 +205,55 @@ const RateDetailView = ({
       <div
         id="rate-panel"
         role="tabpanel"
-        aria-labelledby={`size-tab-${rate._id}`}
+        aria-labelledby={`size-tab-${shownSize}`}
         className="space-y-4"
       >
+        {periods.length > 1 && (
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm @3xl:px-4">
+            <p
+              id="period-label"
+              className="mb-2 text-sm font-semibold text-slate-900"
+            >
+              {periods.length} rates this month for{" "}
+              {rateSizeLabel(shownSize).toLowerCase()}
+            </p>
+            <div
+              role="radiogroup"
+              aria-labelledby="period-label"
+              className="flex flex-wrap gap-2"
+            >
+              {periods.map((p) => {
+                const on = p._id === rate._id;
+                const basic = p.charges.find((c) => c.code === "BAS");
+                return (
+                  <button
+                    key={p._id}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => setPeriodId(p._id)}
+                    className={cn(
+                      "focus-visible:ring-brand/40 rounded-xl border px-3 py-2 text-left text-sm transition-colors outline-none focus-visible:ring-2",
+                      on
+                        ? "border-brand bg-brand/5 text-slate-900"
+                        : "border-slate-200 text-slate-600 hover:border-slate-300",
+                    )}
+                  >
+                    <span className="block font-semibold tabular-nums">
+                      {shortPeriod(p.validFrom, p.validTo)}
+                    </span>
+                    {basic && (
+                      <span className="block text-xs text-slate-500 tabular-nums">
+                        Basic {formatAmount(basic.amount, basic.currency)}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* What the rate covers, how many, and the next step */}
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <dl className="grid gap-x-6 gap-y-4 p-4 @xl:grid-cols-2 @3xl:px-5 @4xl:grid-cols-4">

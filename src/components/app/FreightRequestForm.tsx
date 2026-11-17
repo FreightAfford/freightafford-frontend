@@ -106,7 +106,10 @@ const FreightRequestForm = ({
   const [submitIntent, setSubmitIntent] = useState<"done" | "clone">("done");
 
   const emptyValues = {
-    cargoReadyDate: formattedDate,
+    // From a rate that starts later (e.g. next month's), cargo is ready
+    // when the rate starts; otherwise three days from now
+    cargoReadyDate:
+      rate && rate.validFrom > formattedDate ? rate.validFrom : formattedDate,
     originPortCode: "",
     destinationPortCode: "",
     commodityCode: "",

@@ -169,6 +169,24 @@ export const formatValidity = (validFrom: string, validTo: string) => {
   return `${from.format(from.year() === to.year() ? "D MMM" : "D MMM YYYY")} – ${to.format("D MMM YYYY")}`;
 };
 
+// ---- Months ------------------------------------------------------------------
+// Customers look rates up a month at a time (YYYY-MM), from this one on.
+
+export const thisMonth = () => moment().format("YYYY-MM");
+
+// "December 2026"
+export const monthLabel = (month: string) =>
+  moment(month, "YYYY-MM").format("MMMM YYYY");
+
+// "1–14 Dec", or "28 Nov – 5 Dec" across months
+export const shortPeriod = (validFrom: string, validTo: string) => {
+  const from = moment(validFrom, ISO);
+  const to = moment(validTo, ISO);
+  return from.isSame(to, "month")
+    ? `${from.format("D")}–${to.format("D MMM")}`
+    : `${from.format("D MMM")} – ${to.format("D MMM")}`;
+};
+
 // "Shanghai, China"
 export const portLabel = (port: { city: string; country: string }) =>
   `${port.city}, ${port.country}`;

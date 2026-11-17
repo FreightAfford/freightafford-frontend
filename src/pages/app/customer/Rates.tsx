@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  CalendarDays,
   ChevronRight,
   MapPin,
   Package,
@@ -14,6 +15,7 @@ import EmptyState from "../../../components/EmptyState";
 import ErrorState from "../../../components/ErrorState";
 import Input from "../../../components/Input";
 import Modal from "../../../components/Modal";
+import Select from "../../../components/Select";
 import SmallLoader from "../../../components/SmallLoader";
 import FreightRequestForm from "../../../components/app/FreightRequestForm";
 import Pagination from "../../../components/app/Pagination";
@@ -35,12 +37,14 @@ import cn from "../../../utils/cn";
 import { stagger } from "../../../utils/motion";
 import {
   formatAmount,
+  formatValidity,
   isPremiumCustomer,
+  monthLabel,
   rateStatus,
+  thisMonth,
   toPortLocation,
   toRatePort,
 } from "../../../utils/rates";
-import moment from "moment";
 
 const PAGE_SIZE = 10;
 
@@ -123,14 +127,17 @@ const CommodityRow = ({
                   From {group.origin.city}
                 </span>
               )}
-              {group.rates.map((r) => (
-                <span
-                  key={r._id}
-                  className="rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600"
-                >
-                  {shortSize(r.containerSize)}
-                </span>
-              ))}
+              {/* Each size once, though it may have two periods */}
+              {[...new Set(group.rates.map((r) => r.containerSize))].map(
+                (size) => (
+                  <span
+                    key={size}
+                    className="rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600"
+                  >
+                    {shortSize(size)}
+                  </span>
+                ),
+              )}
             </span>
           </span>
         </span>
@@ -151,14 +158,14 @@ const CommodityRow = ({
         </span>
 
         <span className="text-sm">
-          <span className="block text-xs text-slate-500">Valid until</span>
+          <span className="block text-xs text-slate-500">Valid</span>
           <span
             className={cn(
               "font-medium tabular-nums",
               endsSoon ? "text-[#9a6a0c]" : "text-slate-700",
             )}
           >
-            {moment(group.validTo).format("D MMM YYYY")}
+            {formatValidity(group.validFrom, group.validTo)}
           </span>
         </span>
 
@@ -197,12 +204,22 @@ const OPEN_SEPARATOR = "~";
 // Search and results, for verified customers: a destination (and
 // optionally where from), every commodity priced into it, then one
 // commodity's rates. Everything that shapes the view lives in the URL
-// (to, from, q, page, rate, size, qty), so a reload, a shared link or
-// coming Back shows the same place.
+// (to, from, month, q, page, rate, size, qty), so a reload, a shared link
+// or coming Back shows the same place.
 const RateFinder = () => {
   const [params, setParams] = useSearchParams();
   const origin = portFromUrl(params.get("from"), params.get("fromName"));
   const destination = portFromUrl(params.get("to"), params.get("toName"));
+  // The month looked at: this one unless the URL names a later one. Only a
+  // later month goes to the API (and into the URL).
+  const current = thisMonth();
+  const monthParam = params.get("month") ?? "";
+  const month =
+    /^\d{4}-(0[1-9]|1[0-2])$/.test(monthParam) && monthParam > current
+      ? monthParam
+      : current;
+  const laterMonth = month === current ? undefined : month;
+  const inMonth = laterMonth ? `in ${monthLabel(month)}` : "this month";
   const q = params.get("q") ?? "";
   const pageParam = Number(params.get("page"));
   const page = Number.isInteger(pageParam) && pageParam > 1 ? pageParam : 1;
@@ -292,11 +309,16 @@ const RateFinder = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
-  const { lanes, isPending: lanesPending } = useGetRateLanes(!ready);
+  const {
+    lanes,
+    months: laneMonths,
+    isPending: lanesPending,
+  } = useGetRateLanes(!ready, laterMonth);
   const {
     groups,
     total,
     totalAll,
+    months: searchMonths,
     request,
     isPending,
     isFetching,
@@ -306,6 +328,7 @@ const RateFinder = () => {
   } = useSearchRates({
     origin: origin?.code,
     destination: ready ? destination.code : "",
+    month: laterMonth,
     q: q || undefined,
     page,
     limit: PAGE_SIZE,
@@ -316,6 +339,7 @@ const RateFinder = () => {
   const opened = useSearchRates({
     origin: openOrigin,
     destination: ready && isOpen ? destination.code : "",
+    month: laterMonth,
     q: openCommodity,
     limit: 50,
   });
@@ -324,6 +348,27 @@ const RateFinder = () => {
         (g) => g.origin.code === openOrigin && g.commodity === openCommodity,
       ) ?? null)
     : null;
+
+  // This month, then the later months with rates (for the lane once one is
+  // chosen), always including the month being looked at.
+  const monthsShown = [
+    ...new Set([current, ...(ready ? searchMonths : laneMonths), month]),
+  ].sort();
+  const monthsKnown = ready ? !isFetching && searchMonths.length > 0 : false;
+  useEffect(() => {
+    // A new lane may have no rates in the chosen month: back to this month
+    if (monthsKnown && laterMonth && !searchMonths.includes(laterMonth))
+      update({ month: null, page: null, rate: null, size: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthsKnown, laterMonth, searchMonths.join()]);
+
+  const pickMonth = (next: string) =>
+    update({
+      month: next === current ? null : next,
+      page: null,
+      rate: null,
+      size: null,
+    });
 
   const showResults = () =>
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -381,6 +426,19 @@ const RateFinder = () => {
           destinationError={samePort}
           error={samePort ? "Choose two different ports" : undefined}
         />
+        <div className="mt-3 @xl:max-w-xs">
+          <Select
+            icon={CalendarDays}
+            label="Month"
+            value={month}
+            onChange={pickMonth}
+            options={monthsShown.map((m) => ({
+              value: m,
+              label:
+                m === current ? `${monthLabel(m)} (this month)` : monthLabel(m),
+            }))}
+          />
+        </div>
       </motion.div>
 
       {!ready ? (
@@ -394,7 +452,7 @@ const RateFinder = () => {
             className="flex items-center gap-2 text-lg font-bold text-slate-900"
           >
             <Tags aria-hidden="true" className="text-brand h-5 w-5" />
-            Lanes with rates today
+            Lanes with rates {inMonth}
           </h2>
           <p className="mt-1 text-sm text-slate-500">
             Pick one, or search above. If we haven't priced your lane or
@@ -417,7 +475,7 @@ const RateFinder = () => {
           ) : (
             <EmptyState
               icon={<Route className="text-brand h-10 w-10" />}
-              title="No lanes priced right now"
+              title={`No lanes priced ${inMonth}`}
               description="Search the ports you ship between and ask us for a rate."
             />
           )}
@@ -439,8 +497,8 @@ const RateFinder = () => {
               <div className="rounded-2xl border border-slate-200 bg-white">
                 <EmptyState
                   icon={<Package className="text-brand h-10 w-10" />}
-                  title={`No current rate for ${openCommodity.toLowerCase()}`}
-                  description="This rate may have ended. Go back to see the commodities priced today."
+                  title={`No rate for ${openCommodity.toLowerCase()} ${inMonth}`}
+                  description={`It may have ended. Go back to see the commodities priced ${inMonth}.`}
                   action={
                     <button
                       type="button"
@@ -479,7 +537,7 @@ const RateFinder = () => {
                 {!isPending && !error && totalAll > 0 && (
                   <p className="text-sm text-slate-500">
                     {totalAll} {totalAll === 1 ? "commodity" : "commodities"}{" "}
-                    priced today
+                    priced {inMonth}
                     {!origin && " from all origins"}
                   </p>
                 )}
@@ -511,7 +569,7 @@ const RateFinder = () => {
                   <div className="rounded-2xl border border-slate-200 bg-white">
                     <EmptyState
                       icon={<Route className="text-brand h-10 w-10" />}
-                      title={`No contract rates into ${destination.city} yet`}
+                      title={`No contract rates into ${destination.city} ${inMonth}`}
                       description="Add where your cargo ships from, and you can ask us to price the lane."
                     />
                   </div>

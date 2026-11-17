@@ -101,24 +101,28 @@ export type RateRequestInput = {
   note?: string;
 };
 
-// One commodity on one lane: its rates valid today, one per container
-// size, so the customer can compare commodities before opening one.
+// One commodity on one lane: its rates in the chosen month, by container
+// size and then date. A size can have two in a month (1–14 Dec, then 15–31
+// Dec), each with its own dates.
 export interface RateGroup {
   key: string; // origin|destination|commodity
   origin: RatePort;
   destination: RatePort;
   commodity: string;
-  rates: Rate[]; // in size order
+  rates: Rate[]; // in size order, then by start date
   // The lowest basic ocean freight across its sizes, for "from USD …".
   fromBasic: { amount: number; currency: string } | null;
-  validTo: string; // the soonest any of its rates ends
+  validFrom: string; // the first day any of its rates starts
+  validTo: string; // the last day any of its rates runs to
 }
 
-// A customer's search: a destination, and optionally where from and a
-// commodity filter. Results come back by commodity, a page at a time.
+// A customer's search: a destination, and optionally where from, a month
+// (this one by default) and a commodity filter. Results come back by
+// commodity, a page at a time.
 export interface RateSearchParams {
   origin?: string;
   destination: string;
+  month?: string; // YYYY-MM, this month or later
   q?: string; // filters commodity names
   page?: number;
   limit?: number;
@@ -128,12 +132,14 @@ export interface RateSearchResult {
   groups: RateGroup[];
   total: number; // matching the filter
   totalAll: number; // every commodity priced into this search
+  // This month, then each later month with rates for this lane (YYYY-MM)
+  months: string[];
   // The caller's open request for the lane (only when a From is given),
   // so "Requested on…" survives a reload.
   request: RateRequest | null;
 }
 
-// A lane with at least one rate valid today, for the quick picks.
+// A lane with at least one rate in the chosen month, for the quick picks.
 export interface RateLane {
   origin: RatePort;
   destination: RatePort;
@@ -221,10 +227,13 @@ export const searchRatesApi = async (
   }
 };
 
-export const getRateLanesApi = async (): Promise<RateLane[]> => {
+// Lanes with rates in a month, and the months that have any rates.
+export const getRateLanesApi = async (
+  month?: string,
+): Promise<{ lanes: RateLane[]; months: string[] }> => {
   try {
-    const res = await apiClient.get("/rates/lanes");
-    return res.data.data;
+    const res = await apiClient.get("/rates/lanes", { params: { month } });
+    return { lanes: res.data.data, months: res.data.months ?? [] };
   } catch (error) {
     return rethrow(error);
   }

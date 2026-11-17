@@ -7,16 +7,10 @@ import type {
   RateStructure,
 } from "../../data/rates";
 import { apiClient } from "../configurations/apiConfig";
-import * as mock from "./rateMock";
 
 // Contract rates: FreightAfford's own Maersk contract rates, kept by admin
 // (Maersk has no rates API). Customers look a lane up; when nothing is
 // priced they can ask for a rate.
-//
-// The backend endpoints don't exist yet. Until they do, development builds
-// answer from an in-memory mock (rateMock.ts) with made-up sample prices,
-// and the pages say so. Production calls the real endpoints below.
-export const RATES_MOCK = import.meta.env.DEV;
 
 export interface RatePort {
   code: string; // UN/LOCODE, e.g. CNSHA
@@ -205,7 +199,7 @@ export interface ImportResult {
 export const commodityRefKey = (ref: ImportCommodityRef) =>
   ref.kind === "maersk"
     ? `maersk:${ref.code.trim().toUpperCase()}`
-    : `text:${ref.text.trim().toLowerCase().replace(/s+/g, " ")}`;
+    : `text:${ref.text.trim().toLowerCase().replace(/\s+/g, " ")}`;
 
 // Services rethrow the response body, like the rest of the app.
 const rethrow = (error: unknown): never => {
@@ -219,7 +213,6 @@ const rethrow = (error: unknown): never => {
 export const searchRatesApi = async (
   params: RateSearchParams,
 ): Promise<RateSearchResult> => {
-  if (RATES_MOCK) return mock.searchRates(params);
   try {
     const res = await apiClient.get("/rates/search", { params });
     return res.data.data;
@@ -229,7 +222,6 @@ export const searchRatesApi = async (
 };
 
 export const getRateLanesApi = async (): Promise<RateLane[]> => {
-  if (RATES_MOCK) return mock.getLanes();
   try {
     const res = await apiClient.get("/rates/lanes");
     return res.data.data;
@@ -241,7 +233,6 @@ export const getRateLanesApi = async (): Promise<RateLane[]> => {
 export const requestRateApi = async (
   input: RateRequestInput,
 ): Promise<{ message: string; data: RateRequest }> => {
-  if (RATES_MOCK) return mock.requestRate(input);
   try {
     const res = await apiClient.post("/rates/requests", input);
     return res.data;
@@ -253,7 +244,6 @@ export const requestRateApi = async (
 // ---- Admin: rates --------------------------------------------------------
 
 export const getRateApi = async (id: string): Promise<Rate> => {
-  if (RATES_MOCK) return mock.getRate(id);
   try {
     const res = await apiClient.get(`/rates/${id}`);
     return res.data.data;
@@ -263,7 +253,6 @@ export const getRateApi = async (id: string): Promise<Rate> => {
 };
 
 export const getRatesApi = async (params: ListParams): Promise<Paged<Rate>> => {
-  if (RATES_MOCK) return mock.listRates(params);
   try {
     const res = await apiClient.get("/rates", { params });
     return res.data;
@@ -275,7 +264,6 @@ export const getRatesApi = async (params: ListParams): Promise<Paged<Rate>> => {
 export const createRateApi = async (
   input: RateInput,
 ): Promise<{ message: string; data: Rate }> => {
-  if (RATES_MOCK) return mock.createRate(input);
   try {
     const res = await apiClient.post("/rates", input);
     return res.data;
@@ -288,7 +276,6 @@ export const updateRateApi = async (
   id: string,
   input: RateInput,
 ): Promise<{ message: string; data: Rate }> => {
-  if (RATES_MOCK) return mock.updateRate(id, input);
   try {
     const res = await apiClient.patch(`/rates/${id}`, input);
     return res.data;
@@ -300,7 +287,6 @@ export const updateRateApi = async (
 export const expireRateApi = async (
   id: string,
 ): Promise<{ message: string; data: Rate }> => {
-  if (RATES_MOCK) return mock.expireRate(id);
   try {
     const res = await apiClient.post(`/rates/${id}/expire`);
     return res.data;
@@ -312,7 +298,6 @@ export const expireRateApi = async (
 export const deleteRateApi = async (
   id: string,
 ): Promise<{ message: string }> => {
-  if (RATES_MOCK) return mock.deleteRate(id);
   try {
     const res = await apiClient.delete(`/rates/${id}`);
     return res.data;
@@ -326,7 +311,6 @@ export const deleteRateApi = async (
 export const getRateRequestsApi = async (
   params: ListParams,
 ): Promise<Paged<RateRequest> & { open: number }> => {
-  if (RATES_MOCK) return mock.listRequests(params);
   try {
     const res = await apiClient.get("/rates/requests", { params });
     return res.data;
@@ -338,7 +322,6 @@ export const getRateRequestsApi = async (
 export const resolveRateRequestApi = async (
   id: string,
 ): Promise<{ message: string; data: RateRequest }> => {
-  if (RATES_MOCK) return mock.resolveRequest(id);
   try {
     const res = await apiClient.patch(`/rates/requests/${id}/resolve`);
     return res.data;
@@ -353,7 +336,6 @@ export const matchRateImportApi = async (body: {
   ports: ImportPortRef[];
   commodities: ImportCommodityRef[];
 }): Promise<ImportMatchResult> => {
-  if (RATES_MOCK) return mock.matchImport(body);
   try {
     const res = await apiClient.post("/rates/import/match", body);
     return res.data.data;
@@ -365,7 +347,6 @@ export const matchRateImportApi = async (body: {
 export const checkRateImportApi = async (
   rates: RateInput[],
 ): Promise<ImportCheck[]> => {
-  if (RATES_MOCK) return mock.checkImport(rates);
   try {
     const res = await apiClient.post("/rates/import/check", { rates });
     return res.data.data;
@@ -378,7 +359,6 @@ export const commitRateImportApi = async (body: {
   rates: { rate: RateInput; replaces: string | null }[];
   mappings: ImportMappings;
 }): Promise<ImportResult> => {
-  if (RATES_MOCK) return mock.commitImport(body);
   try {
     const res = await apiClient.post("/rates/import", body);
     return res.data;

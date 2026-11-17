@@ -8,7 +8,6 @@ import RateFormModal, {
 } from "../../../components/app/rates/admin/RateFormModal";
 import RateRequestsTable from "../../../components/app/rates/admin/RateRequestsTable";
 import RatesTable from "../../../components/app/rates/admin/RatesTable";
-import SampleDataBanner from "../../../components/app/rates/SampleDataBanner";
 import Button from "../../../components/Button";
 import { useGetRateRequests } from "../../../hooks/useRateService";
 import type { RateRequest } from "../../../services/api/rate";
@@ -104,11 +103,7 @@ const AdminRates = () => {
         </div>
       </motion.div>
 
-      <motion.div {...stagger(1)}>
-        <SampleDataBanner />
-      </motion.div>
-
-      <motion.div {...stagger(2)} className="mb-5">
+      <motion.div {...stagger(1)} className="mb-5">
         <div
           role="tablist"
           aria-label="Rates"
@@ -152,7 +147,7 @@ const AdminRates = () => {
       </motion.div>
 
       <motion.div
-        {...stagger(3)}
+        {...stagger(2)}
         id="rates-panel"
         role="tabpanel"
         aria-labelledby={`tab-${tab}`}

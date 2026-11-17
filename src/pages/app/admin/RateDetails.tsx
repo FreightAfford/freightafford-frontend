@@ -23,7 +23,6 @@ import RateFormModal, {
 import RateStatusBadge from "../../../components/app/rates/admin/RateStatusBadge";
 import RateFreeTime from "../../../components/app/rates/RateFreeTime";
 import RateTable from "../../../components/app/rates/RateTable";
-import SampleDataBanner from "../../../components/app/rates/SampleDataBanner";
 import Button from "../../../components/Button";
 import ErrorState from "../../../components/ErrorState";
 import SmallLoader from "../../../components/SmallLoader";
@@ -170,10 +169,6 @@ const AdminRateDetails = () => {
       </motion.div>
 
       <motion.div {...stagger(1)}>
-        <SampleDataBanner />
-      </motion.div>
-
-      <motion.div {...stagger(2)}>
         <dl className="grid gap-x-6 gap-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm @xl:grid-cols-2 @3xl:px-5 @4xl:grid-cols-3">
           <Fact icon={CalendarRange} label="Valid">
             <span className="tabular-nums">
@@ -208,7 +203,7 @@ const AdminRateDetails = () => {
         </dl>
       </motion.div>
 
-      <motion.section {...stagger(3)} aria-labelledby="charges-title">
+      <motion.section {...stagger(2)} aria-labelledby="charges-title">
         <h2
           id="charges-title"
           className="mb-1 text-lg font-bold text-slate-900"
@@ -223,7 +218,7 @@ const AdminRateDetails = () => {
       </motion.section>
 
       {rate.freeTime?.length ? (
-        <motion.div {...stagger(4)}>
+        <motion.div {...stagger(3)}>
           <RateFreeTime
             freeTime={rate.freeTime}
             place={rate.destination.city}
@@ -233,7 +228,7 @@ const AdminRateDetails = () => {
 
       {rate.remarks && (
         <motion.p
-          {...stagger(5)}
+          {...stagger(4)}
           className="flex items-start gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600"
         >
           <Info

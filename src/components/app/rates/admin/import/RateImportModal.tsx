@@ -81,7 +81,7 @@ const ImportWindow = ({ onClose }: { onClose: () => void }) => {
             {result.resolvedRequests
               ? `, and ${result.resolvedRequests} customer rate ${result.resolvedRequests === 1 ? "request" : "requests"} answered`
               : ""}
-            . Verified customers can see them now.
+            . Verified customers see each rate from its first valid day.
           </p>
         </div>
         <Button onClick={onClose} className="rounded-xl">

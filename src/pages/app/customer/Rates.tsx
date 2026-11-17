@@ -21,7 +21,6 @@ import PortPair from "../../../components/app/PortPair";
 import LockedRates from "../../../components/app/rates/LockedRates";
 import NoRateCard from "../../../components/app/rates/NoRateCard";
 import RateDetailView from "../../../components/app/rates/RateDetailView";
-import SampleDataBanner from "../../../components/app/rates/SampleDataBanner";
 import ListSkeleton from "../../../components/app/schedule/ListSkeleton";
 import {
   RATE_CONTAINER_SIZES,
@@ -364,8 +363,6 @@ const RateFinder = () => {
           narrows the list.
         </p>
       </motion.div>
-
-      <SampleDataBanner />
 
       {/* The search: a destination, and optionally where from */}
       <motion.div

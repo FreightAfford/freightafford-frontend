@@ -60,6 +60,8 @@ export const userSchema = z.object({
   companyAddress: z.string().optional(),
   country: z.string().optional(),
   status: z.enum(["active", "inactive", "suspended"]),
+  // Customers only: commission customers get contract rates, premium don't
+  customerTier: z.enum(["commission", "premium"]).optional(),
 });
 
 export const changePasswordSchema = z

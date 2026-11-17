@@ -21,6 +21,7 @@ import { Link, NavLink, useNavigate } from "react-router";
 import { useLogout, useUser } from "../../hooks/useAuthService";
 import { useKycStatus } from "../../hooks/useKycService";
 import cn from "../../utils/cn";
+import { isPremiumCustomer } from "../../utils/rates";
 import Logo from "../Logo";
 
 interface SidebarProps {
@@ -124,7 +125,17 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   const onLogout = () =>
     logout(undefined, { onSuccess: () => navigate("/login") });
 
-  const groups = user?.role === "admin" ? ADMIN_NAV : CUSTOMER_NAV;
+  const premium = isPremiumCustomer(user);
+  const groups =
+    user?.role === "admin"
+      ? ADMIN_NAV
+      : // Premium customers don't get contract rates
+        CUSTOMER_NAV.map((group) => ({
+          ...group,
+          items: group.items.filter(
+            (item) => !premium || item.path !== "/app/customer/rates",
+          ),
+        }));
   // A small marker on Verification until the business is verified.
   const verificationPending = isCustomer && !!status && status !== "approved";
   const close = () => setIsOpen(false);

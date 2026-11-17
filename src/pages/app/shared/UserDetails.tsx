@@ -16,6 +16,7 @@ import {
   Phone as PhoneIcon,
   Save,
   Shield,
+  Tags,
   User,
   X,
 } from "lucide-react";
@@ -36,6 +37,7 @@ import {
 } from "../../../hooks/useAuthService";
 import { useConfirm } from "../../../hooks/useConfirm";
 import cn from "../../../utils/cn";
+import { CUSTOMER_TIER_LABELS, type CustomerTier } from "../../../utils/rates";
 import {
   userSchema,
   type UserFormValues,
@@ -78,6 +80,11 @@ const UserDetails = () => {
         companyAddress: user.companyAddress || "",
         country: user.country || "",
         status: user.status,
+        // Accounts saved before customer types count as commission
+        customerTier:
+          user.role === "customer"
+            ? (user.customerTier ?? "commission")
+            : undefined,
       });
     }
   }, [user, reset]);
@@ -351,6 +358,22 @@ const UserDetails = () => {
                       </p>
                     </div>
                   </div>
+                  {user.role === "customer" && (
+                    <div className="flex grow gap-3">
+                      <Tags className="h-5.5 w-5.5 text-slate-400" />
+                      <div>
+                        <p className="text-sm text-slate-500">Customer type</p>
+                        <p className="font-medium text-slate-900">
+                          {
+                            CUSTOMER_TIER_LABELS[
+                              (user.customerTier ??
+                                "commission") as CustomerTier
+                            ]
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex grow gap-3">
                     <CalendarCheck className="h-5.5 w-5.5 text-slate-400" />
                     <div>
@@ -448,6 +471,31 @@ const UserDetails = () => {
                     />
                   )}
                 />
+                {user.role === "customer" && (
+                  <Controller
+                    control={control}
+                    name="customerTier"
+                    render={({ field }) => (
+                      <Select
+                        icon={Tags}
+                        {...field}
+                        label="Customer type"
+                        options={[
+                          {
+                            value: "commission",
+                            label: "Commission (sees contract rates)",
+                          },
+                          {
+                            value: "premium",
+                            label: "Premium (no contract rates)",
+                          },
+                        ]}
+                        error={errors.customerTier?.message}
+                        disabled={isUpdating}
+                      />
+                    )}
+                  />
+                )}
 
                 <div className="max-medium-mobile:col-span-1 col-span-2">
                   <Textarea

@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
+import { Navigate, useSearchParams } from "react-router";
 import EmptyState from "../../../components/EmptyState";
 import ErrorState from "../../../components/ErrorState";
 import Input from "../../../components/Input";
@@ -35,6 +35,7 @@ import cn from "../../../utils/cn";
 import { stagger } from "../../../utils/motion";
 import {
   formatAmount,
+  isPremiumCustomer,
   rateStatus,
   toPortLocation,
   toRatePort,
@@ -618,12 +619,17 @@ const RateFinder = () => {
   );
 };
 
-// Contract rates: staff always see them; customers once their business is
-// verified (the API will check the same).
+// Contract rates: staff always see them; commission customers once their
+// business is verified; premium customers never (the API checks the same).
 const CustomerRates = () => {
   const { user, isPending: userPending } = useUser();
   const isCustomer = user?.role === "customer";
-  const { status, isPending: kycPending } = useKycStatus(isCustomer);
+  const premium = isPremiumCustomer(user);
+  const { status, isPending: kycPending } = useKycStatus(
+    isCustomer && !premium,
+  );
+
+  if (premium) return <Navigate to="/app/customer" replace />;
 
   if (userPending || (isCustomer && kycPending))
     return (

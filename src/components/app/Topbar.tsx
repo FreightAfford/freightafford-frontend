@@ -1,6 +1,8 @@
-import { Eye, Menu, Plus, User } from "lucide-react";
+import { BadgePercent, Crown, Eye, Menu, Plus, User } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useUser } from "../../hooks/useAuthService";
+import cn from "../../utils/cn";
+import { CUSTOMER_TIER_LABELS, isPremiumCustomer } from "../../utils/rates";
 import Button from "../Button";
 
 const Topbar = ({ onMenuClick }: { onMenuClick: () => void }) => {
@@ -56,9 +58,31 @@ const Topbar = ({ onMenuClick }: { onMenuClick: () => void }) => {
               <p className="leading-none font-semibold text-slate-900 capitalize">
                 {user.fullname.split(" ")[0]} {user.fullname.split(" ")?.[1]}
               </p>
-              <p className="mt-1 text-sm text-slate-500 capitalize">
-                {user.role}
-              </p>
+              {user.role === "customer" ? (
+                // Customers see their tier instead of their role
+                <p
+                  className={cn(
+                    "mt-1 flex items-center justify-end gap-1 text-sm font-medium",
+                    isPremiumCustomer(user) ? "text-amber-600" : "text-brand",
+                  )}
+                >
+                  {isPremiumCustomer(user) ? (
+                    <Crown className="h-3.5 w-3.5" aria-hidden />
+                  ) : (
+                    <BadgePercent className="h-3.5 w-3.5" aria-hidden />
+                  )}
+                  {
+                    CUSTOMER_TIER_LABELS[
+                      isPremiumCustomer(user) ? "premium" : "commission"
+                    ]
+                  }{" "}
+                  Tier
+                </p>
+              ) : (
+                <p className="mt-1 text-sm text-slate-500 capitalize">
+                  {user.role}
+                </p>
+              )}
             </div>
           )}
 

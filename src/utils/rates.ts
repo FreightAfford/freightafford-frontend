@@ -11,6 +11,21 @@ import type { Rate, RateCharge, RatePort } from "../services/api/rate";
 
 const ISO = "YYYY-MM-DD";
 
+// Customers are commission or premium. Only commission customers get
+// contract rates (the backend checks the same); accounts saved before
+// customer types existed count as commission.
+export type CustomerTier = "commission" | "premium";
+
+export const CUSTOMER_TIER_LABELS: Record<CustomerTier, string> = {
+  commission: "Commission",
+  premium: "Premium",
+};
+
+export const isPremiumCustomer = (user?: {
+  role?: string;
+  customerTier?: string | null;
+}) => user?.role === "customer" && user.customerTier === "premium";
+
 // A rate's port in the shape the port pickers use, and back again.
 export const toPortLocation = (port: RatePort): PortLocation => ({
   code: port.code,
